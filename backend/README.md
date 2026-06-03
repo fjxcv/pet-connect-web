@@ -1,56 +1,18 @@
-# Django REST Backend for Pet Adoption App
+# 暖爪救助 · 后端
 
-## Features
-- User registration, login (JWT), profile
-- Pet CRUD, user pets, adoption requests
-- Admin endpoints for adoption requests
-- CORS enabled for React frontend
-- SQLite database, media uploads
+Django REST API，详细安装与模块说明见仓库根目录 [README.md](../README.md)。
 
-## Setup Instructions
+## 常用命令
 
-1. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+```powershell
+.\venv\Scripts\activate
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
 
-2. **Apply migrations:**
-   ```bash
-   python manage.py migrate
-   ```
+## API 说明
 
-3. **Create superuser (for admin):**
-   ```bash
-   python manage.py createsuperuser
-   ```
-
-4. **Run development server:**
-   ```bash
-   python manage.py runserver
-   ```
-
-5. **Media files:**
-   - Uploaded images are stored in `media/`.
-
-## API Endpoints
-- See `api/urls.py` for all endpoints.
-- All `/api/` endpoints require JWT token except register/login/profile.
-- Use `Authorization: Bearer <token>` header for protected routes.
-
-## Testing with Postman
-- Register: `POST /api/register/` { username, password, ... }
-- Login: `POST /api/login/` { username, password } 鈫� returns `access` token
-- Use token in `Authorization` header for all other requests
-- Test file uploads with `multipart/form-data`
-- Admin endpoints require superuser
-
-## CORS
-- CORS is enabled for all origins (see `settings.py`).
-
-## Troubleshooting
-- 401/403: Check token and permissions
-- 404: Check endpoint path
-- 500: Check request data format
-
-## Example Dummy Data
-- Use Django admin or API endpoints to create pets, etc.
+- 路由入口：`api/urls.py` 及各 app 的 `urls.py`
+- 除注册、登录等公开接口外，需在请求头携带：`Authorization: Bearer <token>`
+- 上传接口使用 `multipart/form-data`
