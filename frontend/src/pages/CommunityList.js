@@ -1,14 +1,17 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { adminAPI, communityAPI } from '../api/api';
 import AdminManageBar from '../components/AdminManageBar';
 import ModerationReasonModal from '../components/ModerationReasonModal';
 import { POST_CATEGORIES } from '../constants/site';
+import { useAuthPrompt } from '../context/AuthPromptContext';
 
 const CATEGORY_TABS = [
   { key: '', label: '全部' },
   ...Object.entries(POST_CATEGORIES).map(([key, label]) => ({ key, label })),
 ];
+
+const FAVORITES_TAB = { key: 'favorites', label: '我的收藏' }; // 新增收藏标签
 
 const ORDER_OPTIONS = [
   { key: 'latest', label: '最新发布' },
@@ -23,8 +26,11 @@ const getApiError = (err) => {
   return err.message || '请求失败';
 };
 
+const PAGE_SIZE = 10;
+
 const CommunityList = () => {
   const [posts, setPosts] = useState([]);
+  const [favoriteItems, setFavoriteItems] = useState([]);
   const [category, setCategory] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [searchQ, setSearchQ] = useState('');
@@ -34,6 +40,11 @@ const CommunityList = () => {
   const [likingId, setLikingId] = useState(null);
   const [modal, setModal] = useState(null);
   const [modalSubmitting, setModalSubmitting] = useState(false);
+  const [favoriteMode, setFavoriteMode] = useState(false);
+  const [favoritesLoading, setFavoritesLoading] = useState(false);
+  const [page, setPage] = useState(1);
+
+  const authPrompt = useAuthPrompt();
 
   useEffect(() => {
     const timer = setTimeout(() => setSearchQ(searchInput.trim()), 300);
@@ -44,22 +55,64 @@ const CommunityList = () => {
     try {
       setLoading(true);
       setError(null);
-      const params = { ordering };
+      const params = { ordering, page };
       if (category) params.category = category;
       if (searchQ) params.q = searchQ;
       const response = await communityAPI.getPosts(params);
-      setPosts(Array.isArray(response.data) ? response.data : response.data?.results ?? []);
+      const data = response.data;
+      if (Array.isArray(data)) {
+        setPosts(data);
+      } else {
+        setPosts(data?.results ?? []);
+      }
     } catch (err) {
       setError('加载帖子失败，请稍后重试。');
       console.error(err);
     } finally {
       setLoading(false);
     }
-  }, [category, searchQ, ordering]);
+  }, [category, ordering, page, searchQ]);
+
+  const fetchFavorites = useCallback(async () => {
+    try {
+      setFavoritesLoading(true);
+      setError(null);
+      const response = await communityAPI.getFavorites();
+      const data = response.data;
+      const favorites = Array.isArray(data) ? data : data?.results ?? [];
+      setFavoriteItems(favorites);
+    } catch (err) {
+      setError('加载收藏失败，请稍后重试。');
+      console.error(err);
+    } finally {
+      setFavoritesLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
+    if (favoriteMode) {
+      fetchFavorites();
+      return;
+    }
     fetchPosts();
-  }, [fetchPosts]);
+  }, [fetchPosts, fetchFavorites, favoriteMode]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchQ, ordering, favoriteMode]);
+
+  const handleCategoryTab = async (tabKey) => {
+    if (tabKey === FAVORITES_TAB.key) {
+      if (!authPrompt.requireAuth()) return;
+      setFavoriteMode(true); // 新增：进入收藏模式
+      return;
+    }
+
+    if (favoriteMode) {
+      setFavoriteMode(false); // 退出收藏模式
+    }
+    setCategory(tabKey);
+  };
 
   const openModerationModal = (type, post) => {
     if (type === 'delete') {
@@ -104,7 +157,13 @@ const CommunityList = () => {
       }
       setModal(null);
       alert(modal.type === 'delete' ? '帖子已删除' : '用户已封禁');
-      fetchPosts();
+      if (modal.type === 'delete' && favoriteMode) {
+        setFavoriteItems((prev) => prev.filter((item) => item.post?.id !== modal.post.id));
+      } else if (favoriteMode) {
+        fetchFavorites();
+      } else {
+        fetchPosts();
+      }
     } catch (err) {
       alert(getApiError(err));
     } finally {
@@ -113,10 +172,7 @@ const CommunityList = () => {
   };
 
   const handleLike = async (post) => {
-    if (!localStorage.getItem('token')) {
-      alert('请先登录后再点赞');
-      return;
-    }
+    if (!authPrompt.requireAuth()) return;
     setLikingId(post.id);
     try {
       if (post.is_liked) {
@@ -124,17 +180,34 @@ const CommunityList = () => {
       } else {
         await communityAPI.likePost(post.id);
       }
-      setPosts((prev) =>
-        prev.map((p) =>
-          p.id === post.id
-            ? {
-                ...p,
-                is_liked: !p.is_liked,
-                like_count: p.is_liked ? Math.max(0, p.like_count - 1) : p.like_count + 1,
-              }
-            : p
-        )
-      );
+      if (favoriteMode) {
+        setFavoriteItems((prev) =>
+          prev.map((item) =>
+            item.post?.id === post.id
+              ? {
+                  ...item,
+                  post: {
+                    ...item.post,
+                    is_liked: !item.post.is_liked,
+                    like_count: item.post.is_liked ? Math.max(0, item.post.like_count - 1) : item.post.like_count + 1,
+                  },
+                }
+              : item
+          )
+        );
+      } else {
+        setPosts((prev) =>
+          prev.map((p) =>
+            p.id === post.id
+              ? {
+                  ...p,
+                  is_liked: !p.is_liked,
+                  like_count: p.is_liked ? Math.max(0, p.like_count - 1) : p.like_count + 1,
+                }
+              : p
+          )
+        );
+      }
     } catch (err) {
       console.error(err);
       alert('操作失败');
@@ -142,6 +215,85 @@ const CommunityList = () => {
       setLikingId(null);
     }
   };
+
+  const handleUnfavorite = async (postId) => {
+    setLikingId(postId);
+    try {
+      await communityAPI.unfavoritePost(postId);
+      setFavoriteItems((prev) => prev.filter((item) => item.post?.id !== postId));
+    } catch (err) {
+      console.error(err);
+      alert('取消收藏失败，请重试。');
+    } finally {
+      setLikingId(null);
+    }
+  };
+
+  const filteredFavoriteItems = useMemo(() => {
+    if (!searchQ) return favoriteItems;
+    return favoriteItems.filter((item) => {
+      const post = item.post || {};
+      const target = `${post.title || ''} ${post.content || ''}`.toLowerCase();
+      return target.includes(searchQ.toLowerCase());
+    });
+  }, [favoriteItems, searchQ]);
+
+  const sortedFavoriteItems = useMemo(() => {
+    const items = [...filteredFavoriteItems];
+    if (ordering === 'likes') {
+      items.sort((a, b) => (b.post?.like_count || 0) - (a.post?.like_count || 0));
+    } else {
+      items.sort((a, b) => new Date(b.post?.created_at) - new Date(a.post?.created_at));
+    }
+    return items;
+  }, [filteredFavoriteItems, ordering]);
+
+  const pageCount = Math.max(1, Math.ceil(sortedFavoriteItems.length / PAGE_SIZE));
+  const pagedFavoriteItems = sortedFavoriteItems.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  useEffect(() => {
+    if (favoriteMode && page > pageCount) {
+      setPage(pageCount);
+    }
+  }, [favoriteMode, page, pageCount]);
+
+  const renderPagination = (count) => {
+    if (count <= 1) return null;
+    return (
+      <nav aria-label="分页导航" className="mt-3">
+        <ul className="pagination justify-content-center">
+          <li className={`page-item ${page === 1 ? 'disabled' : ''}`}>
+            <button type="button" className="page-link" onClick={() => setPage((prev) => Math.max(1, prev - 1))}>
+              上一页
+            </button>
+          </li>
+          {Array.from({ length: count }, (_, index) => (
+            <li key={index + 1} className={`page-item ${page === index + 1 ? 'active' : ''}`}>
+              <button type="button" className="page-link" onClick={() => setPage(index + 1)}>
+                {index + 1}
+              </button>
+            </li>
+          ))}
+          <li className={`page-item ${page === count ? 'disabled' : ''}`}>
+            <button type="button" className="page-link" onClick={() => setPage((prev) => Math.min(count, prev + 1))}>
+              下一页
+            </button>
+          </li>
+        </ul>
+      </nav>
+    );
+  };
+
+  const getTabClass = (tabKey) => {
+    if (favoriteMode) {
+      return tabKey === FAVORITES_TAB.key ? 'nav-link active' : 'nav-link text-muted';
+    }
+    return `nav-link ${category === tabKey ? 'active' : ''}`;
+  };
+
+  const currentPosts = favoriteMode ? pagedFavoriteItems.map((item) => item.post).filter(Boolean) : posts;
+  const currentLoading = favoriteMode ? favoritesLoading : loading;
+  const currentEmptyText = favoriteMode ? '暂无收藏的帖子' : '暂无帖子';
 
   return (
     <div className="py-3">
@@ -188,21 +340,30 @@ const CommunityList = () => {
         </div>
       </div>
 
-      <ul className="nav nav-pills mb-4 flex-wrap gap-1">
+      <ul className="nav nav-pills mb-4 tab-wrap">
         {CATEGORY_TABS.map((tab) => (
           <li className="nav-item" key={tab.key || 'all'}>
             <button
               type="button"
-              className={`nav-link ${category === tab.key ? 'active' : ''}`}
-              onClick={() => setCategory(tab.key)}
+              className={getTabClass(tab.key)}
+              onClick={() => handleCategoryTab(tab.key)}
             >
               {tab.label}
             </button>
           </li>
         ))}
+        <li className="nav-item">
+          <button
+            type="button"
+            className={getTabClass(FAVORITES_TAB.key)}
+            onClick={() => handleCategoryTab(FAVORITES_TAB.key)}
+          >
+            {FAVORITES_TAB.label} {/* 新增收藏标签 */}
+          </button>
+        </li>
       </ul>
 
-      {loading && (
+      {currentLoading && (
         <div className="text-center py-5">
           <div className="spinner-border text-success" role="status">
             <span className="visually-hidden">加载中...</span>
@@ -212,12 +373,12 @@ const CommunityList = () => {
 
       {error && <div className="alert alert-danger">{error}</div>}
 
-      {!loading && !error && (
+      {!currentLoading && !error && (
         <div className="list-group">
-          {posts.length === 0 ? (
-            <div className="text-center text-muted py-5">暂无帖子</div>
+          {currentPosts.length === 0 ? (
+            <div className="text-center text-muted py-5">{currentEmptyText}</div>
           ) : (
-            posts.map((post) => (
+            currentPosts.map((post) => (
               <div key={post.id} className="list-group-item list-group-item-action mb-2 rounded shadow-sm">
                 <AdminManageBar
                   userId={post.author?.id}
@@ -244,11 +405,12 @@ const CommunityList = () => {
                   </div>
                   <button
                     type="button"
-                    className={`btn btn-sm ms-3 flex-shrink-0 ${post.is_liked ? 'btn-danger' : 'btn-outline-danger'}`}
-                    onClick={() => handleLike(post)}
+                    className={`btn btn-sm ms-3 flex-shrink-0 ${favoriteMode ? 'btn-warning' : post.is_liked ? 'btn-danger' : 'btn-outline-danger'}`}
+                    onClick={() => (favoriteMode ? handleUnfavorite(post.id) : handleLike(post))}
                     disabled={likingId === post.id}
                   >
-                    <i className="fas fa-heart me-1"></i>{post.like_count}
+                    <i className="fas fa-heart me-1"></i>
+                    {favoriteMode ? '已收藏' : post.like_count}
                   </button>
                 </div>
               </div>
@@ -256,6 +418,10 @@ const CommunityList = () => {
           )}
         </div>
       )}
+
+      {favoriteMode && renderPagination(pageCount)}
+
+      
     </div>
   );
 };

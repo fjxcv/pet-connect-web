@@ -2,8 +2,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { authAPI, communityAPI, usersAPI } from '../api/api';
 import CommentThread from '../components/community/CommentThread';
+import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 import { POST_CATEGORIES } from '../constants/site';
 import { isAdminUser } from '../components/AdminRoute';
+import { useAuthPrompt } from '../context/AuthPromptContext';
 
 const CommunityPostDetail = () => {
   const { id } = useParams();
@@ -18,6 +20,8 @@ const CommunityPostDetail = () => {
   const [error, setError] = useState(null);
   const [submittingComment, setSubmittingComment] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const [deleteDialog, setDeleteDialog] = useState({ visible: false, message: '', onConfirm: null });
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const fetchPost = useCallback(async () => {
     const response = await communityAPI.getPost(id);
@@ -54,13 +58,7 @@ const CommunityPostDetail = () => {
     load();
   }, [fetchPost, fetchComments]);
 
-  const requireAuth = () => {
-    if (!localStorage.getItem('token')) {
-      alert('请先登录');
-      return false;
-    }
-    return true;
-  };
+  const { requireAuth } = useAuthPrompt();
 
   const canManagePost = post && currentUser && (
     post.author?.id === currentUser.id || isAdminUser(currentUser)
@@ -102,14 +100,34 @@ const CommunityPostDetail = () => {
     }
   };
 
-  const handleDeletePost = async () => {
-    if (!window.confirm('确定删除该帖子？')) return;
+  const closeDeleteDialog = () => {
+    setDeleteDialog({ visible: false, message: '', onConfirm: null });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteDialog.onConfirm) return;
+    setDeleteLoading(true);
     try {
-      await communityAPI.deletePost(id);
-      navigate('/community');
+      await deleteDialog.onConfirm();
+      closeDeleteDialog();
     } catch (err) {
-      alert(err.response?.data?.detail || '删除失败');
+      setError(err.response?.data?.detail || '删除失败');
+      console.error(err);
+    } finally {
+      setDeleteLoading(false);
     }
+  };
+
+  const handleDeletePost = () => {
+    setError(null);
+    setDeleteDialog({
+      visible: true,
+      message: '确定删除该帖子？删除后内容无法恢复',
+      onConfirm: async () => {
+        await communityAPI.deletePost(id);
+        navigate('/community');
+      },
+    });
   };
 
   const handleBlockAuthor = async () => {
@@ -176,15 +194,17 @@ const CommunityPostDetail = () => {
     }
   };
 
-  const handleCommentDelete = async (comment) => {
-    if (!window.confirm('确定删除该评论？其子回复将一并删除。')) return;
-    try {
-      await communityAPI.deleteComment(comment.id);
-      await fetchComments();
-      await fetchPost();
-    } catch (err) {
-      alert(err.response?.data?.detail || '删除失败');
-    }
+  const handleCommentDelete = (comment) => {
+    setError(null);
+    setDeleteDialog({
+      visible: true,
+      message: '确定删除该评论？其子回复将一并删除',
+      onConfirm: async () => {
+        await communityAPI.deleteComment(comment.id);
+        await fetchComments();
+        await fetchPost();
+      },
+    });
   };
 
   const handleReplyTarget = (comment) => {
@@ -322,6 +342,13 @@ const CommunityPostDetail = () => {
             submitting={submittingComment}
           />
 
+          <ConfirmDeleteModal
+            visible={deleteDialog.visible}
+            message={deleteDialog.message}
+            onClose={closeDeleteDialog}
+            onConfirm={handleConfirmDelete}
+            loading={deleteLoading}
+          />
         </div>
       </div>
 

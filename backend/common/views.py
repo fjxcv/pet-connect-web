@@ -19,8 +19,11 @@ class UploadView(APIView):
 
         ext = os.path.splitext(file_obj.name)[1].lower()
         allowed = {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.pdf'}
+        max_size = 5 * 1024 * 1024
         if ext not in allowed:
             return Response({'detail': 'Unsupported file type'}, status=status.HTTP_400_BAD_REQUEST)
+        if file_obj.size > max_size:
+            return Response({'detail': 'File size must be 5MB or smaller'}, status=status.HTTP_400_BAD_REQUEST)
 
         subdir = request.data.get('subdir', 'uploads')
         folder = os.path.join(settings.MEDIA_ROOT, subdir)

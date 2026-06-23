@@ -36,3 +36,114 @@
     transform: rotate(360deg);
   }
 }
+
+.tab-wrap {
+  display: flex;
+  flex-wrap: nowrap !important;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem;
+  margin: 0 auto 1.5rem;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.tab-wrap .nav-item {
+  flex: 0 0 auto;
+}
+
+.tab-wrap .nav-link {
+  border: none !important;
+  /* 移除胶囊圆角 999px，改为直角 */
+  border-radius: 8px !important;
+  /* 去掉默认浅灰底色，设透明 */
+  background-color: transparent;
+  color: #4b5563;
+  padding: 0.55rem 1rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+
+.tab-wrap .nav-link:hover {
+  /* 悬浮轻微加深底色，透明底色下用浅灰 hover */
+  background-color: #e5e7eb;
+}
+
+.tab-wrap .nav-link.active {
+  background-color: #28a745 !important;
+  color: #ffffff !important;
+}
+
+.tab-wrap .nav-link.text-muted {
+  opacity: 0.55;
+}
+
+.tab-wrap .nav-link.text-muted:hover {
+  opacity: 0.75;
+}
+
+.tab-wrap::-webkit-scrollbar {
+  height: 6px;
+}
+
+.tab-wrap::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 999px;
+}
+
+.upload-drop-zone {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 220px;
+  padding: 2rem 1.25rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 24px;
+  background-color: #ffffff;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.upload-drop-zone--active {
+  background-color: #ebf5ff;
+  border-color: #cbe7ff;
+}
+
+.upload-drop-zone__content {
+  max-width: 560px;
+}
+
+.upload-drop-zone__title {
+  margin-bottom: 0.75rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.upload-drop-zone__hint {
+  margin-bottom: 1.25rem;
+  color: #6b7280;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.upload-select-button {
+  background-color: #28a745;
+  border-color: #28a745;
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 0.75rem 1.4rem;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.upload-select-button:hover,
+.upload-select-button:focus {
+  background-color: #1f7e33;
+  border-color: #1f7e33;
+}
+
+.upload-file-input {
+  display: none;
+}
