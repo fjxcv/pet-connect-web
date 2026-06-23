@@ -30,12 +30,14 @@ import UserProfile from './pages/UserProfile';
 import UserPublicProfile from './pages/UserPublicProfile';
 import AdminRoute from './components/AdminRoute';
 import { ManageModeProvider } from './context/ManageModeContext';
+import { AuthPromptProvider } from './context/AuthPromptContext';
 import AiAssistantWidget from './components/AiAssistantWidget';
 
 function App() {
   return (
     <Router>
       <ManageModeProvider>
+      <AuthPromptProvider>
       <div className="App d-flex flex-column min-vh-100">
         <Navbar />
         <AiAssistantWidget />
@@ -71,6 +73,7 @@ function App() {
         </main>
         <Footer />
       </div>
+      </AuthPromptProvider>
       </ManageModeProvider>
     </Router>
   );

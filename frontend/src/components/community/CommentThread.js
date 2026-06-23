@@ -40,7 +40,6 @@ const CommentRow = ({
             type="button"
             className={`comment-action-btn${comment.is_liked ? ' active' : ''}`}
             onClick={() => onLike(comment)}
-            disabled={!currentUserId}
             title={currentUserId ? '点赞' : '登录后点赞'}
           >
             <span>赞</span>

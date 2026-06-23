@@ -14,6 +14,7 @@ const Register = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -22,6 +23,9 @@ const Register = () => {
       [name]: type === 'checkbox' ? checked : value,
     });
   };
+
+  const openPrivacyModal = () => setShowPrivacyModal(true);
+  const closePrivacyModal = () => setShowPrivacyModal(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -78,96 +82,207 @@ const Register = () => {
   };
 
   return (
-    <div className="row justify-content-center" style={{ backgroundColor: '#fdf6f0', minHeight: '100vh', padding: '2rem' }}>
-      <div className="col-md-6 col-lg-4">
-        <div className="card shadow-sm border-0" style={{ borderRadius: '20px' }}>
-          <div className="card-header text-center bg-light" style={{ borderRadius: '20px 20px 0 0' }}>
-            <h3 className="text-primary">加入 {SITE_NAME}</h3>
+    <div className="login-wrapper d-flex align-items-center justify-content-center min-vh-100">
+      <div className="login-card shadow-lg p-4 rounded-4 bg-white">
+        <div className="text-center mb-4">
+          <div className="logo-placeholder mb-3">
+            <i className="fas fa-paw fa-2x text-paw"></i>
           </div>
-          <div className="card-body">
-            <form onSubmit={handleSubmit}>
-              <div className="mb-3">
-                <label htmlFor="username" className="form-label fw-bold">用户名</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="username"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  required
-                  placeholder="例如：爱宠小助手"
-                />
-              </div>
+          <h3 className="fw-bold mt-2 text-paw">欢迎加入 {SITE_NAME}</h3>
+          <p className="text-muted">注册后即可参与社区救助与宠物分享。</p>
+        </div>
 
-              <div className="mb-3">
-                <label htmlFor="email" className="form-label">邮箱地址</label>
-                <input
-                  type="email"
-                  className="form-control"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  placeholder="yourname@example.com"
-                />
-              </div>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label htmlFor="username" className="form-label fw-semibold">用户名</label>
+            <input
+              type="text"
+              className="form-control form-control-lg rounded-3"
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              required
+              placeholder="请输入用户名"
+            />
+          </div>
 
-              <div className="mb-3">
-                <label htmlFor="password" className="form-label">设置密码</label>
-                <input
-                  type="password"
-                  className="form-control"
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  minLength={8}
-                  placeholder="至少 8 位字符"
-                />
-              </div>
+          <div className="mb-3">
+            <label htmlFor="email" className="form-label fw-semibold">邮箱地址</label>
+            <input
+              type="email"
+              className="form-control form-control-lg rounded-3"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              placeholder="请输入邮箱地址"
+            />
+          </div>
 
-              <div className="mb-3 form-check">
-                <input
-                  type="checkbox"
-                  className="form-check-input"
-                  id="has_privacy_consent"
-                  name="has_privacy_consent"
-                  checked={formData.has_privacy_consent}
-                  onChange={handleChange}
-                  required
-                />
-                <label className="form-check-label" htmlFor="has_privacy_consent">
-                  我已阅读并同意隐私政策及数据处理条款 *
-                </label>
-              </div>
+          <div className="mb-3">
+            <label htmlFor="password" className="form-label fw-semibold">设置密码</label>
+            <input
+              type="password"
+              className="form-control form-control-lg rounded-3"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              minLength={8}
+              placeholder="至少 8 位字符"
+            />
+          </div>
 
-              {error && (
-                <div className="alert alert-danger" role="alert">
-                  {error}
-                </div>
-              )}
-
+          <div className="mb-3 form-check">
+            <input
+              type="checkbox"
+              className="form-check-input"
+              id="has_privacy_consent"
+              name="has_privacy_consent"
+              checked={formData.has_privacy_consent}
+              onChange={handleChange}
+              required
+            />
+            <label className="form-check-label privacy-text" htmlFor="has_privacy_consent">
+              我已阅读并同意
+              {' '}
               <button
-                type="submit"
-                className="btn btn-success w-100"
-                disabled={loading}
+                type="button"
+                className="privacy-policy-link"
+                onClick={openPrivacyModal}
               >
-                {loading ? '注册中...' : '创建账号'}
+                隐私政策
               </button>
-            </form>
+              {' '}及数据处理条款 *
+            </label>
+          </div>
 
-            <div className="text-center mt-3">
-              <p>
-                已有账号？{' '}
-                <Link to="/login" className="text-decoration-none">立即登录</Link>
-              </p>
+          {error && (
+            <div className="alert alert-danger rounded-3" role="alert">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            className="btn btn-paw w-100 py-2 rounded-3 fw-semibold"
+            disabled={loading || !formData.has_privacy_consent}
+          >
+            {loading ? '注册中...' : '创建账号'}
+          </button>
+        </form>
+
+        <div className="text-center mt-3">
+          <p className="text-muted mb-0">
+            已有账号？{' '}
+            <Link to="/login" className="text-decoration-none text-paw fw-semibold">
+              立即登录
+            </Link>
+          </p>
+        </div>
+      </div>
+
+      {showPrivacyModal && (
+        <div
+          className="modal fade show d-block"
+          tabIndex="-1"
+          role="dialog"
+          style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
+        >
+          <div className="modal-dialog modal-dialog-centered" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">《隐私政策》</h5>
+                <button type="button" className="btn-close" onClick={closePrivacyModal} aria-label="Close" />
+              </div>
+              <div className="modal-body">
+                <p>
+                  本平台（宠物社区）严格保护用户个人隐私，本政策用于说明我们如何收集、使用、保存和保护您的个人信息。使用本站服务，即代表您同意本隐私政策全部内容。
+                </p>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={closePrivacyModal}>
+                  关闭
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
+
+      <style>{`
+        .login-wrapper {
+          background: linear-gradient(to right, #fdf0e5, #fef5ef);
+        }
+
+        .login-card {
+          max-width: 420px;
+          width: 100%;
+        }
+
+        .btn-paw {
+          background-color: #A0522D;
+          border: none;
+          color: white;
+          transition: all 0.3s ease;
+        }
+
+        .btn-paw:hover {
+          background-color: #8B4513;
+        }
+
+        .text-paw {
+          color: #A0522D;
+        }
+
+        .privacy-text {
+          font-size: 13px;
+          color: #9ca3af;
+        }
+
+        .privacy-policy-link {
+          color: #A0522D;
+          text-decoration: none;
+          background: transparent;
+          border: none;
+          padding: 0;
+          font: inherit;
+          cursor: pointer;
+        }
+
+        .privacy-policy-link:hover {
+          text-decoration: underline;
+        }
+
+        .form-control:focus {
+          border-color: #A0522D;
+          box-shadow: 0 0 0 0.2rem rgba(160, 82, 45, 0.25);
+        }
+
+        .logo-placeholder {
+          width: 60px;
+          height: 60px;
+          background: linear-gradient(135deg, #A0522D, #8B4513);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto;
+        }
+
+        .logo-placeholder i {
+          color: white;
+        }
+
+        @media (max-width: 576px) {
+          .login-card {
+            padding: 2rem 1.5rem;
+          }
+        }
+      `}</style>
     </div>
   );
 };
