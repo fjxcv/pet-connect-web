@@ -38,7 +38,7 @@ const LostFoundDetail = () => {
 
   if (error || !post) {
     return (
-      <div>
+      <div className="text-center">
         <div className="alert alert-danger">{error || '未找到该信息'}</div>
         <Link to="/lost-found" className="btn btn-outline-secondary">返回列表</Link>
       </div>
@@ -125,7 +125,7 @@ const LostFoundDetail = () => {
         </div>
       </div>
 
-      <div className="mt-4">
+      <div className="mt-4 text-center">
         <Link to="/lost-found" className="btn btn-outline-secondary">
           <i className="fas fa-arrow-left me-1"></i>返回列表
         </Link>

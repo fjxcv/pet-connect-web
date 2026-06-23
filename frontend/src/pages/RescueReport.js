@@ -86,8 +86,8 @@ const RescueReport = () => {
           discover_latitude: String(lat),
           discover_longitude: String(lng),
           discover_address: geocoded
-            ? `${geocoded}（${lat}, ${lng}）`
-            : `当前位置（${lat}, ${lng}）`,
+            ? geocoded
+            : '当前位置',
         }));
 
         if (geocoded) {
@@ -599,7 +599,7 @@ const RescueReport = () => {
         </div>
 
         {/* 底部按钮 */}
-        <div className="card-footer d-flex gap-2">
+        <div className="card-footer d-flex justify-content-center gap-2">
           <button
             type="submit"
             className="btn btn-success"

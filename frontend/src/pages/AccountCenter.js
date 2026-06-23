@@ -352,17 +352,6 @@ const AccountCenter = () => {
 
       {mainTab === 'business' && (
         <div className="row g-3">
-          {!isAdmin && (
-            <div className="col-md-4">
-              <div className="card h-100 shadow-sm">
-                <div className="card-body">
-                  <h5 className="card-title"><i className="fas fa-heart me-2 text-danger"></i>我的领养</h5>
-                  <p className="card-text text-muted small">查看领养申请进度与审核状态。</p>
-                  <Link to="/dashboard" className="btn btn-outline-primary btn-sm">进入</Link>
-                </div>
-              </div>
-            </div>
-          )}
           {isAdmin && (
             <>
               <div className="col-md-4">
@@ -392,7 +381,7 @@ const AccountCenter = () => {
               <div className="card-body">
                 <h5 className="card-title"><i className="fas fa-hand-holding-heart me-2 text-success"></i>我的救助</h5>
                 <p className="card-text text-muted small">查看我上报的救助案例。</p>
-                <Link to="/my-pets" className="btn btn-outline-success btn-sm">进入</Link>
+                <Link to="/my-rescues" className="btn btn-outline-success btn-sm">进入</Link>
               </div>
             </div>
           </div>

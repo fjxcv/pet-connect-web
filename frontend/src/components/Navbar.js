@@ -73,7 +73,6 @@ const Navbar = () => {
             <li className="nav-item"><Link className="nav-link" to="/community">{L.comm}</Link></li>
             <li className="nav-item"><Link className="nav-link" to="/rescue">{L.rescue}</Link></li>
             {token && isAdmin && <li className="nav-item"><Link className="nav-link" to="/add-pet">{L.add}</Link></li>}
-            {token && !isAdmin && <li className="nav-item"><Link className="nav-link" to="/dashboard">{L.dash}</Link></li>}
             {token && isAdmin && <li className="nav-item"><Link className="nav-link" to="/admin">{L.admin}</Link></li>}
           </ul>
           <ul className="navbar-nav align-items-center gap-2">
@@ -119,7 +118,7 @@ const Navbar = () => {
                     </li>
                   )}
                   <li><Link className="dropdown-item" to="/profile" onClick={() => setUserMenuOpen(false)}>{L.editProfile}</Link></li>
-                  {!isAdmin && <li><Link className="dropdown-item" to="/my-pets" onClick={() => setUserMenuOpen(false)}>{L.my}</Link></li>}
+                  {!isAdmin && <li><Link className="dropdown-item" to="/my-rescues" onClick={() => setUserMenuOpen(false)}>{L.my}</Link></li>}
                   {isAdmin && <li><Link className="dropdown-item" to="/admin" onClick={() => setUserMenuOpen(false)}>{L.admin}</Link></li>}
                   <li><hr className="dropdown-divider" /></li>
                   <li><button type="button" className="dropdown-item" onClick={() => { setUserMenuOpen(false); handleLogout(); }}>{L.out}</button></li>

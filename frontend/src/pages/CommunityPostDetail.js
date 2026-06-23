@@ -205,7 +205,7 @@ const CommunityPostDetail = () => {
 
   if (error || !post) {
     return (
-      <div>
+      <div className="text-center">
         <div className="alert alert-danger">{error || '未找到'}</div>
         <Link to="/community" className="btn btn-outline-secondary">返回社区</Link>
       </div>
@@ -262,7 +262,7 @@ const CommunityPostDetail = () => {
             </div>
           )}
 
-          <div className="d-flex flex-wrap gap-2 mt-4 pt-3 border-top">
+          <div className="d-flex flex-wrap justify-content-center gap-2 mt-4 pt-3 border-top">
             <button
               type="button"
               className={`btn btn-sm ${post.is_liked ? 'btn-danger' : 'btn-outline-danger'}`}
@@ -325,7 +325,7 @@ const CommunityPostDetail = () => {
         </div>
       </div>
 
-      <div className="mt-4">
+      <div className="mt-4 text-center">
         <Link to="/community" className="btn btn-outline-secondary">
           <i className="fas fa-arrow-left me-1" />返回社区
         </Link>

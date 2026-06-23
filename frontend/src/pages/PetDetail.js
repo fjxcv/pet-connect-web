@@ -224,7 +224,7 @@ const PetDetail = () => {
 
   if (error || !pet) {
     return (
-      <div className="container py-4">
+      <div className="container py-4 text-center">
         <div className="alert alert-danger" role="alert">
           {error || '未找到该宠物。'}
         </div>

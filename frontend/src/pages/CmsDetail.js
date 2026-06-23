@@ -68,7 +68,7 @@ const CmsDetail = () => {
 
   if (error || !article) {
     return (
-      <div>
+      <div className="text-center">
         <div className="alert alert-danger">{error || '文章未找到'}</div>
         <Link to="/cms" className="btn btn-outline-secondary">返回列表</Link>
       </div>
@@ -111,7 +111,7 @@ const CmsDetail = () => {
         </div>
       </article>
 
-      <div className="mt-4 d-flex flex-wrap gap-2">
+      <div className="mt-4 d-flex flex-wrap justify-content-center gap-2">
         <button
           type="button"
           className={`btn ${article.is_favorited ? 'btn-warning' : 'btn-outline-warning'}`}

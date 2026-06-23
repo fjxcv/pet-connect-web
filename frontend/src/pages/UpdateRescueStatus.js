@@ -247,7 +247,7 @@ const UpdateRescueStatus = () => {
               )}
 
               {/* 底部按钮 */}
-              <div className="d-flex gap-2">
+              <div className="d-flex justify-content-center gap-2">
                 <button
                   className="btn btn-success"
                   type="button"

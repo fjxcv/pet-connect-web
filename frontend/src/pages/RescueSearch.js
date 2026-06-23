@@ -88,12 +88,12 @@ const RescueSearch = () => {
                 {results.map((item) => (
                   <button
                     key={item.id}
-                    className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                    className="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3"
                     type="button"
                     onClick={() => navigate(`/rescue/${item.id}`)}
                   >
-                    <span className="fw-bold">{item.rescue_no}</span>
-                    <span className={`badge bg-${STATUS_COLOR[item.current_status] || 'secondary'}`}>
+                    <span className="fw-bold fs-6">{item.rescue_no}</span>
+                    <span className={`badge bg-${STATUS_COLOR[item.current_status] || 'secondary'} fs-6`}>
                       {RESCUE_STATUS[item.current_status] || item.current_status}
                     </span>
                   </button>
@@ -108,7 +108,7 @@ const RescueSearch = () => {
           )}
 
           {/* 返回按钮 */}
-          <div className="text-center mt-4">
+          <div className="text-center mt-5 pt-2">
             <button
               className="btn btn-outline-success"
               onClick={() => navigate('/rescue')}

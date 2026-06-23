@@ -17,6 +17,12 @@ const saveMyRescues = (records) => {
   localStorage.setItem(MY_RESCUES_KEY, JSON.stringify(records));
 };
 
+// 去掉经纬度（格式如 "地址（30.123, 104.456）"）
+const stripCoord = (addr) => {
+  if (!addr) return addr;
+  return addr.replace(/（\d+\.?\d*,\s*\d+\.?\d*）$/, '').trim();
+};
+
 // 根据新字段构建描述文本
 const buildDescription = (item) => {
   const hasNewFields = item.size_category || item.health_status || item.nickname || item.contact;
@@ -26,7 +32,7 @@ const buildDescription = (item) => {
   }
 
   const name = item.nickname || '某用户';
-  const location = item.discover_address || '某处';
+  const location = stripCoord(item.discover_address) || '某处';
 
   const narrative = `${name}在${location}发现一只流浪动物，待人前来救助...`;
 

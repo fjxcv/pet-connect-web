@@ -21,7 +21,7 @@ import LostFoundList from './pages/LostFoundList';
 import LostFoundPublish from './pages/LostFoundPublish';
 import ApplicationDetail from './pages/ApplicationDetail';
 import MyApplications from './pages/MyApplications';
-import MyPets from './pages/MyPets';
+
 import AdoptApplication from './pages/AdoptApplication';
 import PetDetail from './pages/PetDetail';
 import PetList from './pages/PetList';
@@ -76,7 +76,7 @@ function App() {
               <Route path="/users/:id" element={<UserPublicProfile />} />
               <Route path="/account" element={<ProtectedRoute><AccountCenter /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
-              <Route path="/my-pets" element={<ProtectedRoute><MyPets /></ProtectedRoute>} />
+
               <Route path="/my-applications" element={<ProtectedRoute><MyApplications /></ProtectedRoute>} />
               <Route path="/my-applications/:id" element={<ProtectedRoute><ApplicationDetail /></ProtectedRoute>} />
               <Route path="/login" element={<Login />} />
