@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Carousel } from 'bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { aiAPI, portalAPI, uploadAPI } from '../api/api';
 import BreedDetectResult from '../components/BreedDetectResult';
 import { SITE_NAME } from '../constants/site';
@@ -28,6 +28,7 @@ const PET_CATEGORIES = [
 ];
 
 const Home = () => {
+  const navigate = useNavigate();
   const [carouselItems, setCarouselItems] = useState([]);
   const [carouselLoading, setCarouselLoading] = useState(true);
   const carouselRef = useRef(null);
@@ -346,10 +347,21 @@ const Home = () => {
               <i className="fas fa-search me-2 btn-icon"></i>
               浏览宠物
             </Link>
-            <Link to="/register" className="btn btn-outline-secondary btn-lg px-4 py-3 shadow hero-btn">
+            <button
+              type="button"
+              className="btn btn-outline-secondary btn-lg px-4 py-3 shadow hero-btn"
+              onClick={() => {
+                const token = localStorage.getItem('token');
+                if (token) {
+                  navigate('/community');
+                } else {
+                  navigate('/register');
+                }
+              }}
+            >
               <i className="fas fa-users me-2 btn-icon"></i>
               加入社区
-            </Link>
+            </button>
           </div>
         </div>
       </div>

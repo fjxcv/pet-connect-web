@@ -501,7 +501,7 @@ const LostFoundList = () => {
                     )}
                     {Number(post.reward_amount) > 0 && (
                       <p className="small text-warning mb-2">
-                        <i className="fas fa-coins me-1"></i>悬赏 {post.reward_amount} 兄
+                        <i className="fas fa-coins me-1"></i>悬赏 {post.reward_amount} 元
                       </p>
                     )}
                     <div className="d-flex gap-2 mt-2">

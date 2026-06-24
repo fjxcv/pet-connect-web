@@ -6,7 +6,9 @@ import { ARTICLE_TYPES } from '../constants/site';
 
 const TYPE_TABS = [
   { key: '', label: '全部' },
-  ...Object.entries(ARTICLE_TYPES).map(([key, label]) => ({ key, label })),
+  ...Object.entries(ARTICLE_TYPES)
+    .filter(([key]) => key !== 'law')
+    .map(([key, label]) => ({ key, label })),
 ];
 
 // 文章状态：0=草稿，1=已发布，2=已下线（仅管理员能在前台看到非已发布文章）
