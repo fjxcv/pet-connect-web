@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Carousel } from 'bootstrap';
 import { Link } from 'react-router-dom';
 import { aiAPI, portalAPI, uploadAPI } from '../api/api';
 import BreedDetectResult from '../components/BreedDetectResult';
@@ -8,6 +9,8 @@ import catImg from '../Photo/cat.webp';
 import dogImg from '../Photo/dog.webp';
 import fishImg from '../Photo/fish.webp';
 import rabbitImg from '../Photo/rabbit.jpeg';
+
+const toList = (data) => (Array.isArray(data) ? data : data?.results ?? []);
 
 const STATS_CONFIG = [
   { key: 'total_rescued', label: '累计救助', icon: 'fa-check-circle', color: 'success' },
@@ -27,6 +30,7 @@ const PET_CATEGORIES = [
 const Home = () => {
   const [carouselItems, setCarouselItems] = useState([]);
   const [carouselLoading, setCarouselLoading] = useState(true);
+  const carouselRef = useRef(null);
   const [aiImageUrl, setAiImageUrl] = useState('');
   const [aiDesc, setAiDesc] = useState('');
   const [aiDetectData, setAiDetectData] = useState(null);
@@ -52,7 +56,7 @@ const Home = () => {
     const fetchCarousel = async () => {
       try {
         const response = await portalAPI.getCarousel();
-        const items = (response.data || []).map((item) => ({
+        const items = toList(response.data).map((item) => ({
           ...item,
           title: normalizeCarouselTitle(item.title),
         }));
@@ -65,6 +69,16 @@ const Home = () => {
     };
     fetchCarousel();
   }, []);
+
+  // 轮播是异步渲染的，Bootstrap 的 data-bs-ride 不会自动初始化，故手动启用自动轮播
+  useEffect(() => {
+    if (carouselLoading || carouselItems.length === 0 || !carouselRef.current) return undefined;
+    const instance = Carousel.getOrCreateInstance(carouselRef.current, { interval: 5000, ride: 'carousel' });
+    instance.cycle();
+    return () => {
+      try { instance.dispose(); } catch (e) { /* element already unmounted */ }
+    };
+  }, [carouselLoading, carouselItems]);
 
   const fetchStats = useCallback(async () => {
     setStatsLoading(true);
@@ -106,7 +120,7 @@ const Home = () => {
     <div>
       {/* 轮播图 */}
       {!carouselLoading && carouselItems.length > 0 && (
-        <div id="homeCarousel" className="carousel slide mb-4" data-bs-ride="carousel">
+        <div id="homeCarousel" ref={carouselRef} className="carousel slide mb-4">
           <div className="carousel-indicators">
             {carouselItems.map((item, index) => (
               <button

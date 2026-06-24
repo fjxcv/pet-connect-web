@@ -9,6 +9,12 @@ const TYPE_TABS = [
   ...Object.entries(ARTICLE_TYPES).map(([key, label]) => ({ key, label })),
 ];
 
+// 文章状态：0=草稿，1=已发布，2=已下线（仅管理员能在前台看到非已发布文章）
+const STATUS_BADGES = {
+  0: { label: '草稿', className: 'bg-secondary' },
+  2: { label: '已下线', className: 'bg-danger' },
+};
+
 const CmsList = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -41,6 +47,12 @@ const CmsList = () => {
   useEffect(() => {
     fetchArticles();
   }, [fetchArticles]);
+
+  // 就地更新某篇文章的状态，便于下线/上线后立即反映在卡片上
+  const patchArticleStatus = async (id, status) => {
+    await cmsAPI.updateArticle(id, { status });
+    setArticles((list) => list.map((a) => (a.id === id ? { ...a, status } : a)));
+  };
 
   // 实时搜索：输入变化后延迟 300ms 自动搜索
   const handleInputChange = (e) => {
@@ -94,7 +106,7 @@ const CmsList = () => {
         ))}
       </ul>
 
-      {/* 搜索栏 */}
+      {/* 搜索框 */}
       <div className="mb-4">
         <form onSubmit={handleSearch}>
           <div className="input-group" style={{ maxWidth: '400px' }}>
@@ -130,47 +142,54 @@ const CmsList = () => {
               {searchKeyword ? '未找到匹配的文章' : '暂无文章'}
             </div>
           ) : (
-            articles.map((article) => (
-              <div key={article.id} className="col-md-6 col-lg-4 mb-4">
-                <div className="card h-100 shadow-sm">
-                  {article.cover_url && (
-                    <img
-                      src={article.cover_url}
-                      className="card-img-top"
-                      alt={article.title}
-                      style={{ height: '180px', objectFit: 'cover' }}
-                    />
-                  )}
-                  <div className="card-body d-flex flex-column">
-                    <AdminManageBar
-                      onEdit={() => navigate('/admin?tab=cms')}
-                      onHide={async () => {
-                        await cmsAPI.updateArticle(article.id, { status: 2 });
-                        setArticles((list) => list.filter((a) => a.id !== article.id));
-                      }}
-                    />
-                    <div className="mb-2">
-                      <span className="badge bg-success me-1">
-                        {ARTICLE_TYPES[article.article_type] || article.article_type}
-                      </span>
-                      {article.is_pinned && <span className="badge bg-warning text-dark">置顶</span>}
-                    </div>
-                    <h5 className="card-title">{article.title}</h5>
-                    <p className="card-text text-muted small flex-grow-1">
-                      {article.summary || article.content?.slice(0, 100)}
-                    </p>
-                    <div className="d-flex justify-content-between align-items-center mt-2">
-                      <small className="text-muted">
-                        <i className="fas fa-eye me-1"></i>{article.view_count || 0}
-                      </small>
-                      <Link to={`/cms/${article.id}`} className="btn btn-outline-success btn-sm">
-                        阅读全文
-                      </Link>
+            articles.map((article) => {
+              const statusBadge = STATUS_BADGES[article.status];
+              const isOffline = !!statusBadge;
+              return (
+                <div key={article.id} className="col-md-6 col-lg-4 mb-4">
+                  <div className={`card h-100 shadow-sm${isOffline ? ' cms-card--offline' : ''}`}>
+                    {article.cover_url && (
+                      <img
+                        src={article.cover_url}
+                        className="card-img-top"
+                        alt={article.title}
+                        style={{ height: '180px', objectFit: 'cover' }}
+                      />
+                    )}
+                    <div className="card-body d-flex flex-column">
+                      <AdminManageBar
+                        onEdit={() => navigate('/admin?tab=cms')}
+                        onHide={article.status !== 2 ? () => patchArticleStatus(article.id, 2) : undefined}
+                        onPublish={article.status !== 1 ? () => patchArticleStatus(article.id, 1) : undefined}
+                      />
+                      <div className="mb-2 d-flex flex-wrap align-items-center gap-1">
+                        <span className="badge bg-success">
+                          {ARTICLE_TYPES[article.article_type] || article.article_type}
+                        </span>
+                        {article.is_pinned && <span className="badge bg-warning text-dark">置顶</span>}
+                        {statusBadge && (
+                          <span className={`badge ${statusBadge.className}`}>
+                            <i className="fas fa-eye-slash me-1"></i>{statusBadge.label}
+                          </span>
+                        )}
+                      </div>
+                      <h5 className="card-title">{article.title}</h5>
+                      <p className="card-text text-muted small flex-grow-1">
+                        {article.summary || article.content?.slice(0, 100)}
+                      </p>
+                      <div className="d-flex justify-content-between align-items-center mt-2">
+                        <small className="text-muted">
+                          <i className="fas fa-eye me-1"></i>{article.view_count || 0}
+                        </small>
+                        <Link to={`/cms/${article.id}`} className="btn btn-outline-success btn-sm">
+                          阅读全文
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       )}

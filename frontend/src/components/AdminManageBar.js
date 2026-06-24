@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useManageMode } from '../context/ManageModeContext';
 
-const AdminManageBar = ({ userId, onEdit, onHide, onDelete, onBanUser, extra, compact }) => {
+const AdminManageBar = ({ userId, onEdit, onHide, onPublish, onDelete, onBanUser, extra, compact }) => {
   const { canManage } = useManageMode();
   if (!canManage) return null;
 
@@ -13,7 +13,10 @@ const AdminManageBar = ({ userId, onEdit, onHide, onDelete, onBanUser, extra, co
         <button type="button" className="btn btn-outline-primary btn-sm" onClick={onEdit}>编辑</button>
       )}
       {onHide && (
-        <button type="button" className="btn btn-outline-secondary btn-sm" onClick={onHide}>隐藏</button>
+        <button type="button" className="btn btn-outline-secondary btn-sm" onClick={onHide}>下线</button>
+      )}
+      {onPublish && (
+        <button type="button" className="btn btn-outline-success btn-sm" onClick={onPublish}>重新上线</button>
       )}
       {onDelete && (
         <button type="button" className="btn btn-outline-danger btn-sm" onClick={onDelete}>删除</button>
