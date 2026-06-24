@@ -2,6 +2,7 @@ import random
 import string
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.utils import timezone
@@ -73,12 +74,24 @@ def create_verification_code(email, purpose):
         purpose=purpose,
         expires_at=timezone.now() + timedelta(minutes=15),
     )
+    if purpose == 'reset_password':
+        recipient = settings.PASSWORD_RESET_CODE_RECIPIENT
+        subject = '\u3010\u6d41\u6d6a\u5ba0\u7269\u6551\u52a9\u5e73\u53f0\u3011\u5bc6\u7801\u91cd\u7f6e\u9a8c\u8bc1\u7801'
+        message = (
+            f'\u60a8\u6b63\u5728\u7533\u8bf7\u91cd\u7f6e\u8d26\u53f7\u90ae\u7bb1\u4e3a {email} \u7684\u5bc6\u7801\u3002\n'
+            f'\u9a8c\u8bc1\u7801\uff1a{code}\n'
+            f'\u6709\u6548\u671f 15 \u5206\u949f\u3002\u5982\u975e\u672c\u4eba\u64cd\u4f5c\u8bf7\u5ffd\u7565\u3002'
+        )
+    else:
+        recipient = email
+        subject = 'PetRescue Verification Code'
+        message = f'Your verification code is: {code}. Valid for 15 minutes.'
     send_mail(
-        subject='PetRescue Verification Code',
-        message=f'Your verification code is: {code}. Valid for 15 minutes.',
-        from_email=None,
-        recipient_list=[email],
-        fail_silently=True,
+        subject=subject,
+        message=message,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[recipient],
+        fail_silently=False,
     )
     return code
 
@@ -92,7 +105,12 @@ class PasswordResetRequestSerializer(serializers.Serializer):
         return value
 
     def save(self):
-        create_verification_code(self.validated_data['email'], 'reset_password')
+        try:
+            create_verification_code(self.validated_data['email'], 'reset_password')
+        except Exception as exc:
+            raise serializers.ValidationError(
+                {'detail': '\u9a8c\u8bc1\u7801\u90ae\u4ef6\u53d1\u9001\u5931\u8d25\uff0c\u8bf7\u7a0d\u540e\u91cd\u8bd5'}
+            ) from exc
 
 
 class PasswordResetConfirmSerializer(serializers.Serializer):

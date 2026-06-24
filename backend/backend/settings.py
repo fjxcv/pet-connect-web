@@ -115,7 +115,28 @@ SIMPLE_JWT = {
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@petrescue.local')
+def _env_bool(key, default=False):
+    return os.environ.get(key, str(default)).lower() in ('true', '1', 'yes')
+
+
+EMAIL_SMTP_ENABLED = _env_bool('EMAIL_SMTP_ENABLED', False)
+
+if EMAIL_SMTP_ENABLED:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = os.environ.get('EMAIL_SMTP_HOST', 'smtp.qq.com')
+    EMAIL_PORT = int(os.environ.get('EMAIL_SMTP_PORT', '587'))
+    EMAIL_HOST_USER = os.environ.get('EMAIL_SMTP_USER', '')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_SMTP_PASSWORD', '')
+    EMAIL_USE_TLS = _env_bool('EMAIL_SMTP_USE_TLS', True)
+    EMAIL_USE_SSL = _env_bool('EMAIL_SMTP_USE_SSL', False)
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL') or EMAIL_HOST_USER or 'noreply@petrescue.local'
+else:
+    EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@petrescue.local')
+
+# 忘记密码验证码固定发往此邮箱（用户仍用注册邮箱申请与校验）
+PASSWORD_RESET_CODE_RECIPIENT = os.environ.get(
+    'PASSWORD_RESET_CODE_RECIPIENT', '1714929806@qq.com'
+)
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

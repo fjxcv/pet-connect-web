@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authAPI } from '../api/api';
 
+const RESET_CODE_MAILBOX = '1714929806@qq.com';
+
 const ForgotPassword = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -20,10 +22,10 @@ const ForgotPassword = () => {
     setMessage('');
     try {
       await authAPI.passwordResetRequest(email);
-      setMessage('验证码已发送至您的邮箱，请查收。');
+      setMessage(`验证码已发送至指定邮箱 ${RESET_CODE_MAILBOX}，请查收后在此输入验证码。`);
       setStep(2);
     } catch (err) {
-      const detail = err.response?.data?.email?.[0] || err.response?.data?.detail || '发送失败，请检查邮箱是否正确。';
+      const detail = err.response?.data?.email?.[0] || err.response?.data?.detail || '发送失败，请检查邮箱是否注册或稍后重试。';
       setError(detail);
     } finally {
       setLoading(false);
@@ -64,7 +66,9 @@ const ForgotPassword = () => {
           <i className="fas fa-key fa-2x text-success mb-3"></i>
           <h3 className="fw-bold">找回密码</h3>
           <p className="text-muted small">
-            {step === 1 ? '输入注册邮箱获取验证码' : '输入验证码和新密码'}
+            {step === 1
+              ? '输入注册邮箱申请重置，验证码将发送至指定邮箱'
+              : '输入验证码和新密码'}
           </p>
         </div>
 
