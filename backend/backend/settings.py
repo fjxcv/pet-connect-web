@@ -115,6 +115,7 @@ SIMPLE_JWT = {
 
 CORS_ALLOW_ALL_ORIGINS = True
 
+<<<<<<< HEAD
 # Optional SMTP configuration (enable with EMAIL_SMTP_ENABLED=True)
 if os.environ.get('EMAIL_SMTP_ENABLED', 'False').lower() == 'true':
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -129,4 +130,9 @@ if os.environ.get('EMAIL_SMTP_ENABLED', 'False').lower() == 'true':
 else:
     EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
     DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@petrescue.local')
+=======
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@petrescue.local')
+
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

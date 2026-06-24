@@ -1,9 +1,22 @@
 import React, { useEffect, useState } from 'react';
+<<<<<<< HEAD
 import { useNavigate } from 'react-router-dom';
 import { aiAPI, authAPI, petsAPI, rescueAPI, uploadAPI } from '../api/api';
 
 const AddPet = () => {
   const navigate = useNavigate();
+=======
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { aiAPI, authAPI, petsAPI, rescueAPI, uploadAPI } from '../api/api';
+import CmsMarkdownEditor from '../components/CmsMarkdownEditor';
+import LocationAutocomplete from '../components/LocationAutocomplete';
+
+const AddPet = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get('edit');
+  const isEditMode = Boolean(editId);
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
   const [authorized, setAuthorized] = useState(false);
   const [authChecking, setAuthChecking] = useState(true);
   const [rescueCases, setRescueCases] = useState([]);
@@ -13,9 +26,23 @@ const AddPet = () => {
     breed: '',
     age_months: '',
     gender: 'unknown',
+<<<<<<< HEAD
     health_status: '',
     description: '',
     photo_url: '',
+=======
+    size_category: '',
+    health_status: '',
+    description: '',
+    photo_url: '',
+    country: '中国',
+    province: '',
+    city: '',
+    district: '',
+    location_text: '',
+    latitude: null,
+    longitude: null,
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
     is_public: true,
     rescue_case: '',
   });
@@ -23,6 +50,10 @@ const AddPet = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+<<<<<<< HEAD
+=======
+  const [initialLoading, setInitialLoading] = useState(false);
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -48,6 +79,46 @@ const AddPet = () => {
     checkAdmin();
   }, [navigate]);
 
+<<<<<<< HEAD
+=======
+  useEffect(() => {
+    if (!isEditMode || !authorized) return;
+    const loadPet = async () => {
+      try {
+        setInitialLoading(true);
+        const res = await petsAPI.getById(editId);
+        const pet = res.data || {};
+        setForm((prev) => ({
+          ...prev,
+          name: pet.name || '',
+          species: pet.species || '',
+          breed: pet.breed || '',
+          age_months: pet.age_months ?? '',
+          gender: pet.gender || 'unknown',
+          size_category: pet.size_category || '',
+          health_status: pet.health_status || '',
+          description: pet.description || '',
+          photo_url: pet.photo_url || '',
+          country: pet.country || '中国',
+          province: pet.province || '',
+          city: pet.city || '',
+          district: pet.district || '',
+          location_text: pet.location_text || pet.rescue_case_address || '',
+          latitude: pet.latitude ?? null,
+          longitude: pet.longitude ?? null,
+          is_public: typeof pet.is_public === 'boolean' ? pet.is_public : true,
+          rescue_case: pet.rescue_case ? String(pet.rescue_case) : '',
+        }));
+      } catch (err) {
+        setError('加载待编辑档案失败，请重试');
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+    loadPet();
+  }, [authorized, editId, isEditMode]);
+
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({
@@ -56,6 +127,16 @@ const AddPet = () => {
     }));
   };
 
+<<<<<<< HEAD
+=======
+  const handleLocationChange = (location) => {
+    setForm((prev) => ({
+      ...prev,
+      ...location,
+    }));
+  };
+
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
   const handlePhotoChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -64,7 +145,11 @@ const AddPet = () => {
       const response = await uploadAPI.upload(file, 'pets');
       setForm((prev) => ({ ...prev, photo_url: response.data.url }));
     } catch (err) {
+<<<<<<< HEAD
       setError('照片上传失败，请重试。');
+=======
+      setError('照片上传失败，请重试');
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
       console.error(err);
     } finally {
       setPhotoUploading(false);
@@ -77,24 +162,56 @@ const AddPet = () => {
     setError('');
     setSuccess(false);
     try {
+<<<<<<< HEAD
+=======
+      if (!form.country || !form.province || !form.city || !form.location_text) {
+        throw new Error('请先选择完整地区（国家/省/市/详细地点）');
+      }
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
       const payload = {
         name: form.name,
         species: form.species,
         breed: form.breed || null,
         age_months: form.age_months ? Number(form.age_months) : null,
         gender: form.gender,
+<<<<<<< HEAD
         health_status: form.health_status || null,
         description: form.description || null,
         photo_url: form.photo_url || null,
+=======
+        size_category: form.size_category || null,
+        health_status: form.health_status || null,
+        description: form.description || null,
+        photo_url: form.photo_url || null,
+        country: form.country,
+        province: form.province,
+        city: form.city,
+        district: form.district || null,
+        location_text: form.location_text,
+        latitude: form.latitude,
+        longitude: form.longitude,
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
         is_public: form.is_public,
         adoption_status: 'available',
       };
       if (form.rescue_case) payload.rescue_case = Number(form.rescue_case);
+<<<<<<< HEAD
       await petsAPI.create(payload);
       setSuccess(true);
       setTimeout(() => navigate('/pets'), 1500);
     } catch (err) {
       setError('添加宠物档案失败，请重试。');
+=======
+      if (isEditMode) {
+        await petsAPI.update(editId, payload);
+      } else {
+        await petsAPI.create(payload);
+      }
+      setSuccess(true);
+      setTimeout(() => navigate('/pets'), 1500);
+    } catch (err) {
+      setError(err.response?.data?.detail || err.message || '添加宠物档案失败，请重试');
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
       console.error(err);
     } finally {
       setLoading(false);
@@ -110,6 +227,18 @@ const AddPet = () => {
     );
   }
 
+<<<<<<< HEAD
+=======
+  if (initialLoading) {
+    return (
+      <div className="text-center py-5">
+        <div className="spinner-border text-success" role="status"></div>
+        <p className="mt-2">正在加载档案...</p>
+      </div>
+    );
+  }
+
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
   if (!authorized) return null;
 
   return (
@@ -118,7 +247,14 @@ const AddPet = () => {
         <div className="col-md-8 col-lg-7">
           <div className="card shadow-lg border-0">
             <div className="card-header bg-success text-white text-center">
+<<<<<<< HEAD
               <h3><i className="fas fa-plus-circle me-2"></i>添加宠物档案</h3>
+=======
+              <h3>
+                <i className={`fas ${isEditMode ? 'fa-pen-to-square' : 'fa-plus-circle'} me-2`}></i>
+                {isEditMode ? '编辑档案' : '添加宠物档案'}
+              </h3>
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
             </div>
             <div className="card-body p-4">
               <form onSubmit={handleSubmit}>
@@ -159,6 +295,38 @@ const AddPet = () => {
                     <label className="form-label fw-bold">健康状况</label>
                     <input type="text" className="form-control" name="health_status" value={form.health_status} onChange={handleChange} placeholder="例如：已驱虫疫苗" />
                   </div>
+<<<<<<< HEAD
+=======
+                  <div className="col-md-6">
+                    <label className="form-label fw-bold">体型</label>
+                    <select className="form-select" name="size_category" value={form.size_category} onChange={handleChange}>
+                      <option value="">请选择</option>
+                      <option value="small">小型</option>
+                      <option value="medium">中型</option>
+                      <option value="large">大型</option>
+                    </select>
+                  </div>
+                  <div className="col-md-6">
+                    <label className="form-label fw-bold">地区 *</label>
+                    <LocationAutocomplete
+                      required
+                      defaultCity={form.city || '成都'}
+                      value={form}
+                      onChange={handleLocationChange}
+                      placeholder="请输入小区/街道/地标并选择候选地点"
+                    />
+                  </div>
+                  <div className="col-md-6">
+                    <label className="form-label fw-bold">国家 / 省 / 市</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={[form.country, form.province, form.city].filter(Boolean).join(' / ')}
+                      readOnly
+                      placeholder="选择地点后自动填写"
+                    />
+                  </div>
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
                   <div className="col-md-12">
                     <label className="form-label fw-bold">描述</label>
                     <div className="mb-2">
@@ -187,7 +355,16 @@ const AddPet = () => {
                         } catch (err) { alert(err.response?.data?.detail || 'AI 失败'); }
                       }}>AI 生成领养文案</button>
                     </div>
+<<<<<<< HEAD
                     <textarea className="form-control" name="description" value={form.description} onChange={handleChange} rows="4" placeholder="性格、习惯、注意事项等..." />
+=======
+                    <CmsMarkdownEditor
+                      value={form.description}
+                      onChange={(v) => setForm((f) => ({ ...f, description: v }))}
+                      rows={8}
+                      minPreviewHeight={200}
+                    />
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
                   </div>
                   <div className="col-md-12">
                     <label className="form-label fw-bold">照片</label>
@@ -220,11 +397,23 @@ const AddPet = () => {
                 </div>
 
                 {error && <div className="alert alert-danger mt-3">{error}</div>}
+<<<<<<< HEAD
                 {success && <div className="alert alert-success mt-3">添加成功，正在跳转...</div>}
 
                 <div className="d-grid gap-2 mt-4">
                   <button type="submit" className="btn btn-success btn-lg" disabled={loading || photoUploading}>
                     {loading ? '提交中...' : '提交档案'}
+=======
+                {success && (
+                  <div className="alert alert-success mt-3">
+                    {isEditMode ? '保存成功，正在跳转...' : '添加成功，正在跳转...'}
+                  </div>
+                )}
+
+                <div className="d-grid gap-2 mt-4">
+                  <button type="submit" className="btn btn-success btn-lg" disabled={loading || photoUploading}>
+                    {loading ? '提交中...' : (isEditMode ? '保存修改' : '提交档案')}
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
                   </button>
                   <button type="button" className="btn btn-outline-secondary" onClick={() => navigate('/pets')} disabled={loading}>
                     返回列表

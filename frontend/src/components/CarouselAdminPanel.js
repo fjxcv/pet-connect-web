@@ -125,6 +125,27 @@ const CarouselAdminPanel = () => {
     }
   };
 
+<<<<<<< HEAD
+=======
+  const handleMove = async (index, dir) => {
+    const next = index + dir;
+    if (next < 0 || next >= items.length) return;
+    const reordered = [...items];
+    [reordered[index], reordered[next]] = [reordered[next], reordered[index]];
+    try {
+      await Promise.all(
+        reordered
+          .map((it, i) => (it.sort_order === i ? null : portalAPI.updateCarousel(it.id, { sort_order: i })))
+          .filter(Boolean)
+      );
+      setItems(reordered.map((it, i) => ({ ...it, sort_order: i })));
+    } catch (err) {
+      alert('排序失败');
+      loadItems();
+    }
+  };
+
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
   const handleDelete = async (id) => {
     if (!window.confirm('确定删除该轮播项？')) return;
     try {
@@ -224,7 +245,11 @@ const CarouselAdminPanel = () => {
             </tr>
           </thead>
           <tbody>
+<<<<<<< HEAD
             {items.map((item) => (
+=======
+            {items.map((item, index) => (
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
               <tr key={item.id}>
                 <td>
                   {item.image_url ? (
@@ -237,6 +262,11 @@ const CarouselAdminPanel = () => {
                 <td>{item.status === 1 ? <span className="badge bg-success">上线</span> : <span className="badge bg-secondary">下线</span>}</td>
                 <td>
                   <div className="btn-group btn-group-sm">
+<<<<<<< HEAD
+=======
+                    <button type="button" className="btn btn-outline-secondary" onClick={() => handleMove(index, -1)} disabled={index === 0} title="上移">↑</button>
+                    <button type="button" className="btn btn-outline-secondary" onClick={() => handleMove(index, 1)} disabled={index === items.length - 1} title="下移">↓</button>
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
                     <button type="button" className="btn btn-outline-primary" onClick={() => openEditor(item)}>编辑</button>
                     <button type="button" className="btn btn-outline-danger" onClick={() => handleDelete(item.id)}>删除</button>
                   </div>

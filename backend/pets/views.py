@@ -1,3 +1,9 @@
+<<<<<<< HEAD
+=======
+import math
+
+from django.db.models import Q
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
 from django.utils import timezone
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
@@ -30,7 +36,11 @@ class PetProfileViewSet(viewsets.ModelViewSet):
         return PetProfileSerializer
 
     def get_permissions(self):
+<<<<<<< HEAD
         if self.action in ['list', 'retrieve']:
+=======
+        if self.action in ['list', 'retrieve', 'nearby']:
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
             return [permissions.AllowAny()]
         if self.action == 'my_pets':
             return [permissions.IsAuthenticated()]
@@ -44,6 +54,12 @@ class PetProfileViewSet(viewsets.ModelViewSet):
         gender = self.request.query_params.get('gender')
         search = self.request.query_params.get('search')
         location = self.request.query_params.get('location')
+<<<<<<< HEAD
+=======
+        country = self.request.query_params.get('country')
+        province = self.request.query_params.get('province')
+        city = self.request.query_params.get('city')
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
         age_min = self.request.query_params.get('age_min')
         age_max = self.request.query_params.get('age_max')
         size_category = self.request.query_params.get('size_category')
@@ -58,7 +74,32 @@ class PetProfileViewSet(viewsets.ModelViewSet):
         if search:
             qs = qs.filter(name__icontains=search)
         if location:
+<<<<<<< HEAD
             qs = qs.filter(rescue_case__discover_address__icontains=location)
+=======
+            qs = qs.filter(
+                Q(location_text__icontains=location) |
+                Q(rescue_case__discover_address__icontains=location)
+            )
+        if country:
+            if country in ['中国', 'CN', 'cn']:
+                qs = qs.filter(
+                    Q(country__icontains=country) |
+                    Q(country__isnull=True)
+                )
+            else:
+                qs = qs.filter(country__icontains=country)
+        if province:
+            qs = qs.filter(
+                Q(province__icontains=province) |
+                Q(rescue_case__discover_address__icontains=province)
+            )
+        if city:
+            qs = qs.filter(
+                Q(city__icontains=city) |
+                Q(rescue_case__discover_address__icontains=city)
+            )
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
         if age_min:
             qs = qs.filter(age_months__gte=int(age_min))
         if age_max:
@@ -73,6 +114,65 @@ class PetProfileViewSet(viewsets.ModelViewSet):
                 qs = qs.filter(is_public=True)
         return qs
 
+<<<<<<< HEAD
+=======
+    @staticmethod
+    def _haversine_distance(lat1, lon1, lat2, lon2):
+        radius_km = 6371
+        d_lat = math.radians(float(lat2) - float(lat1))
+        d_lon = math.radians(float(lon2) - float(lon1))
+        a = (
+            math.sin(d_lat / 2) ** 2
+            + math.cos(math.radians(float(lat1))) * math.cos(math.radians(float(lat2))) * math.sin(d_lon / 2) ** 2
+        )
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+        return radius_km * c
+
+    @action(detail=False, methods=['get'], url_path='nearby')
+    def nearby(self, request):
+        try:
+            lat = float(request.query_params.get('lat', 0))
+            lon = float(request.query_params.get('lon', 0))
+            radius_km = float(request.query_params.get('radius_km') or request.query_params.get('radius') or 5)
+        except (TypeError, ValueError):
+            return Response({'detail': '请提供有效的经纬度参数（lat, lon）'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not lat or not lon:
+            return Response({'detail': '请提供经纬度参数'}, status=status.HTTP_400_BAD_REQUEST)
+
+        qs = self.get_queryset()
+
+        province = (request.query_params.get('province') or '').strip()
+        city = (request.query_params.get('city') or '').strip()
+        same_province_raw = request.query_params.get('same_province')
+        same_province = True if same_province_raw is None else same_province_raw.lower() in ('1', 'true', 'yes')
+        if same_province and (province or city):
+            region_q = None
+            if province:
+                province_q = Q(province__icontains=province) | Q(rescue_case__discover_address__icontains=province)
+                region_q = province_q if region_q is None else (region_q | province_q)
+            if city:
+                city_q = Q(city__icontains=city) | Q(rescue_case__discover_address__icontains=city)
+                region_q = city_q if region_q is None else (region_q | city_q)
+            if region_q is not None:
+                qs = qs.filter(region_q)
+
+        results = []
+        for pet in qs:
+            target_lat = pet.latitude or (pet.rescue_case.discover_latitude if pet.rescue_case else None)
+            target_lon = pet.longitude or (pet.rescue_case.discover_longitude if pet.rescue_case else None)
+            if target_lat is None or target_lon is None:
+                continue
+            distance = self._haversine_distance(lat, lon, float(target_lat), float(target_lon))
+            if distance <= radius_km:
+                pet.distance_km = round(distance, 2)
+                results.append(pet)
+
+        results.sort(key=lambda item: item.distance_km)
+        serializer = self.get_serializer(results, many=True)
+        return Response(serializer.data)
+
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
     @action(detail=False, methods=['get'], url_path='my')
     def my_pets(self, request):
         """Get pets published by current user via rescue_case."""

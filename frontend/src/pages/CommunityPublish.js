@@ -118,7 +118,16 @@ const CommunityPublish = () => {
       const res = await communityAPI.createPost(payload);
       navigate(`/community/${res.data.id}`);
     } catch (err) {
+<<<<<<< HEAD
       setError(err.response?.data?.detail || '发帖失败，请重试。');
+=======
+      const detail = err.response?.data?.detail;
+      setError(
+        detail === 'account_banned'
+          ? '账号已被封禁，无法发帖。'
+          : (detail || '发帖失败，请重试。')
+      );
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
       console.error(err);
     } finally {
       setSubmitting(false);

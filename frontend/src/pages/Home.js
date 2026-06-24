@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 import React, { useCallback, useEffect, useState } from 'react';
+=======
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Carousel } from 'bootstrap';
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
 import { Link } from 'react-router-dom';
 import { aiAPI, portalAPI, uploadAPI } from '../api/api';
 import BreedDetectResult from '../components/BreedDetectResult';
@@ -9,6 +14,11 @@ import dogImg from '../Photo/dog.webp';
 import fishImg from '../Photo/fish.webp';
 import rabbitImg from '../Photo/rabbit.jpeg';
 
+<<<<<<< HEAD
+=======
+const toList = (data) => (Array.isArray(data) ? data : data?.results ?? []);
+
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
 const STATS_CONFIG = [
   { key: 'total_rescued', label: '累计救助', icon: 'fa-check-circle', color: 'success' },
   { key: 'total_adopted', label: '累计领养', icon: 'fa-home', color: 'primary' },
@@ -27,6 +37,10 @@ const PET_CATEGORIES = [
 const Home = () => {
   const [carouselItems, setCarouselItems] = useState([]);
   const [carouselLoading, setCarouselLoading] = useState(true);
+<<<<<<< HEAD
+=======
+  const carouselRef = useRef(null);
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
   const [aiImageUrl, setAiImageUrl] = useState('');
   const [aiDesc, setAiDesc] = useState('');
   const [aiDetectData, setAiDetectData] = useState(null);
@@ -52,7 +66,11 @@ const Home = () => {
     const fetchCarousel = async () => {
       try {
         const response = await portalAPI.getCarousel();
+<<<<<<< HEAD
         const items = (response.data || []).map((item) => ({
+=======
+        const items = toList(response.data).map((item) => ({
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
           ...item,
           title: normalizeCarouselTitle(item.title),
         }));
@@ -66,6 +84,19 @@ const Home = () => {
     fetchCarousel();
   }, []);
 
+<<<<<<< HEAD
+=======
+  // 轮播是异步渲染的，Bootstrap 的 data-bs-ride 不会自动初始化，故手动启用自动轮播
+  useEffect(() => {
+    if (carouselLoading || carouselItems.length === 0 || !carouselRef.current) return undefined;
+    const instance = Carousel.getOrCreateInstance(carouselRef.current, { interval: 5000, ride: 'carousel' });
+    instance.cycle();
+    return () => {
+      try { instance.dispose(); } catch (e) { /* element already unmounted */ }
+    };
+  }, [carouselLoading, carouselItems]);
+
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
   const fetchStats = useCallback(async () => {
     setStatsLoading(true);
     setStatsError(false);
@@ -106,7 +137,11 @@ const Home = () => {
     <div>
       {/* 轮播图 */}
       {!carouselLoading && carouselItems.length > 0 && (
+<<<<<<< HEAD
         <div id="homeCarousel" className="carousel slide mb-4" data-bs-ride="carousel">
+=======
+        <div id="homeCarousel" ref={carouselRef} className="carousel slide mb-4">
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
           <div className="carousel-indicators">
             {carouselItems.map((item, index) => (
               <button

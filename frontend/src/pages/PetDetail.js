@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+<<<<<<< HEAD
+=======
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
 import { adoptAPI, petsAPI, uploadAPI } from '../api/api';
 import { ADOPTION_STATUS } from '../constants/site';
 
@@ -28,6 +33,7 @@ const formatAgeMonths = (months) => {
   return `${years}岁${rem}个月`;
 };
 
+<<<<<<< HEAD
 // 英文城市名 → 中文映射（兜底用）
 const CITY_NAME_MAP = {
   chengdu: '成都市',
@@ -78,6 +84,12 @@ const extractCity = (address) => {
     return address;
   }
   return address.length > 6 ? address.substring(0, 6) : address;
+=======
+const getRegionDisplay = (pet) => {
+  const region = [pet.country, pet.province, pet.city].filter(Boolean).join(' / ');
+  if (region) return region;
+  return pet.rescue_case_address || null;
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
 };
 
 // 非犬类物种通常体型较小
@@ -323,7 +335,11 @@ const PetDetail = () => {
   }
 
   const canAdopt = pet.adoption_status === 'available';
+<<<<<<< HEAD
   const cityName = extractCity(pet.rescue_case_address);
+=======
+  const cityName = getRegionDisplay(pet);
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
   const petAge = formatAgeMonths(pet.age_months);
 
   return (
@@ -476,11 +492,19 @@ const PetDetail = () => {
             <h4 className="section-title">
               <i className="fas fa-file-alt me-2"></i>捡拾详情描述
             </h4>
+<<<<<<< HEAD
             <div className="section-content">
               {pet.description ? (
                 <p className="description-text">{pet.description}</p>
               ) : (
                 <p className="text-muted fst-italic">暂无详细描述信息。</p>
+=======
+            <div className="section-content markdown-preview description-text">
+              {pet.description ? (
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{pet.description}</ReactMarkdown>
+              ) : (
+                <p className="text-muted fst-italic mb-0">暂无详细描述信息。</p>
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
               )}
             </div>
           </div>

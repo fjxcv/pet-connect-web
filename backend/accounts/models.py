@@ -32,7 +32,10 @@ class UserVerificationCode(models.Model):
     PURPOSE_CHOICES = [
         ('reset_password', 'Reset Password'),
         ('change_email', 'Change Email'),
+<<<<<<< HEAD
         ('registration', 'Registration'),
+=======
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
     ]
 
     email = models.CharField(max_length=100)

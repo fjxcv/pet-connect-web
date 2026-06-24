@@ -29,6 +29,16 @@ class PetProfile(models.Model):
     health_status = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     photo_url = models.CharField(max_length=500, blank=True, null=True)
+<<<<<<< HEAD
+=======
+    country = models.CharField(max_length=50, blank=True, null=True)
+    province = models.CharField(max_length=50, blank=True, null=True)
+    city = models.CharField(max_length=50, blank=True, null=True)
+    district = models.CharField(max_length=50, blank=True, null=True)
+    location_text = models.CharField(max_length=255, blank=True, null=True)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
     adoption_status = models.CharField(max_length=20, choices=ADOPTION_STATUS_CHOICES, default='available')
     is_public = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)

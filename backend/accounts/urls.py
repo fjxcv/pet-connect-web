@@ -10,7 +10,10 @@ from .views import (
     PublicUserProfileView,
     RegisterView,
     UserBlockView,
+<<<<<<< HEAD
     EmailRegistrationCodeRequestView,
+=======
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
 )
 
 urlpatterns = [
@@ -24,5 +27,8 @@ urlpatterns = [
     path('auth/password/reset-confirm/', PasswordResetConfirmView.as_view()),
     path('auth/email/change-request/', EmailChangeRequestView.as_view()),
     path('auth/email/change-confirm/', EmailChangeConfirmView.as_view()),
+<<<<<<< HEAD
     path('auth/email/register-request/', EmailRegistrationCodeRequestView.as_view()),
+=======
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
 ]

@@ -80,6 +80,16 @@ const CmsDetail = () => {
     );
   }
 
+<<<<<<< HEAD
+=======
+  const offlineNotice =
+    article.status === 2
+      ? '此文章已下线，仅管理员可见'
+      : article.status === 0
+        ? '此文章为草稿，仅管理员可见'
+        : null;
+
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
   return (
     <div className="py-3">
       <nav aria-label="breadcrumb" className="mb-3">
@@ -90,6 +100,16 @@ const CmsDetail = () => {
         </ol>
       </nav>
 
+<<<<<<< HEAD
+=======
+      {offlineNotice && (
+        <div className="alert alert-warning d-flex align-items-center" role="alert">
+          <i className="fas fa-eye-slash me-2"></i>
+          <span>{offlineNotice}</span>
+        </div>
+      )}
+
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
       <article className="card shadow-sm">
         {article.cover_url && (
           <img src={article.cover_url} className="card-img-top" alt={article.title} style={{ maxHeight: '400px', objectFit: 'cover' }} />

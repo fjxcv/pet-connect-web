@@ -6,7 +6,17 @@ from django.utils import timezone
 
 from accounts.models import UserProfile
 from cms.models import ArticleFavorite, CmsArticle, CmsCategory
+<<<<<<< HEAD
 from community.models import CommunityPost, PostFavorite, PostLike, CommunityComment, CommentLike
+=======
+from community.models import (
+    CommentLike,
+    CommunityComment,
+    CommunityPost,
+    PostFavorite,
+    PostLike,
+)
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
 from lostfound.models import LostFoundPost
 from pets.models import AdoptApplication, PetProfile
 from portal.models import PortalCarousel
@@ -367,6 +377,7 @@ class Command(BaseCommand):
         if article:
             ArticleFavorite.objects.get_or_create(article=article, user=user)
 
+<<<<<<< HEAD
         # ====================== 社区帖子完整演示数据 ======================
         # 1. 救助分享帖
         post1, _ = CommunityPost.objects.update_or_create(
@@ -381,17 +392,36 @@ class Command(BaseCommand):
         # 给帖子点赞
         PostLike.objects.get_or_create(post=post1, user=admin)
         # 一级评论
+=======
+        # ====================== \u793e\u533a\u5e16\u5b50\u5b8c\u6574\u6f14\u793a\u6570\u636e ======================
+        post1, _ = CommunityPost.objects.update_or_create(
+            author=user,
+            title='\u96e8\u591c\u62fe\u5230\u53d7\u4f24\u5c0f\u72f8\u82b1\u732b\uff0c\u6551\u52a9\u5168\u8fc7\u7a0b\u5206\u4eab',
+            defaults={
+                'category': 'rescue_share',
+                'content': '\u6628\u665a\u4e0b\u5927\u96e8\u8def\u8fb9\u53d1\u73b0\u4e00\u53ea\u540e\u817f\u53d7\u4f24\u7684\u5c0f\u72f8\u82b1\u732b\uff0c\u6d78\u6e7f\u53d1\u6296\u4e0d\u6562\u9760\u8fd1\u4eba\u3002\u4e70\u4e86\u7f50\u5934\u5f15\u8bf1\u540e\u5e26\u53bb\u5ba0\u7269\u533b\u9662\uff0c\u62cd\u7247\u53d1\u73b0\u8f7b\u5fae\u9aa8\u88c2\uff0c\u76ee\u524d\u4f4f\u9662\u89c2\u5bdf\uff0c\u5e0c\u671b\u5b83\u65e9\u65e5\u5eb7\u590d\uff0c\u627e\u5230\u613f\u610f\u8d1f\u8d23\u7684\u9886\u517b\u4eba\u3002',
+                'image_urls': ['/media/gallery/darcat.jpg'],
+            },
+        )
+        PostLike.objects.get_or_create(post=post1, user=admin)
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
         c1, _ = CommunityComment.objects.get_or_create(
             post=post1,
             author=admin,
             parent=None,
+<<<<<<< HEAD
             content='太有爱心了！小猫恢复后可以发平台领养板块，我帮转发。'
         )
         # 评论回复
+=======
+            content='\u592a\u6709\u7231\u5fc3\u4e86\uff01\u5c0f\u732b\u6062\u590d\u540e\u53ef\u4ee5\u53d1\u5e73\u53f0\u9886\u517b\u677f\u5757\uff0c\u6211\u5e2e\u5fd9\u8f6c\u53d1\u3002',
+        )
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
         CommunityComment.objects.get_or_create(
             post=post1,
             author=user,
             parent=c1,
+<<<<<<< HEAD
             content='谢谢管理员，等小猫痊愈会上传完整档案申请领养。'
         )
 
@@ -427,17 +457,53 @@ class Command(BaseCommand):
         )
 
         # 一级评论
+=======
+            content='\u611f\u8c22\u7ba1\u7406\u5458\uff0c\u7b49\u5c0f\u732b\u75ca\u6108\u4f1a\u4e0a\u4f20\u5b8c\u6574\u6863\u6848\u7533\u8bf7\u9886\u517b\u3002',
+        )
+
+        post2, _ = CommunityPost.objects.update_or_create(
+            author=user,
+            title='\u79df\u623f\u53ef\u4ee5\u9886\u517b\u732b\u732b\u5417\uff1f\u9700\u8981\u6ce8\u610f\u4ec0\u4e48\uff1f',
+            defaults={
+                'category': 'help_request',
+                'content': '\u76ee\u524d\u72ec\u5c45\u4e00\u5ba4\u4e00\u5385\uff0c\u623f\u4e1c\u5141\u8bb8\u517b\u5c0f\u578b\u5ba0\u7269\uff0c\u60f3\u9886\u517b\u4e00\u53ea\u4e2d\u534e\u7530\u56ed\u72ac\uff0c\u60f3\u95ee\u5e73\u53f0\u9886\u517b\u5ba1\u6838\u4f1a\u770b\u79df\u623f\u5408\u540c\u5417\uff1f\u5e7c\u72ac\u548c\u6210\u72ac\u54ea\u4e2a\u66f4\u9002\u5408\u79df\u623f\u515a\uff1f',
+            },
+        )
+        PostFavorite.objects.get_or_create(post=post2, user=user)
+        PostLike.objects.get_or_create(post=post2, user=admin)
+        CommunityComment.objects.get_or_create(
+            post=post2,
+            author=admin,
+            parent=None,
+            content='\u9886\u517b\u5ba1\u6838\u4f1a\u7b80\u5355\u6838\u5b9e\u5c45\u4f4f\u73af\u5883\uff0c\u5c0f\u578b\u6210\u5e74\u72ac\u66f4\u9002\u5408\u79df\u623f\uff0c\u5e7c\u72ac\u62c6\u5bb6\u5435\u95f9\u4f1a\u5f71\u54cd\u90bb\u5c45\u3002',
+        )
+
+        post3, _ = CommunityPost.objects.update_or_create(
+            author=user,
+            title='\u6210\u534e\u533a\u5efa\u8bbe\u8def\u8d70\u5931\u4e09\u82b1\u6bcd\u732b\uff0c\u91cd\u91d1\u5bfb\u56de',
+            defaults={
+                'category': 'help_request',
+                'content': '6\u670820\u65e5\u4e0b\u5348\u5728\u5efa\u8bbe\u8def\u5c0f\u533a\u8d70\u5931\u4e09\u82b1\u6bcd\u732b\uff0c\u5de6\u8033\u6709\u7f3a\u53e3\uff0c\u8116\u5b50\u6234\u7ea2\u8272\u94c3\u94db\u9879\u5708\uff0c\u60ac\u8d4f\u5fc5\u987b500\u5143\u73b0\u91d1\uff0c\u8054\u7cfb\u65b9\u5f0f13800000002\uff0c\u9ebb\u70e7\u9644\u8fd1\u5c45\u6c11\u5e2e\u5fd9\u7559\u610f\u3002',
+            },
+        )
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
         c3, _ = CommunityComment.objects.get_or_create(
             post=post3,
             author=admin,
             parent=None,
+<<<<<<< HEAD
             content='已帮你转发平台寻宠板块，周边志愿者会帮忙留意。'
         )
         # 评论回复
+=======
+            content='\u5df2\u5e2e\u4f60\u8f6c\u53d1\u5e73\u53f0\u5bfb\u5ba0\u677f\u5757\uff0c\u5468\u8fb9\u5fd7\u613f\u8005\u4f1a\u5e2e\u7740\u7559\u610f\u3002',
+        )
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
         CommunityComment.objects.get_or_create(
             post=post3,
             author=user,
             parent=c3,
+<<<<<<< HEAD
             content='非常感谢平台帮忙扩散！'
         )
 
@@ -455,10 +521,26 @@ class Command(BaseCommand):
         # 多条点赞
         PostLike.objects.get_or_create(post=post4, user=admin)
         # 一级评论
+=======
+            content='\u975e\u5e38\u611f\u8c22\u5e73\u53f0\u5e2e\u5fd9\u6269\u6563\uff01',
+        )
+
+        post4, _ = CommunityPost.objects.update_or_create(
+            author=user,
+            title='\u65b0\u624b\u517b\u732b\u5fc5\u770b\uff1a\u75ab\u82d7\u4e0e\u9a71\u866b\u5b8c\u6574\u65f6\u95f4\u8868',
+            defaults={
+                'category': 'pet_experience',
+                'content': '\u5e7c\u732b8\u5468\u9f84\u9996\u6b21\u4f53\u5185\u5916\u9a71\u866b\uff0c9\u5468\u6253\u7b2c\u4e00\u9488\u732b\u4e09\u8054\uff0c\u95f4\u969421\u5929\u7b2c\u4e8c\u9488\uff0c12\u5468\u7b2c\u4e09\u9488+\u72ac\u4f20\u75ab\u82d7\uff1b\u6210\u5e74\u540e\u6bcf\u5e74\u4e00\u9488\u52a0\u5f3a\u75ab\u82d7\uff0c\u6bcf\u4e09\u4e2a\u6708\u4f53\u5185\u9a71\u866b\uff0c\u6bcf\u6708\u4f53\u5916\u9a71\u866b\u3002',
+            },
+        )
+        PostFavorite.objects.get_or_create(post=post4, user=user)
+        PostLike.objects.get_or_create(post=post4, user=admin)
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
         CommunityComment.objects.get_or_create(
             post=post4,
             author=admin,
             parent=None,
+<<<<<<< HEAD
             content='干货收藏了，准备领养小猫正好需要这份时间表。'
         )
 
@@ -482,26 +564,61 @@ class Command(BaseCommand):
         # 点赞
         PostLike.objects.get_or_create(post=post5, user=admin)
         # 一级评论
+=======
+            content='\u5e72\u8d27\u6536\u85cf\u4e86\uff0c\u51c6\u5907\u9886\u517b\u5c0f\u732b\u6b63\u597d\u9700\u8981\u8fd9\u4efd\u65f6\u95f4\u8868\u3002',
+        )
+
+        post5, _ = CommunityPost.objects.update_or_create(
+            author=user,
+            title='\u5c0f\u72d7\u81ea\u5236\u9c9c\u98df\u914d\u6bd4\u7701\u4e00\u534a\u4ff1\u4e50\u8d39\uff0c\u6bdb\u53d1\u8089\u773c\u53d1\u4eae',
+            defaults={
+                'category': 'pet_experience',
+                'content': (
+                    '\u8e29\u5751\u65e0\u6570\u540e\u6574\u7406\u7684\u6210\u5e74\u72d7\u7c7b\u901a\u7528\u9c9c\u98df\u914d\u6bd4\uff0c\u4eb2\u6d4b\u534a\u5e74\uff0c\u6bcf\u6708\u5582\u517b\u6210\u672c\u76f4\u63a5\u51cf\u534a\uff0c\u72d7\u5b9d\u6bdb\u53d1\u987a\u6ed1\u5206\u6bdb\uff01\n'
+                    '\u98df\u6750\u91cd\u91cf\u5360\u6bd4\n'
+                    '\u8089\u7c7b 50%\u3001\u78b3\u6c34 30%\u3001\u852c\u83dc 18%\u3001\u6cb9\u8102\u8865\u5145 2%\n'
+                    '\u8089\u7c7b\u8f6e\u6362\u9e21\u80f8\u3001\u7626\u725b\u3001\u4e09\u6587\u9c7c\uff08\u6bcf\u5468 2 \u6b21\u6df1\u6d77\u9c7c\u662f\u4eae\u6bdb\u6838\u5fc3\uff09\n'
+                    '\u4e3b\u98df\u9009\u7ea2\u85af\u3001\u7c97\u7cae\uff0c\u852c\u83dc\u897f\u5170\u82b1\u80e1\u841d\u535c\uff0c\u65e0\u4efb\u4f55\u8c03\u5473\u54c1\n'
+                    '\u5236\u4f5c\uff1a\u5168\u90e8\u716e\u719f\u5207\u788e\u5206\u88c5\u51b7\u51bb\uff0c\u968f\u5403\u968f\u53d6\n'
+                    '\u6210\u672c\u5bf9\u6bd4\uff1a\u4e4b\u524d\u72d7\u7cae\u6708\u82b1300+\uff0c\u81ea\u5236\u4ec5 140-160 \u5143\n'
+                    '\u6ce8\u610f\uff1a\u5e7c\u72ac\u3001\u80be\u75c5 / \u80f0\u817a\u708e\u72ac\u7c7b\u9700\u8981\u8c03\u6574\u914d\u6bd4\uff0c\u4e0d\u80fd\u76f4\u63a5\u7167\u642c\uff0c\u6709\u54c1\u79cd\u4f53\u91cd\u6211\u53ef\u4ee5\u5e2e\u5fd9\u7b97\u7cbe\u51c6\u7528\u91cf\u3002'
+                ),
+                'image_urls': ['/media/pets/download_2.webp', '/media/pets/download_2.webp'],
+            },
+        )
+        PostLike.objects.get_or_create(post=post5, user=admin)
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
         c5, _ = CommunityComment.objects.get_or_create(
             post=post5,
             author=admin,
             parent=None,
+<<<<<<< HEAD
             content='干货保存！家里每月鸟粮开销确实高，下周就试试这个配比。'
         )
         # 评论回复
+=======
+            content='\u5e72\u8d27\u4fdd\u5b58\uff01\u5bb6\u91cc\u6bcf\u6708\u72d7\u7cae\u5f00\u9500\u786e\u5b9e\u9ad8\uff0c\u4e0b\u5468\u5c31\u8bd5\u8bd5\u8fd9\u4e2a\u914d\u6bd4\u3002',
+        )
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
         CommunityComment.objects.get_or_create(
             post=post5,
             author=user,
             parent=c5,
+<<<<<<< HEAD
             content='可以先少量试吃观察便便状态，亮毛效果很明显～'
         )
         # 新增第二条路人回复（admin回复楼主）
+=======
+            content='\u53ef\u4ee5\u5148\u5c11\u91cf\u8bd5\u5403\u89c2\u5bdf\u4fbf\u4fbf\u72b6\u6001\uff0c\u4eae\u6bdb\u6548\u679c\u5f88\u660e\u663e\u54e6',
+        )
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
         c5_reply2, _ = CommunityComment.objects.get_or_create(
             post=post5,
             author=admin,
             parent=c5,
             root=c5,
             defaults={
+<<<<<<< HEAD
                 'content': '想问一下体型较小肉类比例需要下调吗？它的肠胃比较敏感。'
             }
         )
@@ -509,11 +626,19 @@ class Command(BaseCommand):
 
         # 楼主再回复第二条路人评论
         c5_reply3, _ = CommunityComment.objects.get_or_create(
+=======
+                'content': '\u60f3\u95ee\u4e00\u4e0b\u4f53\u578b\u8f83\u5c0f\u8089\u7c7b\u6bd4\u4f8b\u9700\u8981\u4e0b\u8c03\u5417\uff1f\u5b83\u7684\u80a0\u80c3\u6bd4\u8f83\u654f\u611f\u3002',
+            },
+        )
+        CommentLike.objects.get_or_create(comment=c5_reply2, user=user)
+        CommunityComment.objects.get_or_create(
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
             post=post5,
             author=user,
             parent=c5_reply2,
             root=c5,
             defaults={
+<<<<<<< HEAD
                 'content': '肉类调到40%，碳水增加5%，少油，鸡胸为主。'
             }
         )
@@ -536,22 +661,55 @@ class Command(BaseCommand):
         )
         
         # 管理员一级评论
+=======
+                'content': '\u8089\u7c7b\u8c03\u523040%\uff0c\u78b3\u6c34\u589e\u52a05%\uff0c\u5c11\u6cb9\uff0c\u9e21\u80f8\u4e3a\u4e3b\u3002',
+            },
+        )
+        PostFavorite.objects.get_or_create(post=post5, user=user)
+
+        post6, _ = CommunityPost.objects.update_or_create(
+            author=user,
+            title='\u5c0f\u6237\u578b\u4e0a\u73ed\u65cf\u6c42\u72d7\u72d7\u63a8\u8350\uff01\u8981\u6389\u6bdb\u5c11\u3001\u8fd0\u52a8\u91cf\u5c0f\uff0c\u767d\u5929\u72ec\u81ea\u5728\u5bb6\u4e0d\u62c6\u5bb6',
+            defaults={
+                'category': 'general',
+                'content': (
+                    '\u5750\u6807\u5c0f\u6237\u578b\u516c\u5bd3\uff0c\u6bcf\u5929\u65e9\u4e5d\u665a\u516d\uff0c\u52a0\u73ed\u8fd8\u4f1a\u665a\u5f52\uff0c\u60f3\u517b\u4e00\u53ea\u5c0f\u578b\u966a\u4f34\u72ac\uff0c\u786c\u6027\u9700\u6c42\uff1a\n'
+                    '\u6389\u6bdb\u6781\u5c11 / \u51e0\u4e4e\u4e0d\u6389\uff0c\u6d01\u9759\u515c\uff0c\u4e0d\u60f3\u5929\u5929\u5438\u6bdb\u7c98\u8863\u670d\uff1b\n'
+                    '\u8fd0\u52a8\u91cf\u5f88\u4f4e\uff0c\u4e0d\u7528\u957f\u65f6\u95f4\u901b\u5f2f\uff0c\u9634\u96e8\u5929\u5728\u5bb6\u73a9\u5c31\u80fd\u6d88\u8017\u7cbe\u529b\uff1b\n'
+                    '\u72ec\u5904\u7a33\u5b9a\uff0c\u767d\u5929\u72ec\u81ea\u5728\u5bb6\u4e0d\u4e71\u53eb\u3001\u4e0d\u62c6\u5bb6\uff0c\u4e0d\u6293\u4eba\uff1b\n'
+                    '\u4f53\u578b\u5c0f\u5de7\uff0c\u4e0d\u5360\u7a7a\u95f4\uff0c\u516c\u5bd3\u597d\u5b89\u7f6e\u3002\n'
+                    '\u76ee\u524d\u7ea0\u7ed3\u6cd5\u6597\u3001\u6bd4\u718a\u3001\u5df4\u54e5\u3001\u8ff7\u4f60\u96ea\u7eb3\u745e\uff0c\u60f3\u95ee\u95ee\u517b\u8fc7\u7684\u9886\u517b\u5b98\u771f\u5b9e\u4f53\u9a8c'
+                ),
+            },
+        )
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
         c6, _ = CommunityComment.objects.get_or_create(
             post=post6,
             author=admin,
             parent=None,
+<<<<<<< HEAD
             content='迷你雪纳瑞最贴合你的需求，单层被毛几乎不掉毛，性格安静耐独处；巴哥呼吸道弱运动量不能多，泰迪容易焦虑拆家，可以优先考虑雪纳瑞。'
         )
         # 楼主回复评论
+=======
+            content='\u8ff7\u4f60\u96ea\u7eb3\u745e\u6700\u8d34\u5408\u4f60\u7684\u9700\u6c42\uff0c\u5355\u5c42\u88ab\u6bdb\u51e0\u4e4e\u4e0d\u6389\u6bdb\uff0c\u6027\u683c\u5b89\u9759\u8010\u72ec\u5904\uff1b\u5df4\u54e5\u547c\u5438\u9053\u5f31\u8fd0\u52a8\u91cf\u4e0d\u80fd\u591a\uff0c\u6cf0\u8fea\u5bb9\u6613\u7126\u8651\u62c6\u5bb6\uff0c\u53ef\u4ee5\u4f18\u5148\u8003\u8651\u96ea\u7eb3\u745e\u3002',
+        )
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
         CommunityComment.objects.get_or_create(
             post=post6,
             author=user,
             parent=c6,
+<<<<<<< HEAD
             content='感谢建议！之前担心雪纳瑞脾气倔，这下有参考方向了，打算平台领养一只成年雪纳瑞。'
         )
         # =================================================================
 
         # 同步 like_count 与 comment_count（从关联表计数）
+=======
+            content='\u611f\u8c22\u5efa\u8bae\uff01\u4e4b\u524d\u62c5\u5fc3\u96ea\u7eb3\u745e\u8138\u6c14\u503c\uff0c\u8fd9\u4e0b\u6709\u53c2\u8003\u65b9\u5411\u4e86\uff0c\u6253\u7b97\u5e73\u53f0\u9886\u517b\u4e00\u53ea\u6210\u5e74\u96ea\u7eb3\u745e\u3002',
+        )
+
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
         for post in CommunityPost.objects.all():
             like_ct = PostLike.objects.filter(post=post).count()
             comment_ct = CommunityComment.objects.filter(post=post, is_deleted=False).count()

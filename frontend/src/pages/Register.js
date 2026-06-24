@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
+=======
+import React, { useState } from 'react';
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
 import { Link, useNavigate } from 'react-router-dom';
 import { authAPI } from '../api/api';
 import { SITE_NAME } from '../constants/site';
@@ -11,9 +15,12 @@ const Register = () => {
     password: '',
     has_privacy_consent: false,
   });
+<<<<<<< HEAD
   const [code, setCode] = useState('');
   const [countdown, setCountdown] = useState(0);
   const [sendingCode, setSendingCode] = useState(false);
+=======
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -30,6 +37,7 @@ const Register = () => {
   const openPrivacyModal = () => setShowPrivacyModal(true);
   const closePrivacyModal = () => setShowPrivacyModal(false);
 
+<<<<<<< HEAD
   useEffect(() => {
     if (countdown <= 0) return undefined;
     const timer = setInterval(() => {
@@ -57,6 +65,8 @@ const Register = () => {
     }
   };
 
+=======
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -65,11 +75,14 @@ const Register = () => {
       return;
     }
 
+<<<<<<< HEAD
     if (!code.trim()) {
       setError('请输入验证码');
       return;
     }
 
+=======
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
     if (formData.password.length < 8) {
       setError('密码长度至少 8 位。');
       return;
@@ -79,7 +92,11 @@ const Register = () => {
     setError('');
 
     try {
+<<<<<<< HEAD
       await authAPI.register({ ...formData, code });
+=======
+      await authAPI.register(formData);
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
       alert(`欢迎加入 ${SITE_NAME}！请登录。`);
       navigate('/login');
     } catch (err) {
@@ -89,6 +106,7 @@ const Register = () => {
         const status = err.response.status;
         const data = err.response.data;
 
+<<<<<<< HEAD
         const extractMessage = (payload) => {
           if (!payload) return null;
           if (typeof payload === 'string') return payload;
@@ -107,6 +125,24 @@ const Register = () => {
           setError(errorMessage || '该用户名已被占用，请换一个。');
         } else {
           setError(errorMessage || `注册失败（${status}），请稍后重试。`);
+=======
+        if (status === 400) {
+          if (data.username) {
+            setError(`用户名问题：${data.username[0]}`);
+          } else if (data.email) {
+            setError(`邮箱问题：${data.email[0]}`);
+          } else if (data.password) {
+            setError(`密码问题：${data.password[0]}`);
+          } else if (data.has_privacy_consent) {
+            setError(`隐私同意：${data.has_privacy_consent[0]}`);
+          } else {
+            setError('注册信息无效，请检查后重试。');
+          }
+        } else if (status === 409) {
+          setError('该用户名已被占用，请换一个。');
+        } else {
+          setError(`注册失败（${status}），请稍后重试。`);
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
         }
       } else if (err.request) {
         setError('服务器无响应，请检查网络连接。');
@@ -159,6 +195,7 @@ const Register = () => {
           </div>
 
           <div className="mb-3">
+<<<<<<< HEAD
             <label className="form-label fw-semibold">验证码</label>
             <div className="d-flex align-items-start gap-2">
               <input
@@ -181,6 +218,8 @@ const Register = () => {
           </div>
 
           <div className="mb-3">
+=======
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
             <label htmlFor="password" className="form-label fw-semibold">设置密码</label>
             <input
               type="password"
@@ -228,7 +267,11 @@ const Register = () => {
           <button
             type="submit"
             className="btn btn-paw w-100 py-2 rounded-3 fw-semibold"
+<<<<<<< HEAD
             disabled={loading || !formData.has_privacy_consent || !code.trim()}
+=======
+            disabled={loading || !formData.has_privacy_consent}
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
           >
             {loading ? '注册中...' : '创建账号'}
           </button>
@@ -280,7 +323,10 @@ const Register = () => {
         .login-card {
           max-width: 420px;
           width: 100%;
+<<<<<<< HEAD
           padding: 2.5rem 2rem;
+=======
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
         }
 
         .btn-paw {
@@ -290,6 +336,7 @@ const Register = () => {
           transition: all 0.3s ease;
         }
 
+<<<<<<< HEAD
         .btn-paw:hover,
         .btn-paw:focus {
           background-color: #8B4513;
@@ -309,6 +356,12 @@ const Register = () => {
           color: #6f3914;
         }
 
+=======
+        .btn-paw:hover {
+          background-color: #8B4513;
+        }
+
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
         .text-paw {
           color: #A0522D;
         }

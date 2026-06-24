@@ -9,12 +9,23 @@ class PetProfileSerializer(serializers.ModelSerializer):
     rescue_case_address = serializers.SerializerMethodField()
     rescue_case_appearance = serializers.SerializerMethodField()
     size_category_display = serializers.SerializerMethodField()
+<<<<<<< HEAD
+=======
+    rescue_case_latitude = serializers.SerializerMethodField()
+    rescue_case_longitude = serializers.SerializerMethodField()
+    distance_km = serializers.FloatField(read_only=True)
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
 
     class Meta:
         model = PetProfile
         fields = '__all__'
 
     def get_rescue_case_address(self, obj):
+<<<<<<< HEAD
+=======
+        if obj.location_text:
+            return obj.location_text
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
         if obj.rescue_case:
             return obj.rescue_case.discover_address
         return None
@@ -27,6 +38,39 @@ class PetProfileSerializer(serializers.ModelSerializer):
     def get_size_category_display(self, obj):
         return obj.get_size_category_display() if obj.size_category else None
 
+<<<<<<< HEAD
+=======
+    def get_rescue_case_latitude(self, obj):
+        if obj.rescue_case:
+            return obj.rescue_case.discover_latitude
+        return None
+
+    def get_rescue_case_longitude(self, obj):
+        if obj.rescue_case:
+            return obj.rescue_case.discover_longitude
+        return None
+
+    def validate(self, attrs):
+        required_fields = ['country', 'province', 'city', 'location_text']
+        is_create = self.instance is None
+        touched_location = any(field in attrs for field in required_fields)
+        if is_create or touched_location:
+            missing = []
+            for field in required_fields:
+                value = attrs.get(field, getattr(self.instance, field, None))
+                if isinstance(value, str):
+                    value = value.strip()
+                    if field in attrs:
+                        attrs[field] = value
+                if not value:
+                    missing.append(field)
+            if missing:
+                raise serializers.ValidationError({
+                    field: '该字段为必填项' for field in missing
+                })
+        return attrs
+
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
 
 class AdoptApplicationSerializer(serializers.ModelSerializer):
     applicant = UserSerializer(read_only=True)

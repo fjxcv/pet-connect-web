@@ -1,12 +1,18 @@
 import random
 import string
+<<<<<<< HEAD
 import secrets
+=======
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
 from datetime import timedelta
 
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
+<<<<<<< HEAD
 from django.conf import settings
 import logging
+=======
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
 from django.utils import timezone
 from rest_framework import serializers
 
@@ -35,17 +41,25 @@ class UserSerializer(serializers.ModelSerializer):
 class RegisterSerializer(serializers.ModelSerializer):
     has_privacy_consent = serializers.BooleanField(write_only=True)
     password = serializers.CharField(write_only=True, min_length=8)
+<<<<<<< HEAD
     code = serializers.CharField(write_only=True, max_length=10)
 
     class Meta:
         model = User
         fields = ['username', 'email', 'password', 'has_privacy_consent', 'code']
+=======
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password', 'has_privacy_consent']
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
 
     def validate_has_privacy_consent(self, value):
         if not value:
             raise serializers.ValidationError('Privacy consent is required')
         return value
 
+<<<<<<< HEAD
     def validate(self, attrs):
         # ensure email/code pair is valid for registration
         email = attrs.get('email')
@@ -69,12 +83,17 @@ class RegisterSerializer(serializers.ModelSerializer):
         # remove code and extract verify_record before creating user
         validated_data.pop('code', None)
         record = validated_data.pop('verify_record', None)
+=======
+    def create(self, validated_data):
+        consent = validated_data.pop('has_privacy_consent')
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data.get('email', ''),
             password=validated_data['password'],
         )
         UserProfile.objects.filter(user=user).update(has_privacy_consent=consent)
+<<<<<<< HEAD
 
         # one-time use: delete verification record
         if record:
@@ -84,6 +103,8 @@ class RegisterSerializer(serializers.ModelSerializer):
                 record.is_used = True
                 record.save(update_fields=['is_used'])
 
+=======
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
         return user
 
 
@@ -96,6 +117,7 @@ class ProfileUpdateSerializer(serializers.Serializer):
 
 
 def generate_verification_code():
+<<<<<<< HEAD
     return ''.join(secrets.choice(string.digits) for _ in range(6))
 
 
@@ -119,10 +141,18 @@ def create_verification_code(email, purpose, expiry_minutes=None):
 
     code = generate_verification_code()
     expires_at = timezone.now() + timedelta(minutes=expiry_minutes)
+=======
+    return ''.join(random.choices(string.digits, k=6))
+
+
+def create_verification_code(email, purpose):
+    code = generate_verification_code()
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
     UserVerificationCode.objects.create(
         email=email,
         code=code,
         purpose=purpose,
+<<<<<<< HEAD
         expires_at=expires_at,
     )
 
@@ -140,6 +170,17 @@ def create_verification_code(email, purpose, expiry_minutes=None):
         logging.exception('Failed to send verification email to %s: %s', email, e)
         raise serializers.ValidationError('Failed to send verification email')
 
+=======
+        expires_at=timezone.now() + timedelta(minutes=15),
+    )
+    send_mail(
+        subject='PetRescue Verification Code',
+        message=f'Your verification code is: {code}. Valid for 15 minutes.',
+        from_email=None,
+        recipient_list=[email],
+        fail_silently=True,
+    )
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
     return code
 
 
@@ -169,7 +210,11 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
             expires_at__gt=timezone.now(),
         ).first()
         if not record:
+<<<<<<< HEAD
             raise serializers.ValidationError('验证码无效或已过期')
+=======
+            raise serializers.ValidationError('Invalid or expired verification code')
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
         attrs['record'] = record
         return attrs
 
@@ -208,7 +253,11 @@ class EmailChangeConfirmSerializer(serializers.Serializer):
             expires_at__gt=timezone.now(),
         ).first()
         if not record:
+<<<<<<< HEAD
             raise serializers.ValidationError('验证码无效或已过期')
+=======
+            raise serializers.ValidationError('Invalid or expired verification code')
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
         attrs['record'] = record
         return attrs
 

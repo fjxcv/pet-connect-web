@@ -201,7 +201,11 @@ class AiAdoptCopyView(APIView):
         pet_info = json.dumps(request.data, ensure_ascii=False)
         try:
             copy_text = chat([
+<<<<<<< HEAD
                 {'role': 'system', 'content': '\u4f60\u662f\u9886\u517b\u6587\u6848\u64b0\u5199\u52a9\u624b\uff0c\u8f93\u51fa\u6e29\u6696\u4e2d\u6587\u9886\u517b\u4ecb\u7ecd\u3002'},
+=======
+                {'role': 'system', 'content': '\u4f60\u662f\u9886\u517b\u6587\u6848\u64b0\u5199\u52a9\u624b\uff0c\u8f93\u51fa\u6e29\u6696\u4e2d\u6587\u9886\u517b\u4ecb\u7ecd\u3002\u8bf7\u4f7f\u7528 Markdown \u683c\u5f0f\uff08\u6807\u9898\u3001\u5217\u8868\u3001\u52a0\u7c97\u7b49\uff09\u3002'},
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
                 {'role': 'user', 'content': f'\u6839\u636e\u4ee5\u4e0b\u5ba0\u7269\u4fe1\u606f\u751f\u6210\u9886\u517b\u6587\u6848\uff1a{pet_info}'},
             ], max_tokens=800)
             log = AiInvocationLog.objects.create(

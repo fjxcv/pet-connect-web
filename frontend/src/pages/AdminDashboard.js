@@ -325,6 +325,18 @@ const AdminDashboard = () => {
     }
   };
 
+<<<<<<< HEAD
+=======
+  const handleArticlePin = async (id, isPinned) => {
+    try {
+      await cmsAPI.updateArticle(id, { is_pinned: isPinned });
+      loadTabData('cms');
+    } catch (err) {
+      alert(getApiError(err));
+    }
+  };
+
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
   const switchTab = (key) => {
     if (key === 'ai-logs') setAiLogPage(1);
     setActiveTab(key);
@@ -583,6 +595,21 @@ const AdminDashboard = () => {
               </select>
             </div>
             <div className="col-12"><input className="form-control" placeholder="摘要" value={articleForm.summary} onChange={(e) => setArticleForm({ ...articleForm, summary: e.target.value })} /></div>
+<<<<<<< HEAD
+=======
+            <div className="col-12">
+              <div className="form-check">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="articlePinned"
+                  checked={!!articleForm.is_pinned}
+                  onChange={(e) => setArticleForm({ ...articleForm, is_pinned: e.target.checked })}
+                />
+                <label className="form-check-label" htmlFor="articlePinned">置顶</label>
+              </div>
+            </div>
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
             <CmsMarkdownEditor value={articleForm.content} onChange={(v) => setArticleForm({ ...articleForm, content: v })} />
             <div className="col-12">
               <button type="submit" className="btn btn-primary btn-sm me-2">保存</button>
@@ -599,11 +626,28 @@ const AdminDashboard = () => {
           <tbody>
             {articles.map((article) => (
               <tr key={article.id}>
+<<<<<<< HEAD
                 <td><Link to={`/cms/${article.id}`}>{article.title}</Link></td>
+=======
+                <td>
+                  <Link to={`/cms/${article.id}`}>{article.title}</Link>
+                  {article.is_pinned && <span className="badge bg-warning text-dark ms-1">置顶</span>}
+                </td>
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
                 <td>{ARTICLE_TYPES[article.article_type] || article.article_type}</td>
                 <td>{article.status === 1 ? '已发布' : article.status === 0 ? '草稿' : '已下线'}</td>
                 <td>
                   <div className="btn-group btn-group-sm">
+<<<<<<< HEAD
+=======
+                    <button
+                      type="button"
+                      className={`btn ${article.is_pinned ? 'btn-warning' : 'btn-outline-secondary'}`}
+                      onClick={() => handleArticlePin(article.id, !article.is_pinned)}
+                    >
+                      {article.is_pinned ? '取消置顶' : '置顶'}
+                    </button>
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
                     <button type="button" className="btn btn-outline-primary" onClick={() => openArticleEditor(article)}>编辑</button>
                     {article.status !== 1 && <button type="button" className="btn btn-outline-success" onClick={() => handleArticleStatus(article.id, 1)}>发布</button>}
                     {article.status === 1 && <button type="button" className="btn btn-outline-warning" onClick={() => handleArticleStatus(article.id, 2)}>下线</button>}

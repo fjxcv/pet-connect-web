@@ -6,6 +6,10 @@ from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+<<<<<<< HEAD
+=======
+from common.permissions import IsActiveUser
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
 from common.user_block import is_blocked
 from .models import CommentLike, CommunityComment, CommunityPost, PostFavorite, PostLike
 from .serializers import (
@@ -42,9 +46,17 @@ class CommunityPostViewSet(viewsets.ModelViewSet):
     serializer_class = CommunityPostSerializer
 
     def get_permissions(self):
+<<<<<<< HEAD
         if self.action in ['list', 'retrieve', 'comments']:
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated()]
+=======
+        if self.action in ['list', 'retrieve']:
+            return [permissions.AllowAny()]
+        if self.action == 'comments' and self.request.method == 'GET':
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated(), IsActiveUser()]
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -168,7 +180,11 @@ class CommunityPostViewSet(viewsets.ModelViewSet):
 
 
 class MyPostFavoritesView(APIView):
+<<<<<<< HEAD
     permission_classes = [permissions.IsAuthenticated]
+=======
+    permission_classes = [permissions.IsAuthenticated, IsActiveUser]
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
 
     def get(self, request):
         favorites = (
@@ -182,7 +198,11 @@ class MyPostFavoritesView(APIView):
 
 class CommunityCommentViewSet(viewsets.GenericViewSet):
     queryset = CommunityComment.objects.filter(is_deleted=False).select_related('post', 'author')
+<<<<<<< HEAD
     permission_classes = [permissions.IsAuthenticated]
+=======
+    permission_classes = [permissions.IsAuthenticated, IsActiveUser]
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
 
     def destroy(self, request, pk=None):
         comment = self.get_object()

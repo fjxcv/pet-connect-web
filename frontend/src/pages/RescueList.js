@@ -39,7 +39,10 @@ const buildDescription = (item) => {
   const parts = [];
   if (item.size_category) parts.push(`体型: ${SIZE_CATEGORY[item.size_category] || item.size_category}`);
   if (item.health_status) parts.push(`健康: ${HEALTH_STATUS[item.health_status] || item.health_status}`);
+<<<<<<< HEAD
   parts.push(`受伤: ${item.is_injured ? '是' : '否'}`);
+=======
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
   parts.push(`怕人: ${item.afraid_of_people ? '是' : '否'}`);
 
   const detail = '详情：' + parts.join('，');
@@ -53,6 +56,10 @@ const RescueList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [helpingId, setHelpingId] = useState(null);
+<<<<<<< HEAD
+=======
+  const [contactModal, setContactModal] = useState(null); // 存 item，含 contact 字段
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
 
   const fetchCases = useCallback(async () => {
     try {
@@ -85,14 +92,21 @@ const RescueList = () => {
     setHelpingId(item.id);
     try {
       await rescueAPI.help(item.id);
+<<<<<<< HEAD
     } catch (err) {
       console.error(err);
     }
     setTimeout(() => {
+=======
+      // 成功后弹窗展示联系方式
+      setHelpingId(null);
+      setContactModal(item);
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
       setCases((prev) => prev.filter((c) => c.id !== item.id));
       const currentMyRescues = loadMyRescues();
       const updated = [item, ...currentMyRescues.filter((r) => r.id !== item.id)];
       saveMyRescues(updated);
+<<<<<<< HEAD
       setHelpingId(null);
     }, 300);
   };
@@ -101,6 +115,22 @@ const RescueList = () => {
     <div className="py-3">
       {/* 顶部：标题 + 三个功能入口按钮 */}
       <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+=======
+    } catch (err) {
+      console.error(err);
+      setHelpingId(null);
+    }
+  };
+
+  const handleConfirmContact = () => {
+    setContactModal(null);
+  };
+
+  return (
+    <div className="py-3" style={{ minHeight: 'calc(100vh - 160px)' }}>
+      {/* 顶部：标题 + 三个功能入口按钮 */}
+      <div className="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-2">
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
         <h2 className="mb-0">
           <i className="fas fa-hand-holding-heart me-2 text-success"></i>救助追踪
         </h2>
@@ -183,7 +213,11 @@ const RescueList = () => {
                           </p>
                         )}
                         <small className="text-muted mt-1">
+<<<<<<< HEAD
                           发布于{formatTime(item.created_at)}
+=======
+                          救助编号：{item.rescue_no} · 发布于{formatTime(item.created_at)}
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
                         </small>
                       </div>
 
@@ -205,6 +239,43 @@ const RescueList = () => {
           </div>
         </div>
       )}
+<<<<<<< HEAD
+=======
+
+      {/* 联系方式弹窗 */}
+      {contactModal && (
+        <div className="modal d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header border-0 pb-0">
+                <h5 className="modal-title">
+                  <i className="fas fa-check-circle text-success me-2"></i>已成功响应救助
+                </h5>
+              </div>
+              <div className="modal-body pt-3">
+                <p className="mb-2">您可以联系上报人确认动物具体位置：</p>
+                <p className="mb-3">
+                  <strong>联系方式（手机号/微信号）：</strong>
+                  <span className="text-primary">{contactModal.contact || '未填写'}</span>
+                </p>
+                <p className="text-muted mb-0" style={{ fontSize: '0.85rem' }}>
+                  <i className="fas fa-info-circle me-1"></i>
+                  请仅用于本次救助沟通，勿将信息转告他人或用于其他用途。
+                </p>
+              </div>
+              <div className="modal-footer border-0 pt-0">
+                <button
+                  className="btn btn-success"
+                  onClick={handleConfirmContact}
+                >
+                  确认
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
     </div>
   );
 };

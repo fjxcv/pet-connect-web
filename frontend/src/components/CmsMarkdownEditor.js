@@ -2,8 +2,21 @@ import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
+<<<<<<< HEAD
 const CmsMarkdownEditor = ({ value, onChange }) => {
   const [tab, setTab] = useState('edit');
+=======
+const CmsMarkdownEditor = ({
+  value,
+  onChange,
+  required = false,
+  rows = 12,
+  minPreviewHeight = 280,
+  placeholder,
+}) => {
+  const [tab, setTab] = useState('edit');
+  const placeholderText = placeholder || '支持 Markdown 语法（标题、列表、链接等）';
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
 
   return (
     <div className="col-12">
@@ -22,6 +35,7 @@ const CmsMarkdownEditor = ({ value, onChange }) => {
       {tab === 'edit' ? (
         <textarea
           className="form-control font-monospace"
+<<<<<<< HEAD
           rows={12}
           placeholder="支持 Markdown 语法（标题、列表、链接等）"
           value={value}
@@ -30,6 +44,16 @@ const CmsMarkdownEditor = ({ value, onChange }) => {
         />
       ) : (
         <div className="border rounded p-3 bg-white markdown-preview" style={{ minHeight: 280 }}>
+=======
+          rows={rows}
+          placeholder={placeholderText}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          required={required}
+        />
+      ) : (
+        <div className="border rounded p-3 bg-white markdown-preview" style={{ minHeight: minPreviewHeight }}>
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
           {value ? (
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{value}</ReactMarkdown>
           ) : (

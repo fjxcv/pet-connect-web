@@ -41,7 +41,10 @@ const RescueReport = () => {
     discover_longitude: '',
     size_category: '',
     health_status: '',
+<<<<<<< HEAD
     is_injured: '',
+=======
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
     afraid_of_people: '',
   });
   const [photos, setPhotos] = useState([]);  // { name, url, size }
@@ -169,7 +172,10 @@ const RescueReport = () => {
     if (!form.discover_address.trim()) errs.discover_address = '请填写发现的详细位置';
     if (!form.size_category) errs.size_category = '请选择体型描述';
     if (!form.health_status) errs.health_status = '请选择健康状况';
+<<<<<<< HEAD
     if (form.is_injured === '' || form.is_injured === null) errs.is_injured = '请选择是否受伤';
+=======
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
     if (form.afraid_of_people === '' || form.afraid_of_people === null) errs.afraid_of_people = '请选择是否怕人';
     setFieldErrors(errs);
     return Object.keys(errs).length === 0;
@@ -189,10 +195,16 @@ const RescueReport = () => {
         nickname: form.nickname.trim(),
         contact: form.contact.trim(),
         discover_address: form.discover_address.trim(),
+<<<<<<< HEAD
         appearance: `体型: ${SIZE_CATEGORY[form.size_category] || form.size_category} / 健康: ${HEALTH_STATUS[form.health_status] || form.health_status} / 受伤: ${form.is_injured === 'yes' ? '是' : '否'} / 怕人: ${form.afraid_of_people === 'yes' ? '是' : '否'}`,
         size_category: form.size_category,
         health_status: form.health_status,
         is_injured: form.is_injured === 'yes',
+=======
+        appearance: `体型: ${SIZE_CATEGORY[form.size_category] || form.size_category} / 健康: ${HEALTH_STATUS[form.health_status] || form.health_status} / 怕人: ${form.afraid_of_people === 'yes' ? '是' : '否'}`,
+        size_category: form.size_category,
+        health_status: form.health_status,
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
         afraid_of_people: form.afraid_of_people === 'yes',
         photo_urls: photos.map((p) => p.url),
       };
@@ -219,7 +231,10 @@ const RescueReport = () => {
       discover_longitude: '',
       size_category: '',
       health_status: '',
+<<<<<<< HEAD
       is_injured: '',
+=======
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
       afraid_of_people: '',
     });
     setPhotos([]);
@@ -520,6 +535,7 @@ const RescueReport = () => {
             )}
           </div>
 
+<<<<<<< HEAD
           {/* 是否受伤 */}
           <div className="row mb-3 align-items-center">
             <label className={`${labelCol} fw-bold`}>是否受伤 <span className="text-danger">*</span></label>
@@ -558,6 +574,8 @@ const RescueReport = () => {
             )}
           </div>
 
+=======
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
           {/* 是否怕人 */}
           <div className="row mb-3 align-items-center">
             <label className={`${labelCol} fw-bold`}>是否怕人 <span className="text-danger">*</span></label>

@@ -16,6 +16,11 @@ class IsAdminRole(BasePermission):
 
 
 class IsActiveUser(BasePermission):
+<<<<<<< HEAD
+=======
+    message = 'account_banned'
+
+>>>>>>> 5981cf21ae81764086b722a469035686c308c5f9
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:
             return False
