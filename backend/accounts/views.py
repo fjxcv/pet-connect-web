@@ -123,17 +123,23 @@ class PublicUserProfileView(APIView):
     def get(self, request, pk):
         user = get_object_or_404(User.objects.select_related('profile'), pk=pk)
         profile = getattr(user, 'profile', None)
-        if profile and profile.status == 1:
-            return Response({'detail': 'User is banned'}, status=status.HTTP_404_NOT_FOUND)
+        is_banned = bool(profile and profile.status == 1)
+        is_blocked_by_me = False
+        if request.user.is_authenticated and request.user.pk != user.pk:
+            is_blocked_by_me = UserBlock.objects.filter(blocker=request.user, blocked=user).exists()
         if request.user.is_authenticated and is_blocked(request.user, user):
             return Response({'detail': 'blocked_by_user'}, status=status.HTTP_403_FORBIDDEN)
-        posts = CommunityPost.objects.filter(author=user, is_deleted=False).order_by('-created_at')[:20]
-        pet_posts = CommunityPost.objects.filter(
-            author=user, is_deleted=False, category='pet_experience',
-        ).order_by('-created_at')[:20]
-        lost_posts = LostFoundPost.objects.filter(
-            publisher=user, status='searching',
-        ).order_by('-created_at')[:20]
+        posts = CommunityPost.objects.none()
+        pet_posts = CommunityPost.objects.none()
+        lost_posts = LostFoundPost.objects.none()
+        if not is_banned:
+            posts = CommunityPost.objects.filter(author=user, is_deleted=False).order_by('-created_at')[:20]
+            pet_posts = CommunityPost.objects.filter(
+                author=user, is_deleted=False, category='pet_experience',
+            ).order_by('-created_at')[:20]
+            lost_posts = LostFoundPost.objects.filter(
+                publisher=user, status='searching',
+            ).order_by('-created_at')[:20]
         ctx = {'request': request}
         return Response({
             'id': user.id,
@@ -141,6 +147,8 @@ class PublicUserProfileView(APIView):
             'nickname': profile.nickname if profile else None,
             'avatar_url': profile.avatar_url if profile else None,
             'role': profile.role if profile else 'user',
+            'is_banned': is_banned,
+            'is_blocked_by_me': is_blocked_by_me,
             'joined_at': profile.created_at if profile else None,
             'community_posts': CommunityPostSerializer(posts, many=True, context=ctx).data,
             'pet_experience_posts': CommunityPostSerializer(pet_posts, many=True, context=ctx).data,

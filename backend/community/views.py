@@ -6,6 +6,7 @@ from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from common.permissions import IsActiveUser
 from common.user_block import is_blocked
 from .models import CommentLike, CommunityComment, CommunityPost, PostFavorite, PostLike
 from .serializers import (
@@ -42,9 +43,11 @@ class CommunityPostViewSet(viewsets.ModelViewSet):
     serializer_class = CommunityPostSerializer
 
     def get_permissions(self):
-        if self.action in ['list', 'retrieve', 'comments']:
+        if self.action in ['list', 'retrieve']:
             return [permissions.AllowAny()]
-        return [permissions.IsAuthenticated()]
+        if self.action == 'comments' and self.request.method == 'GET':
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated(), IsActiveUser()]
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -168,7 +171,7 @@ class CommunityPostViewSet(viewsets.ModelViewSet):
 
 
 class MyPostFavoritesView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsActiveUser]
 
     def get(self, request):
         favorites = (
@@ -182,7 +185,7 @@ class MyPostFavoritesView(APIView):
 
 class CommunityCommentViewSet(viewsets.GenericViewSet):
     queryset = CommunityComment.objects.filter(is_deleted=False).select_related('post', 'author')
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsActiveUser]
 
     def destroy(self, request, pk=None):
         comment = self.get_object()

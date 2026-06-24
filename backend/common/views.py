@@ -7,10 +7,11 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from common.permissions import IsActiveUser
 
 class UploadView(APIView):
     parser_classes = [MultiPartParser, FormParser]
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsActiveUser]
 
     def post(self, request):
         file_obj = request.FILES.get('file')

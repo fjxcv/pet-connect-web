@@ -59,6 +59,9 @@ const CommunityPostDetail = () => {
   }, [fetchPost, fetchComments]);
 
   const { requireAuth } = useAuthPrompt();
+  const getActionError = (detail, fallback) => (
+    detail === 'account_banned' ? '账号已被封禁，无法执行该操作' : fallback
+  );
 
   const canManagePost = post && currentUser && (
     post.author?.id === currentUser.id || isAdminUser(currentUser)
@@ -77,6 +80,7 @@ const CommunityPostDetail = () => {
       }
     } catch (err) {
       console.error(err);
+      alert(getActionError(err.response?.data?.detail, '操作失败'));
     } finally {
       setActionLoading(false);
     }
@@ -95,6 +99,7 @@ const CommunityPostDetail = () => {
       }
     } catch (err) {
       console.error(err);
+      alert(getActionError(err.response?.data?.detail, '操作失败'));
     } finally {
       setActionLoading(false);
     }
@@ -157,7 +162,13 @@ const CommunityPostDetail = () => {
       setCommentText('');
     } catch (err) {
       const detail = err.response?.data?.detail;
-      alert(detail === 'blocked_by_user' ? '你已被楼主拉黑，无法评论' : '评论失败');
+      if (detail === 'blocked_by_user') {
+        alert('你已被楼主拉黑，无法评论');
+      } else if (detail === 'account_banned') {
+        alert('账号已被封禁，无法发表评论');
+      } else {
+        alert('评论失败');
+      }
       console.error(err);
     } finally {
       setSubmittingComment(false);
@@ -173,7 +184,13 @@ const CommunityPostDetail = () => {
       setReplyTarget(null);
     } catch (err) {
       const detail = err.response?.data?.detail;
-      alert(detail === 'blocked_by_user' ? '你已被楼主拉黑，无法评论' : '回复失败');
+      if (detail === 'blocked_by_user') {
+        alert('你已被楼主拉黑，无法评论');
+      } else if (detail === 'account_banned') {
+        alert('账号已被封禁，无法回复');
+      } else {
+        alert('回复失败');
+      }
       console.error(err);
     } finally {
       setSubmittingComment(false);
@@ -191,6 +208,7 @@ const CommunityPostDetail = () => {
       await fetchComments();
     } catch (err) {
       console.error(err);
+      alert(getActionError(err.response?.data?.detail, '操作失败'));
     }
   };
 
@@ -217,7 +235,7 @@ const CommunityPostDetail = () => {
     return (
       <div className="text-center py-5">
         <div className="spinner-border text-success" role="status">
-          <span className="visually-hidden">加载中...</span>
+            <span className="visually-hidden">加载中...</span>
         </div>
       </div>
     );
@@ -259,11 +277,11 @@ const CommunityPostDetail = () => {
           <h2 className="mb-2">{post.title}</h2>
           <div className="text-muted small mb-2">
             <Link to={`/users/${post.author?.id}`} className="text-decoration-none">{authorName}</Link>
-            <span className="mx-1">·</span>
+            <span className="mx-1">路</span>
             发布于 {new Date(post.created_at).toLocaleString()}
             {post.edited_at && (
               <>
-                <span className="mx-1">·</span>
+                <span className="mx-1">路</span>
                 最后编辑于 {new Date(post.edited_at).toLocaleString()}
               </>
             )}
