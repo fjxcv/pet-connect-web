@@ -6,12 +6,13 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
+from common.permissions import IsActiveUser
 from .models import LostFoundPost
 from .serializers import LostFoundPostSerializer
 
 
 def _haversine_distance(lat1, lon1, lat2, lon2):
-    """Haversine 公式计算两点间距离（公里）"""
+    """Haversine 鍏紡璁＄畻涓ょ偣闂磋窛绂伙紙鍏噷锛�"""
     R = 6371
     d_lat = math.radians(float(lat2) - float(lat1))
     d_lon = math.radians(float(lon2) - float(lon1))
@@ -24,14 +25,14 @@ def _haversine_distance(lat1, lon1, lat2, lon2):
 
 
 class LostFoundPostViewSet(viewsets.ModelViewSet):
-    """报失/寻主 CRUD"""
+    """鎶ュけ/瀵讳富 CRUD"""
     queryset = LostFoundPost.objects.select_related('publisher').all()
     serializer_class = LostFoundPostSerializer
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve', 'nearby']:
             return [permissions.AllowAny()]
-        return [permissions.IsAuthenticated()]
+        return [permissions.IsAuthenticated(), IsActiveUser()]
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -62,7 +63,7 @@ class LostFoundPostViewSet(viewsets.ModelViewSet):
         lat = serializer.validated_data.get('latitude')
         lon = serializer.validated_data.get('longitude')
         address_text = serializer.validated_data.get('address_text', '')
-        # 有坐标但无地址时，自动逆地理编码
+        # 鏈夊潗鏍囦絾鏃犲湴鍧€鏃讹紝鑷姩閫嗗湴鐞嗙紪鐮�
         if lat is not None and lon is not None and not address_text:
             try:
                 import requests
@@ -86,27 +87,27 @@ class LostFoundPostViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def my_posts(self, request):
-        """当前用户的发布记录"""
+        """褰撳墠鐢ㄦ埛鐨勫彂甯冭褰�"""
         qs = self.get_queryset().filter(publisher=request.user)
         serializer = self.get_serializer(qs, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'], url_path='nearby')
     def nearby(self, request):
-        """附近搜索：根据经纬度查找指定范围内的记录"""
+        """闄勮繎鎼滅储锛氭牴鎹粡绾害鏌ユ壘鎸囧畾鑼冨洿鍐呯殑璁板綍"""
         try:
             lat = float(request.query_params.get('lat', 0))
             lon = float(request.query_params.get('lon', 0))
             radius_km = float(request.query_params.get('radius', 5))
         except (TypeError, ValueError):
             return Response(
-                {'detail': '请提供有效的经纬度参数（lat, lon）'},
+                {'detail': '璇锋彁渚涙湁鏁堢殑缁忕含搴﹀弬鏁帮紙lat, lon锛�'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         if not lat or not lon:
             return Response(
-                {'detail': '请提供经纬度参数'},
+                {'detail': '璇锋彁渚涚粡绾害鍙傛暟'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 

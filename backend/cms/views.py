@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from common.permissions import IsAdminRole
+from common.permissions import IsActiveUser, IsAdminRole
 from .models import ArticleFavorite, CmsArticle, CmsCategory
 from .serializers import (
     ArticleFavoriteItemSerializer,
@@ -34,7 +34,7 @@ class CmsArticleViewSet(viewsets.ModelViewSet):
         if self.action in ['list', 'retrieve']:
             return [permissions.AllowAny()]
         if self.action == 'favorite':
-            return [permissions.IsAuthenticated()]
+            return [permissions.IsAuthenticated(), IsActiveUser()]
         return [IsAdminRole()]
 
     def get_queryset(self):
@@ -89,7 +89,7 @@ class CmsArticleViewSet(viewsets.ModelViewSet):
 
 class MyArticleFavoritesView(APIView):
     """我的文章收藏列表"""
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsActiveUser]
 
     def get(self, request):
         favorites = (
