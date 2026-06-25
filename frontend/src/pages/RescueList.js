@@ -13,6 +13,15 @@ const loadMyRescues = () => {
   }
 };
 
+const getCurrentUserId = () => {
+  try {
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    return user?.id || null;
+  } catch {
+    return null;
+  }
+};
+
 const saveMyRescues = (records) => {
   localStorage.setItem(MY_RESCUES_KEY, JSON.stringify(records));
 };
@@ -60,9 +69,15 @@ const RescueList = () => {
       setError(null);
       const currentMyRescues = loadMyRescues();
       const helpedIds = new Set(currentMyRescues.map((r) => r.id));
-      const res = await rescueAPI.getMyCases();
+      // 获取所有活跃状态的救助案例（待救助、医疗中、康复中）
+      const res = await rescueAPI.getAll({
+        status: 'pending_rescue,in_medical,recovering',
+      });
       const list = Array.isArray(res.data) ? res.data : (res.data.results || []);
-      setCases(list.filter((c) => !helpedIds.has(c.id)));
+      // 过滤掉已救助过的；自己上报的也保留展示（但不能对自己点"救助"）
+      setCases(
+        list.filter((c) => !helpedIds.has(c.id)),
+      );
     } catch (err) {
       setError('加载救助记录失败，请稍后重试。');
       console.error(err);
@@ -193,14 +208,18 @@ const RescueList = () => {
                       </div>
 
                       <div className="flex-shrink-0 d-flex flex-column justify-content-end align-items-end px-2 py-2" style={{ minWidth: 80 }}>
-                        <button
-                          className="btn btn-success btn-sm"
-                          type="button"
-                          onClick={() => handleHelp(item)}
-                          disabled={helpingId === item.id}
-                        >
-                          救助
-                        </button>
+                        {item.reporter?.id === getCurrentUserId() ? (
+                          <span className="badge bg-secondary">我的上报</span>
+                        ) : (
+                          <button
+                            className="btn btn-success btn-sm"
+                            type="button"
+                            onClick={() => handleHelp(item)}
+                            disabled={helpingId === item.id}
+                          >
+                            救助
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -141,7 +141,7 @@ const getRegionDisplay = (pet) => {
 
 const formatHealthStatus = (status) => {
   if (!status) return null;
-  if (/[一-龥]/.test(status)) return status;
+  if (/[\u4e00-\u9fff]/.test(status)) return status;
   const lower = status.toLowerCase().trim();
   return HEALTH_STATUS_LABELS[lower] || status;
 };
@@ -195,6 +195,10 @@ const PetList = () => {
   const [ageStage, setAgeStage] = useState(searchParams.get('age_stage') || '');
   const [customAgeMin, setCustomAgeMin] = useState(searchParams.get('age_min') || '');
   const [customAgeMax, setCustomAgeMax] = useState(searchParams.get('age_max') || '');
+
+  // 本地输入状态：仅在回车或失焦时才提交到上面的筛选状态，避免每次按键都触发 API 请求
+  const [ageMinInput, setAgeMinInput] = useState(searchParams.get('age_min') || '');
+  const [ageMaxInput, setAgeMaxInput] = useState(searchParams.get('age_max') || '');
 
   const [nearbyMode, setNearbyMode] = useState(searchParams.get('nearby') === 'true');
   const [radiusKm, setRadiusKm] = useState(searchParams.get('radius_km') || '10');
@@ -334,9 +338,13 @@ const PetList = () => {
   };
 
   const handleCustomAgeInput = (setter) => (event) => {
-    // Use digit-only text input to avoid numpad one-key auto-confirm issues.
     const next = event.target.value.replace(/[^\d]/g, '');
     setter(next);
+  };
+
+  const handleConfirmAge = () => {
+    setCustomAgeMin(ageMinInput);
+    setCustomAgeMax(ageMaxInput);
   };
 
   const handleNearbySearch = () => {
@@ -393,6 +401,8 @@ const PetList = () => {
     setAgeStage('');
     setCustomAgeMin('');
     setCustomAgeMax('');
+    setAgeMinInput('');
+    setAgeMaxInput('');
     setNearbyMode(false);
     setRadiusKm('10');
     setLocationHint('');
@@ -557,8 +567,10 @@ const PetList = () => {
                     pattern="[0-9]*"
                     className="form-control"
                     placeholder="最小月龄"
-                    value={customAgeMin}
-                    onChange={handleCustomAgeInput(setCustomAgeMin)}
+                    value={ageMinInput}
+                    onChange={handleCustomAgeInput(setAgeMinInput)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleConfirmAge()}
+                    onBlur={handleConfirmAge}
                   />
                 </div>
                 <div className="col-6 col-md-2">
@@ -568,8 +580,10 @@ const PetList = () => {
                     pattern="[0-9]*"
                     className="form-control"
                     placeholder="最大月龄"
-                    value={customAgeMax}
-                    onChange={handleCustomAgeInput(setCustomAgeMax)}
+                    value={ageMaxInput}
+                    onChange={handleCustomAgeInput(setAgeMaxInput)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleConfirmAge()}
+                    onBlur={handleConfirmAge}
                   />
                 </div>
               </>

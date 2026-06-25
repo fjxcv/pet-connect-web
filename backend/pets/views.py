@@ -79,11 +79,13 @@ class PetProfileViewSet(viewsets.ModelViewSet):
         if province:
             qs = qs.filter(
                 Q(province__icontains=province) |
+                Q(location_text__icontains=province) |
                 Q(rescue_case__discover_address__icontains=province)
             )
         if city:
             qs = qs.filter(
                 Q(city__icontains=city) |
+                Q(location_text__icontains=city) |
                 Q(rescue_case__discover_address__icontains=city)
             )
         if age_min:
