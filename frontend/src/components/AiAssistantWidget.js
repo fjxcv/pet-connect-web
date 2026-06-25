@@ -134,6 +134,7 @@ const AiAssistantWidget = () => {
     if (status === 401) return T.loginFirst;
     if (status === 429) return detail || T.quotaExceeded;
     if (status === 503) return detail || T.llmNotConfigured;
+    if (status === 502) return detail || T.genericFail;
     if (err.code === 'ECONNABORTED') return T.timeout;
     if (detail) return detail;
     return T.genericFail;

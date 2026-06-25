@@ -22,6 +22,7 @@ RESTORE_PATHS = [
     'frontend/src/pages/Register.js',
     'frontend/src/pages/UserProfile.js',
     'frontend/src/pages/AccountCenter.js',
+    'frontend/src/pages/AdminDashboard.js',
 ]
 
 
@@ -31,9 +32,19 @@ def run_git_restore():
         print('restored', rel)
 
 
-def run_auth_writer():
-    script = os.path.join(ROOT, 'scripts', 'write_auth_pages_utf8.py')
-    subprocess.check_call([sys.executable, script], cwd=ROOT)
+def run_utf8_writers():
+    for name in ('write_site_utf8.py', 'write_auth_pages_utf8.py'):
+        script = os.path.join(ROOT, 'scripts', name)
+        subprocess.check_call([sys.executable, script], cwd=ROOT)
+
+
+def run_admin_patches():
+    patch = os.path.join(ROOT, 'scripts', 'patch_admin_dashboard.py')
+    if os.path.isfile(patch):
+        try:
+            subprocess.check_call([sys.executable, patch], cwd=ROOT)
+        except subprocess.CalledProcessError:
+            print('skip patch_admin_dashboard (already patched or layout changed)')
 
 
 def verify():
@@ -43,6 +54,7 @@ def verify():
         'frontend/src/pages/ForgotPassword.js': b'\xe6\x89\xbe\xe5\x9b\x9e\xe5\xaf\x86\xe7\xa0\x81',
         'frontend/src/pages/Register.js': b'\xe6\xb3\xa8\xe5\x86\x8c\xe5\x89\x8d',
         'frontend/public/index.html': b'\xe6\x9a\x96\xe7\x88\xaa',
+        'frontend/src/pages/AdminDashboard.js': b'\xe7\x94\xa8\xe6\x88\xb7\xe7\xae\xa1\xe7\x90\x86',
     }
     ok = True
     for rel, needle in checks.items():
@@ -65,7 +77,8 @@ def verify():
 def main():
     os.chdir(ROOT)
     run_git_restore()
-    run_auth_writer()
+    run_utf8_writers()
+    run_admin_patches()
     if not verify():
         sys.exit(1)
     print('done: restart frontend dev server and hard-refresh browser (Ctrl+F5)')

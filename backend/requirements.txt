@@ -8,5 +8,6 @@ PyMySQL
 python-dotenv
 whitenoise
 requests
+websocket-client
 torch
 torchvision

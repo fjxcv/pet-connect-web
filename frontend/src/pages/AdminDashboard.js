@@ -206,10 +206,10 @@ const AdminDashboard = () => {
 
   const handleUserUpdate = async (userId, data) => {
     try {
-      await adminAPI.updateUser(userId, data);
-      loadTabData('users');
+      const res = await adminAPI.updateUser(userId, data);
+      setUsers((prev) => prev.map((u) => (u.id === userId ? res.data : u)));
     } catch (err) {
-      alert('更新失败');
+      alert(getApiError(err) || '更新失败');
       console.error(err);
     }
   };
@@ -402,7 +402,14 @@ const AdminDashboard = () => {
                 <div className="btn-group btn-group-sm">
                   <button type="button" className="btn btn-outline-success" disabled={user.profile?.status !== 1} onClick={() => handleUserUpdate(user.id, { status: 0 })}>解封</button>
                   <button type="button" className="btn btn-outline-danger" disabled={user.profile?.status === 1} onClick={() => handleUserUpdate(user.id, { status: 1 })}>封禁</button>
-                  <button type="button" className="btn btn-outline-primary" onClick={() => handleUserUpdate(user.id, { role: 'admin' })}>设为管理员</button>
+                  <button
+                    type="button"
+                    className="btn btn-outline-primary"
+                    disabled={user.profile?.role === 'admin'}
+                    onClick={() => handleUserUpdate(user.id, { role: 'admin' })}
+                  >
+                    {user.profile?.role === 'admin' ? '已为管理员' : '设为管理员'}
+                  </button>
                 </div>
               </td>
             </tr>
@@ -425,6 +432,20 @@ const AdminDashboard = () => {
         ))}
       </dl>
     );
+  };
+
+  const normalizeQuestionnaire = (rawQuestionnaire) => {
+    if (!rawQuestionnaire) return null;
+    if (typeof rawQuestionnaire === 'object') return rawQuestionnaire;
+    if (typeof rawQuestionnaire === 'string') {
+      try {
+        const parsed = JSON.parse(rawQuestionnaire);
+        return parsed && typeof parsed === 'object' ? parsed : null;
+      } catch {
+        return null;
+      }
+    }
+    return null;
   };
 
   const renderAdoptAudit = () => (
@@ -453,89 +474,93 @@ const AdminDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {applications.map((app) => (
-                <tr key={app.id}>
-                  <td>{app.id}</td>
-                  <td>{app.applicant?.username}</td>
-                  <td>{app.pet?.name || app.pet_id}</td>
-                  <td style={{ maxWidth: 140 }} className="text-truncate" title={app.message}>{app.message || '-'}</td>
-                  <td>
-                    {app.has_questionnaire ? <span className="badge bg-info text-dark me-1">问卷</span> : null}
-                    {(app.attachment_count || 0) > 0 ? <span className="badge bg-secondary">附件 {app.attachment_count}</span> : null}
-                    {!app.has_questionnaire && !(app.attachment_count > 0) ? <span className="text-muted small">待补充</span> : null}
-                  </td>
-                  <td><span className="badge bg-secondary">{ONLINE_STATUS[app.online_status] || app.online_status}</span></td>
-                  <td><small>{app.created_at ? new Date(app.created_at).toLocaleString() : '-'}</small></td>
-                  <td>
-                    <button
-                      type="button"
-                      className="btn btn-outline-primary btn-sm mb-1"
-                      onClick={() => loadReviewDetail(app.id)}
-                      disabled={reviewLoadingId === app.id}
-                    >
-                      {reviewLoadingId === app.id ? '加载中...' : (reviewDetail?.id === app.id ? '收起详情' : '查看详情')}
-                    </button>
-                    {app.online_status === 'pending' ? (
-                      <div className="d-flex flex-column gap-1 mt-1" style={{ minWidth: 200 }}>
-                        <select
-                          className="form-select form-select-sm"
-                          value={getAuditFormForApp(app.id).online_status}
-                          onChange={(e) => setAuditForm({
-                            ...auditForm,
-                            [app.id]: { ...getAuditFormForApp(app.id), online_status: e.target.value },
-                          })}
+              {applications.map((app) => {
+                const isExpanded = reviewDetail?.id === app.id;
+                const questionnaireData = isExpanded ? normalizeQuestionnaire(reviewDetail?.questionnaire) : null;
+                return (
+                  <React.Fragment key={app.id}>
+                    <tr>
+                      <td>{app.id}</td>
+                      <td>{app.applicant?.username}</td>
+                      <td>{app.pet?.name || app.pet_id}</td>
+                      <td style={{ maxWidth: 140 }} className="text-truncate" title={app.message}>{app.message || '-'}</td>
+                      <td>
+                        {app.has_questionnaire ? <span className="badge bg-info text-dark me-1">问卷</span> : null}
+                        {(app.attachment_count || 0) > 0 ? <span className="badge bg-secondary">附件 {app.attachment_count}</span> : null}
+                        {!app.has_questionnaire && !(app.attachment_count > 0) ? <span className="text-muted small">待补充</span> : null}
+                      </td>
+                      <td><span className="badge bg-secondary">{ONLINE_STATUS[app.online_status] || app.online_status}</span></td>
+                      <td><small>{app.created_at ? new Date(app.created_at).toLocaleString() : '-'}</small></td>
+                      <td>
+                        <button
+                          type="button"
+                          className="btn btn-outline-primary btn-sm mb-1"
+                          onClick={() => loadReviewDetail(app.id)}
+                          disabled={reviewLoadingId === app.id}
                         >
-                          <option value="approved">通过</option>
-                          <option value="rejected">拒绝</option>
-                          <option value="need_material">需补材料</option>
-                        </select>
-                        <input
-                          type="text"
-                          className="form-control form-control-sm"
-                          placeholder="审核意见"
-                          value={getAuditFormForApp(app.id).audit_opinion}
-                          onChange={(e) => setAuditForm({
-                            ...auditForm,
-                            [app.id]: { ...getAuditFormForApp(app.id), audit_opinion: e.target.value },
-                          })}
-                        />
-                        <button type="button" className="btn btn-success btn-sm" onClick={() => handleAudit(app.id)}>提交审核</button>
-                      </div>
-                    ) : (
-                      <small className="text-muted d-block">{app.audit_opinion || '已审核'}</small>
+                          {reviewLoadingId === app.id ? '加载中...' : (isExpanded ? '收起详情' : '查看详情')}
+                        </button>
+                        {app.online_status === 'pending' ? (
+                          <div className="d-flex flex-column gap-1 mt-1" style={{ minWidth: 200 }}>
+                            <select
+                              className="form-select form-select-sm"
+                              value={getAuditFormForApp(app.id).online_status}
+                              onChange={(e) => setAuditForm({
+                                ...auditForm,
+                                [app.id]: { ...getAuditFormForApp(app.id), online_status: e.target.value },
+                              })}
+                            >
+                              <option value="approved">通过</option>
+                              <option value="rejected">拒绝</option>
+                              <option value="need_material">需补材料</option>
+                            </select>
+                            <input
+                              type="text"
+                              className="form-control form-control-sm"
+                              placeholder="审核意见"
+                              value={getAuditFormForApp(app.id).audit_opinion}
+                              onChange={(e) => setAuditForm({
+                                ...auditForm,
+                                [app.id]: { ...getAuditFormForApp(app.id), audit_opinion: e.target.value },
+                              })}
+                            />
+                            <button type="button" className="btn btn-success btn-sm" onClick={() => handleAudit(app.id)}>提交审核</button>
+                          </div>
+                        ) : (
+                          <small className="text-muted d-block">{app.audit_opinion || '已审核'}</small>
+                        )}
+                      </td>
+                    </tr>
+                    {isExpanded && (
+                      <tr className="table-light">
+                        <td colSpan={8}>
+                          <div className="py-2">
+                            <p className="mb-2"><strong>申请人：</strong>{reviewDetail.applicant?.username} {reviewDetail.applicant_phone_masked ? `（${reviewDetail.applicant_phone_masked}）` : ''}</p>
+                            <p className="mb-2"><strong>宠物：</strong>{reviewDetail.pet?.name || '-'}</p>
+                            <p className="mb-3"><strong>留言：</strong>{reviewDetail.message || '-'}</p>
+                            <h6>问卷回答</h6>
+                            <div className="mb-3">{renderQuestionnairePreview(questionnaireData)}</div>
+                            <h6>附件</h6>
+                            {reviewDetail.attachments?.length ? (
+                              <ul className="list-unstyled mb-0">
+                                {reviewDetail.attachments.map((att) => (
+                                  <li key={att.id} className="mb-1">
+                                    <a href={att.file_url} target="_blank" rel="noopener noreferrer">{formatAttachmentType(att.file_type)}</a>
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <p className="text-muted small mb-0">暂无附件</p>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
                     )}
-                  </td>
-                </tr>
-              ))}
+                  </React.Fragment>
+                );
+              })}
             </tbody>
           </table>
-        </div>
-      )}
-      {reviewDetail && (
-        <div className="card mt-3 border-primary">
-          <div className="card-header d-flex justify-content-between align-items-center">
-            <span>申请 #{reviewDetail.id} 详情</span>
-            <button type="button" className="btn-close" aria-label="关闭" onClick={() => setReviewDetail(null)} />
-          </div>
-          <div className="card-body">
-            <p className="mb-2"><strong>申请人：</strong>{reviewDetail.applicant?.username} {reviewDetail.applicant_phone_masked ? `（${reviewDetail.applicant_phone_masked}）` : ''}</p>
-            <p className="mb-2"><strong>宠物：</strong>{reviewDetail.pet?.name || '-'}</p>
-            <p className="mb-3"><strong>留言：</strong>{reviewDetail.message || '-'}</p>
-            <h6>问卷回答</h6>
-            <div className="mb-3">{renderQuestionnairePreview(reviewDetail.questionnaire)}</div>
-            <h6>附件</h6>
-            {reviewDetail.attachments?.length ? (
-              <ul className="list-unstyled mb-0">
-                {reviewDetail.attachments.map((att) => (
-                  <li key={att.id} className="mb-1">
-                    <a href={att.file_url} target="_blank" rel="noopener noreferrer">{formatAttachmentType(att.file_type)}</a>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-muted small mb-0">暂无附件</p>
-            )}
-          </div>
         </div>
       )}
     </div>

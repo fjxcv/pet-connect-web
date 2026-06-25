@@ -67,13 +67,23 @@ class AdminUserViewSet(viewsets.GenericViewSet):
         return Response(UserSerializer(users[:100], many=True).data)
 
     def partial_update(self, request, pk=None):
-        user = User.objects.get(pk=pk)
-        profile = user.profile
+        user = User.objects.select_related('profile').get(pk=pk)
+        profile, _ = UserProfile.objects.get_or_create(
+            user=user,
+            defaults={'role': 'user', 'has_privacy_consent': True},
+        )
         if 'status' in request.data:
             profile.status = int(request.data['status'])
         if 'role' in request.data:
             profile.role = request.data['role']
+            if request.data['role'] == 'admin' and not user.is_superuser:
+                user.is_staff = True
+                user.save(update_fields=['is_staff'])
+            elif request.data['role'] != 'admin' and not user.is_superuser:
+                user.is_staff = False
+                user.save(update_fields=['is_staff'])
         profile.save()
+        user.refresh_from_db()
         write_operation_log(
             request.user, 'admin', 'user_update',
             f'Updated user {user.username}',
