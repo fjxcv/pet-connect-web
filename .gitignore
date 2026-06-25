@@ -63,3 +63,7 @@ github_setup.bat
 /backend/ml/data/
 backend/db.sqlite3
 backend/db.sqlite3
+CLAUDE.md
+FETCH_HEAD
+docs/*.doc
+docs/*.docx
