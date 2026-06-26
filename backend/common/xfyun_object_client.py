@@ -1,3 +1,7 @@
+"""
+模块说明：源码：backend/common/xfyun_object_client.py
+"""
+
 import base64
 import hashlib
 import json
@@ -6,21 +10,17 @@ import time
 import urllib.error
 import urllib.request
 
-
 class XfyunObjectNotConfiguredError(Exception):
     pass
 
-
 class XfyunObjectRequestError(Exception):
     pass
-
 
 def _is_configured() -> bool:
     return bool(
         os.getenv('XFYUN_OBJECT_API_KEY', '').strip()
         and os.getenv('XFYUN_OBJECT_APP_ID', '').strip()
     )
-
 
 def recognize_object(image_bytes: bytes, image_name: str, *, image_url: str = '') -> list[dict]:
     app_id = os.getenv('XFYUN_OBJECT_APP_ID', '').strip()
@@ -33,7 +33,6 @@ def recognize_object(image_bytes: bytes, image_name: str, *, image_url: str = ''
         raise XfyunObjectNotConfiguredError(
             'XFYUN_OBJECT_APP_ID / XFYUN_OBJECT_API_KEY not configured in backend/.env'
         )
-
     param = {'image_name': image_name or 'image.jpg'}
     if image_url:
         param['image_url'] = image_url
@@ -44,7 +43,6 @@ def recognize_object(image_bytes: bytes, image_name: str, *, image_url: str = ''
     checksum = hashlib.md5(
         (api_key + cur_time + x_param).encode('utf-8')
     ).hexdigest()
-
     headers = {
         'X-Appid': app_id,
         'X-CurTime': cur_time,
@@ -61,12 +59,10 @@ def recognize_object(image_bytes: bytes, image_name: str, *, image_url: str = ''
         raise XfyunObjectRequestError(f'Xfyun object HTTP {exc.code}: {err[:400]}') from exc
     except (urllib.error.URLError, TimeoutError, OSError) as exc:
         raise XfyunObjectRequestError(f'Xfyun object connection error: {exc}') from exc
-
     if str(payload.get('code')) != '0':
         raise XfyunObjectRequestError(
             f"Xfyun object error {payload.get('code')}: {payload.get('desc', '')}"
         )
-
     items = []
     for row in payload.get('data') or []:
         labels = row.get('labels') or []
@@ -84,3 +80,4 @@ def recognize_object(image_bytes: bytes, image_name: str, *, image_url: str = ''
             })
         break
     return items
+

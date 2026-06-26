@@ -1,6 +1,9 @@
+"""
+模块说明：api Django Admin 注册。
+"""
+
 from django.contrib import admin
 from django.urls import include, path
-
 from accounts.models import UserEmailChangeLog, UserPasswordResetLog, UserProfile, UserVerificationCode
 from cms.models import ArticleFavorite, CmsArticle, CmsCategory
 from community.models import CommentLike, CommunityComment, CommunityPost, PostFavorite, PostLike
@@ -9,7 +12,6 @@ from pets.models import AdoptApplication, AdoptAttachment, AdoptOfflineVerify, A
 from portal.models import PortalCarousel
 from rescue.models import RescueCase, RescueStatusLog
 from system.models import AiInvocationLog, ContentModeration, OperationLog, PlatformConfig
-
 admin.site.register(UserProfile)
 admin.site.register(UserVerificationCode)
 admin.site.register(UserEmailChangeLog)
@@ -35,3 +37,4 @@ admin.site.register(OperationLog)
 admin.site.register(ContentModeration)
 admin.site.register(PlatformConfig)
 admin.site.register(AiInvocationLog)
+

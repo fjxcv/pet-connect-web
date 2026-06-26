@@ -1,11 +1,15 @@
+/**
+ * @file MyApplications.js
+ * @module PawRescue
+ * @description 页面组件：MyApplications。
+ */
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { adoptAPI } from '../api/api';
-
 // ===== 状态映射 =====
 const getDisplayStatus = (app) => {
   const { online_status, verify_status } = app;
-
   if (online_status === 'pending') {
     return { label: '待审核', badge: 'warning' };
   }
@@ -30,7 +34,6 @@ const getDisplayStatus = (app) => {
   }
   return { label: online_status || '未知', badge: 'secondary' };
 };
-
 // 格式化时间：年.月.日 时:分
 const formatDateTime = (dateStr) => {
   if (!dateStr) return '—';
@@ -42,23 +45,19 @@ const formatDateTime = (dateStr) => {
   const minute = String(d.getMinutes()).padStart(2, '0');
   return `${year}.${month}.${day} ${hour}:${minute}`;
 };
-
 const PAGE_SIZE = 10;
-
 const MyApplications = () => {
   const navigate = useNavigate();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
       navigate('/login');
       return;
     }
-
     const fetchApplications = async () => {
       try {
         setLoading(true);
@@ -73,31 +72,25 @@ const MyApplications = () => {
         setLoading(false);
       }
     };
-
     fetchApplications();
   }, [navigate]);
-
   // ===== 分页逻辑 =====
   const totalPages = Math.max(1, Math.ceil(applications.length / PAGE_SIZE));
   const startIdx = (currentPage - 1) * PAGE_SIZE;
   const pagedData = applications.slice(startIdx, startIdx + PAGE_SIZE);
-
   // 当数据变化时重置到第1页
   useEffect(() => {
     setCurrentPage(1);
   }, [applications.length]);
-
   const goToPage = (page) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
-
   // 生成分页按钮
   const renderPagination = () => {
     if (totalPages <= 1) return null;
-
     const pages = [];
     const maxVisible = 5;
     let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
@@ -105,11 +98,9 @@ const MyApplications = () => {
     if (endPage - startPage + 1 < maxVisible) {
       startPage = Math.max(1, endPage - maxVisible + 1);
     }
-
     for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
-
     return (
       <nav className="mt-4" aria-label="分页导航">
         <ul className="pagination justify-content-center">
@@ -148,9 +139,7 @@ const MyApplications = () => {
       </nav>
     );
   };
-
   // ===== 渲染 =====
-
   if (loading) {
     return (
       <div className="text-center py-5">
@@ -161,7 +150,6 @@ const MyApplications = () => {
       </div>
     );
   }
-
   return (
     <div className="my-applications-page">
       {/* ===== 面包屑导航 ===== */}
@@ -176,7 +164,6 @@ const MyApplications = () => {
           </nav>
         </div>
       </div>
-
       <div className="container py-4">
         <div className="row justify-content-center">
           <div className="col-lg-10 col-xl-9">
@@ -190,14 +177,12 @@ const MyApplications = () => {
                 共 <strong>{applications.length}</strong> 条记录
               </small>
             </div>
-
             {/* 错误提示 */}
             {error && (
               <div className="alert alert-danger">
                 <i className="fas fa-exclamation-circle me-2"></i>{error}
               </div>
             )}
-
             {/* 空状态 */}
             {!loading && !error && applications.length === 0 && (
               <div className="empty-state text-center py-5">
@@ -211,7 +196,6 @@ const MyApplications = () => {
                 </Link>
               </div>
             )}
-
             {/* 申请列表表格 */}
             {applications.length > 0 && (
               <div className="table-card">
@@ -266,7 +250,6 @@ const MyApplications = () => {
                     </tbody>
                   </table>
                 </div>
-
                 {/* 分页信息 */}
                 <div className="table-footer">
                   <small className="text-muted">
@@ -276,10 +259,8 @@ const MyApplications = () => {
                 </div>
               </div>
             )}
-
             {/* 分页组件 */}
             {renderPagination()}
-
             {/* 返回按钮 */}
             {applications.length > 0 && (
               <div className="text-center mt-4">
@@ -291,7 +272,6 @@ const MyApplications = () => {
           </div>
         </div>
       </div>
-
       {/* ===== 样式 ===== */}
       <style>{`
         .my-applications-page {
@@ -299,14 +279,12 @@ const MyApplications = () => {
           min-height: 100vh;
           padding-bottom: 3rem;
         }
-
         .detail-breadcrumb {
           background: white;
           border-bottom: 1px solid #eee;
           padding: 0.75rem 0;
         }
         .breadcrumb { font-size: 0.9rem; }
-
         .page-header {
           display: flex;
           justify-content: space-between;
@@ -319,7 +297,6 @@ const MyApplications = () => {
           font-weight: 600;
           color: #333;
         }
-
         /* 表格卡片 */
         .table-card {
           background: white;
@@ -351,7 +328,6 @@ const MyApplications = () => {
         .col-status { width: 22%; }
         .col-time { width: 30%; }
         .col-action { width: 18%; }
-
         /* 宠物名单元格 */
         .pet-name-cell {
           display: flex;
@@ -370,7 +346,6 @@ const MyApplications = () => {
           font-weight: 600;
           color: #333;
         }
-
         /* 状态标签 */
         .badge-status {
           font-size: 0.82rem;
@@ -378,14 +353,12 @@ const MyApplications = () => {
           border-radius: 20px;
           font-weight: 500;
         }
-
         /* 表格底部信息 */
         .table-footer {
           padding: 0.75rem 1.25rem;
           background: #fafafa;
           border-top: 1px solid #eee;
         }
-
         /* 分页 */
         .pagination .page-link {
           color: #00C897;
@@ -407,7 +380,6 @@ const MyApplications = () => {
           color: #ccc;
           pointer-events: none;
         }
-
         /* 空状态 */
         .empty-state {
           background: white;
@@ -415,7 +387,6 @@ const MyApplications = () => {
           padding: 3rem 2rem;
           box-shadow: 0 2px 12px rgba(0,0,0,0.06);
         }
-
         /* 返回按钮 */
         .btn-submit {
           background: linear-gradient(135deg, #00C897, #00A87A);
@@ -434,7 +405,6 @@ const MyApplications = () => {
           box-shadow: 0 8px 25px rgba(0, 200, 151, 0.4);
           color: white;
         }
-
         /* 响应式 */
         @media (max-width: 768px) {
           .table thead th,
@@ -453,3 +423,4 @@ const MyApplications = () => {
 };
 
 export default MyApplications;
+

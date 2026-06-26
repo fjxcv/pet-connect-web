@@ -1,14 +1,18 @@
+/**
+ * @file LostFoundDetail.js
+ * @module PawRescue
+ * @description 页面组件：LostFoundDetail。
+ */
+
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { lostFoundAPI } from '../api/api';
 import { LOST_FOUND_TYPE } from '../constants/site';
-
 const LostFoundDetail = () => {
   const { id } = useParams();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   useEffect(() => {
     const fetchPost = async () => {
       try {
@@ -25,7 +29,6 @@ const LostFoundDetail = () => {
     };
     fetchPost();
   }, [id]);
-
   if (loading) {
     return (
       <div className="text-center py-5">
@@ -35,7 +38,6 @@ const LostFoundDetail = () => {
       </div>
     );
   }
-
   if (error || !post) {
     return (
       <div className="text-center">
@@ -44,7 +46,6 @@ const LostFoundDetail = () => {
       </div>
     );
   }
-
   return (
     <div className="py-3">
       <nav aria-label="breadcrumb" className="mb-3">
@@ -53,7 +54,6 @@ const LostFoundDetail = () => {
           <li className="breadcrumb-item active">{post.pet_species}</li>
         </ol>
       </nav>
-
       <div className="card shadow-sm">
         <div className="card-body">
           <div className="mb-3">
@@ -62,9 +62,7 @@ const LostFoundDetail = () => {
             </span>
             <span className="badge bg-secondary">{post.status}</span>
           </div>
-
           <h2 className="mb-3">{post.pet_species}</h2>
-
           {post.photo_urls?.length > 0 && (
             <div className="d-flex flex-wrap justify-content-center align-items-center gap-3 mb-4">
               {post.photo_urls.map((url, idx) => (
@@ -78,12 +76,9 @@ const LostFoundDetail = () => {
               ))}
             </div>
           )}
-
           <h5>体征特征</h5>
           <p style={{ whiteSpace: 'pre-wrap' }}>{post.features}</p>
-
           <hr />
-
           <div className="row">
             <div className="col-md-6 mb-3">
               <h6><i className="fas fa-map-marker-alt me-2 text-success"></i>位置</h6>
@@ -118,13 +113,11 @@ const LostFoundDetail = () => {
               </div>
             )}
           </div>
-
           <small className="text-muted">
             发布时间：{new Date(post.created_at).toLocaleString()}
           </small>
         </div>
       </div>
-
       <div className="mt-4 text-center">
         <Link to="/lost-found" className="btn btn-outline-secondary">
           <i className="fas fa-arrow-left me-1"></i>返回列表
@@ -135,3 +128,4 @@ const LostFoundDetail = () => {
 };
 
 export default LostFoundDetail;
+

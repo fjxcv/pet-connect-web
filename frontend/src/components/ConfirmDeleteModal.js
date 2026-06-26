@@ -1,5 +1,10 @@
-import React from 'react';
+/**
+ * @file ConfirmDeleteModal.js
+ * @module PawRescue
+ * @description 可复用组件：ConfirmDeleteModal。
+ */
 
+import React from 'react';
 const ConfirmDeleteModal = ({
   visible,
   title = '确认删除',
@@ -13,7 +18,6 @@ const ConfirmDeleteModal = ({
   if (!visible) {
     return null;
   }
-
   return (
     <div
       className="modal fade show d-block"
@@ -50,24 +54,20 @@ const ConfirmDeleteModal = ({
           border-radius: 1rem;
           overflow: hidden;
         }
-
         .modal-body p {
           margin-bottom: 0;
           color: #374151;
           line-height: 1.7;
         }
-
         .modal-header {
           border-bottom: 1px solid #e9ecef;
         }
-
         .modal-footer {
           border-top: 1px solid #e9ecef;
           /* 核心：按钮居中 */
           justify-content: center;
           gap: 12px;
         }
-
         .btn-danger {
           min-width: 110px;
         }
@@ -77,3 +77,4 @@ const ConfirmDeleteModal = ({
 };
 
 export default ConfirmDeleteModal;
+

@@ -1,22 +1,25 @@
+/**
+ * @file CmsList.js
+ * @module PawRescue
+ * @description 页面组件：CmsList。
+ */
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { cmsAPI } from '../api/api';
 import AdminManageBar from '../components/AdminManageBar';
 import { ARTICLE_TYPES } from '../constants/site';
-
 const TYPE_TABS = [
   { key: '', label: '全部' },
   ...Object.entries(ARTICLE_TYPES)
     .filter(([key]) => key !== 'law')
     .map(([key, label]) => ({ key, label })),
 ];
-
 // 文章状态：0=草稿，1=已发布，2=已下线（仅管理员能在前台看到非已发布文章）
 const STATUS_BADGES = {
   0: { label: '草稿', className: 'bg-secondary' },
   2: { label: '已下线', className: 'bg-danger' },
 };
-
 const CmsList = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -27,7 +30,6 @@ const CmsList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const debounceRef = useRef(null);
-
   // 加载文章列表
   const fetchArticles = useCallback(async () => {
     try {
@@ -45,17 +47,14 @@ const CmsList = () => {
       setLoading(false);
     }
   }, [activeType, searchKeyword]);
-
   useEffect(() => {
     fetchArticles();
   }, [fetchArticles]);
-
   // 就地更新某篇文章的状态，便于下线/上线后立即反映在卡片上
   const patchArticleStatus = async (id, status) => {
     await cmsAPI.updateArticle(id, { status });
     setArticles((list) => list.map((a) => (a.id === id ? { ...a, status } : a)));
   };
-
   // 实时搜索：输入变化后延迟 300ms 自动搜索
   const handleInputChange = (e) => {
     const value = e.target.value;
@@ -65,34 +64,29 @@ const CmsList = () => {
       setSearchKeyword(value.trim());
     }, 300);
   };
-
   // 搜索提交（点击按钮时立即搜索）
   const handleSearch = (e) => {
     e.preventDefault();
     if (debounceRef.current) clearTimeout(debounceRef.current);
     setSearchKeyword(searchInput.trim());
   };
-
   // 切换类型时重置搜索
   const handleTypeChange = (type) => {
     setActiveType(type);
     setSearchKeyword('');
     setSearchInput('');
   };
-
   // 组件卸载时清除定时器
   useEffect(() => {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, []);
-
   return (
     <div className="py-3">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2><i className="fas fa-newspaper me-2 text-success"></i>资讯中心</h2>
       </div>
-
       {/* 类型标签 */}
       <ul className="nav nav-pills mb-3 flex-wrap gap-1">
         {TYPE_TABS.map((tab) => (
@@ -107,7 +101,6 @@ const CmsList = () => {
           </li>
         ))}
       </ul>
-
       {/* 搜索框 */}
       <div className="mb-4">
         <form onSubmit={handleSearch}>
@@ -125,7 +118,6 @@ const CmsList = () => {
           </div>
         </form>
       </div>
-
       {/* 文章列表 */}
       {loading && (
         <div className="text-center py-5">
@@ -134,9 +126,7 @@ const CmsList = () => {
           </div>
         </div>
       )}
-
       {error && <div className="alert alert-danger">{error}</div>}
-
       {!loading && !error && (
         <div className="row">
           {articles.length === 0 ? (
@@ -200,3 +190,4 @@ const CmsList = () => {
 };
 
 export default CmsList;
+

@@ -1,3 +1,10 @@
+"""
+LLM 封装模块。
+
+此模块提供统一的对话能力入口，支持讯飞星火 Spark WebSocket 方式和 OpenAI 兼容的 HTTP 方式。
+视图层负责 AI 配额、身份权限和调用日志，这里只负责将消息发送到可用的 LLM 后端并返回文本结果。
+"""
+
 import base64
 import hashlib
 import hmac
@@ -21,6 +28,10 @@ class LLMRequestError(Exception):
 
 
 def _spark_configured():
+    """
+    功能：检查 .env 是否配置了讯飞星火（Spark）三要素。
+    返回：bool
+    """
     return all(
         os.getenv(name, '').strip()
         for name in ('SPARK_APP_ID', 'SPARK_API_KEY', 'SPARK_API_SECRET')
@@ -28,6 +39,11 @@ def _spark_configured():
 
 
 def _spark_auth_url(api_key, api_secret, ws_url):
+    """
+    功能：生成讯飞星火 WebSocket 鉴权 URL（HMAC-SHA256 签名）。
+    参数：api_key, api_secret, ws_url
+    返回：带 authorization 的完整 URL
+    """
     parsed = urlparse(ws_url)
     host = parsed.netloc
     path = parsed.path or '/'
@@ -48,22 +64,35 @@ def _spark_auth_url(api_key, api_secret, ws_url):
 
 
 def _normalize_messages(messages):
+    """
+    功能：将多模态 messages 规范化为纯文本 role/content 列表（兼容 vision）。
+    参数：messages — OpenAI 格式消息列表
+    返回：规范化后的列表
+    """
     normalized = []
     for item in messages:
         role = item.get('role')
         content = item.get('content')
+        # 如果当前消息使用多模态形式（例如 chat_vision），只提取 text 块内容
         if isinstance(content, list):
             parts = []
             for block in content:
                 if isinstance(block, dict) and block.get('type') == 'text':
                     parts.append(str(block.get('text', '')))
             content = '\n'.join(part for part in parts if part)
+        # 仅保留 system/user/assistant 角色且非空内容
         if role in ('system', 'user', 'assistant') and content:
             normalized.append({'role': role, 'content': str(content)})
     return normalized
 
 
 def _spark_chat_completion(messages, max_tokens=1024):
+    """
+    功能：通过讯飞星火 WebSocket 完成对话（支持 thinking 参数）。
+    参数：messages, max_tokens
+    返回：assistant 回复文本
+    【权限】user/admin（经 chat 入口）
+    """
     app_id = os.getenv('SPARK_APP_ID', '').strip()
     api_key = os.getenv('SPARK_API_KEY', '').strip()
     api_secret = os.getenv('SPARK_API_SECRET', '').strip()
@@ -71,10 +100,12 @@ def _spark_chat_completion(messages, max_tokens=1024):
     domain = os.getenv('SPARK_DOMAIN', 'spark-x').strip()
     thinking_type = os.getenv('SPARK_THINKING', 'disabled').strip() or 'disabled'
 
+    # 将 OpenAI 格式消息转换成 Spark WebSocket 可识别的纯文本消息列表
     text_messages = _normalize_messages(messages)
     if not text_messages:
         raise LLMRequestError('Spark request has no valid messages')
 
+    # 构造 Spark WebSocket 请求体，包含会话参数、模型配置和消息负载
     body = {
         'header': {
             'app_id': app_id,
@@ -95,13 +126,13 @@ def _spark_chat_completion(messages, max_tokens=1024):
         },
     }
 
+    # 生成 Spark WebSocket 鉴权 URL，包含 authorization/date/host 参数
     auth_url = _spark_auth_url(api_key, api_secret, ws_url)
     try:
         import websocket
     except ImportError as exc:
         raise LLMNotConfiguredError(
-            '\u7f3a\u5c11 websocket-client \u4f9d\u8d56\uff0c\u8bf7\u5728 backend '
-            '\u865a\u62df\u73af\u5883\u4e2d\u6267\u884c: pip install websocket-client'
+            '缺少 websocket-client 依赖，请在 backend 虚拟环境中执行: pip install websocket-client'
         ) from exc
 
     ws = None
@@ -149,15 +180,21 @@ def _spark_chat_completion(messages, max_tokens=1024):
 
 
 def _http_chat_completion(messages, max_tokens=1024):
+    """
+    功能：通过 OpenAI 兼容 HTTP 接口完成对话（.env LLM_API_KEY）。
+    参数：messages, max_tokens
+    返回：assistant 回复文本
+    """
+    # 如果没有配置 Spark，则走 OpenAI 兼容的 HTTP 接口
     api_key = os.getenv('LLM_API_KEY', '').strip()
     if not api_key:
         raise LLMNotConfiguredError(
-            '\u672a\u914d\u7f6e LLM\uff0c\u8bf7\u5728 backend/.env \u4e2d\u8bbe\u7f6e '
-            'SPARK_APP_ID/SPARK_API_KEY/SPARK_API_SECRET \u6216 LLM_API_KEY\u3002'
+            '未配置 LLM，请在 backend/.env 中设置 SPARK_APP_ID/SPARK_API_KEY/SPARK_API_SECRET 或 LLM_API_KEY。'
         )
     base = os.getenv('LLM_API_BASE', 'https://api.openai.com/v1').rstrip('/')
     model = os.getenv('LLM_MODEL', 'gpt-4o-mini')
     url = f'{base}/chat/completions'
+    # 构造 OpenAI 风格的请求体
     payload = json.dumps({
         'model': model,
         'messages': messages,
@@ -189,16 +226,34 @@ def _http_chat_completion(messages, max_tokens=1024):
 
 
 def _chat_completion(messages, max_tokens=1024):
+    """
+    功能：统一入口，优先 Spark，否则走 HTTP。
+    参数：messages, max_tokens
+    返回：文本回复
+    """
     if _spark_configured():
         return _spark_chat_completion(messages, max_tokens=max_tokens)
     return _http_chat_completion(messages, max_tokens=max_tokens)
 
 
 def chat(messages, max_tokens=1024):
+    """
+    功能：对外暴露的对话入口（breed 文案、问答等调用）。
+    参数：messages（OpenAI 格式）, max_tokens
+    返回：str — assistant 内容
+    【权限】user/admin（配额检查在视图层）
+    """
     return _chat_completion(messages, max_tokens=max_tokens)
 
 
 def chat_vision(image_data_url: str, user_text: str, system_prompt: str, max_tokens=512):
+    """
+    功能：多模态 vision 调用（当前 breed_detect 未启用，仅预留）。
+    参数：image_data_url, user_text, system_prompt, max_tokens
+    返回：str
+    【权限】user/admin
+    """
+    # 组装多模态消息：system 指令 + user 内容块，包含文字和图片 URL
     messages = [
         {'role': 'system', 'content': system_prompt},
         {

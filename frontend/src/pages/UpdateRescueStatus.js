@@ -1,8 +1,13 @@
+/**
+ * @file UpdateRescueStatus.js
+ * @module PawRescue
+ * @description 页面组件：UpdateRescueStatus。
+ */
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { rescueAPI } from '../api/api';
 import { RESCUE_STATUS } from '../constants/site';
-
 // 状态对应的颜色标签
 const STATUS_COLOR = {
   pending_rescue: 'secondary',
@@ -12,18 +17,15 @@ const STATUS_COLOR = {
   rescued: 'success',
   abandoned: 'dark',
 };
-
 // 状态流转规则：只能推进到下一个状态
 const STATUS_NEXT = {
   in_medical: 'recovering',
   recovering: 'awaiting_adoption',
   awaiting_adoption: 'rescued',
 };
-
 const UpdateRescueStatus = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
   const [caseData, setCaseData] = useState(null);
   const [newStatus, setNewStatus] = useState(null);
   const [remark, setRemark] = useState('');
@@ -32,7 +34,6 @@ const UpdateRescueStatus = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [validationError, setValidationError] = useState('');
-
   // 加载救助案例数据
   const fetchCase = useCallback(async () => {
     try {
@@ -47,11 +48,9 @@ const UpdateRescueStatus = () => {
       setLoading(false);
     }
   }, [id]);
-
   useEffect(() => {
     fetchCase();
   }, [fetchCase]);
-
   // 切换状态到下一步
   const handleSwitch = () => {
     if (!caseData) return;
@@ -61,21 +60,17 @@ const UpdateRescueStatus = () => {
       setValidationError('');
     }
   };
-
   // 提交更新
   const handleSubmit = async () => {
     setValidationError('');
-
     if (!newStatus) {
       setValidationError('请选择要更新的状态');
       return;
     }
-
     if (!remark.trim()) {
       setValidationError('请填写状态备注（诊断结果、治疗方案等）');
       return;
     }
-
     try {
       setSubmitting(true);
       await rescueAPI.updateStatus(id, {
@@ -91,12 +86,10 @@ const UpdateRescueStatus = () => {
       setSubmitting(false);
     }
   };
-
   // 返回我的救助页
   const handleBack = () => {
     navigate('/my-rescues');
   };
-
   // 加载中
   if (loading) {
     return (
@@ -106,7 +99,6 @@ const UpdateRescueStatus = () => {
       </div>
     );
   }
-
   // 加载失败
   if (error) {
     return (
@@ -126,11 +118,9 @@ const UpdateRescueStatus = () => {
       </div>
     );
   }
-
   const currentStatus = caseData?.current_status;
   const canSwitch = STATUS_NEXT[currentStatus] && !newStatus;
   const canSubmit = !!newStatus;
-
   // 更新成功
   if (success) {
     return (
@@ -155,7 +145,6 @@ const UpdateRescueStatus = () => {
       </div>
     );
   }
-
   return (
     <div className="py-3">
       <div className="row">
@@ -191,7 +180,6 @@ const UpdateRescueStatus = () => {
               </span>
             )}
           </div>
-
           <div className="card">
             <div className="card-body">
               {/* 救助编号 */}
@@ -199,7 +187,6 @@ const UpdateRescueStatus = () => {
                 <span className="text-muted">救助编号：</span>
                 <span className="fw-bold">{caseData?.rescue_no}</span>
               </div>
-
               {/* 当前状态（只读） */}
               <div className="mb-3">
                 <span className="text-muted">当前状态：</span>
@@ -207,7 +194,6 @@ const UpdateRescueStatus = () => {
                   {RESCUE_STATUS[currentStatus] || currentStatus}
                 </span>
               </div>
-
               {/* 新状态 */}
               {newStatus && (
                 <div className="mb-3">
@@ -219,7 +205,6 @@ const UpdateRescueStatus = () => {
                   <small className="text-success">即将更新</small>
                 </div>
               )}
-
               {/* 状态备注（多行文本） */}
               <div className="mb-3">
                 <label className="form-label fw-bold">
@@ -237,7 +222,6 @@ const UpdateRescueStatus = () => {
                   disabled={submitting}
                 ></textarea>
               </div>
-
               {/* 校验错误 */}
               {validationError && (
                 <div className="alert alert-danger py-2 mb-3">
@@ -245,7 +229,6 @@ const UpdateRescueStatus = () => {
                   {validationError}
                 </div>
               )}
-
               {/* 底部按钮 */}
               <div className="d-flex justify-content-center gap-2">
                 <button
@@ -283,3 +266,4 @@ const UpdateRescueStatus = () => {
 };
 
 export default UpdateRescueStatus;
+

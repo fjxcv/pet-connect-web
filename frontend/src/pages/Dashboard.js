@@ -1,17 +1,20 @@
+/**
+ * @file Dashboard.js
+ * @module PawRescue
+ * @description 页面组件：Dashboard。
+ */
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adoptAPI } from '../api/api';
 import { ONLINE_STATUS } from '../constants/site';
-
 const STATUS_BADGE = {
   pending: 'bg-warning text-dark',
   approved: 'bg-success',
   rejected: 'bg-danger',
   need_material: 'bg-info text-dark',
 };
-
 const SPECIES_LABELS = { dog: '狗', cat: '猫', bird: '鸟', rabbit: '兔', fish: '鱼', other: '其他' };
-
 const formatAgeMonths = (months) => {
   if (months == null) return '未知';
   const m = Number(months);
@@ -20,13 +23,11 @@ const formatAgeMonths = (months) => {
   const r = m % 12;
   return r === 0 ? `${y}岁` : `${y}岁${r}个月`;
 };
-
 const Dashboard = () => {
   const navigate = useNavigate();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   useEffect(() => {
     if (!localStorage.getItem('token')) { navigate('/login'); return; }
     (async () => {
@@ -42,13 +43,11 @@ const Dashboard = () => {
       }
     })();
   }, [navigate]);
-
   const getStatusBadge = (status) => {
     const label = ONLINE_STATUS[status] || status || '未知';
     const badge = STATUS_BADGE[status] || 'bg-secondary';
     return <span className={`badge ${badge}`}>{label}</span>;
   };
-
   if (loading) return (
     <div className="text-center py-5">
       <div className="spinner-border text-primary" role="status"></div>
@@ -56,7 +55,6 @@ const Dashboard = () => {
     </div>
   );
   if (error) return <div className="alert alert-danger">{error}</div>;
-
   return (
     <div className="container py-4">
       <h2 className="mb-4"><i className="fas fa-tachometer-alt me-2"></i>我的领养</h2>
@@ -115,4 +113,6 @@ const Dashboard = () => {
     </div>
   );
 };
+
 export default Dashboard;
+

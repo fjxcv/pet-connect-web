@@ -1,10 +1,15 @@
+/**
+ * @file CmsDetail.js
+ * @module PawRescue
+ * @description 页面组件：CmsDetail。
+ */
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { cmsAPI } from '../api/api';
 import { ARTICLE_TYPES } from '../constants/site';
-
 const CmsDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -13,7 +18,6 @@ const CmsDetail = () => {
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
   const fetchedRef = useRef(false);
-
   useEffect(() => {
     if (fetchedRef.current) return;
     fetchedRef.current = true;
@@ -32,7 +36,6 @@ const CmsDetail = () => {
     };
     fetchArticle();
   }, [id]);
-
   const requireAuth = () => {
     if (!localStorage.getItem('token')) {
       alert('请先登录');
@@ -41,7 +44,6 @@ const CmsDetail = () => {
     }
     return true;
   };
-
   const handleFavorite = async () => {
     if (!requireAuth()) return;
     setActionLoading(true);
@@ -60,7 +62,6 @@ const CmsDetail = () => {
       setActionLoading(false);
     }
   };
-
   if (loading) {
     return (
       <div className="text-center py-5">
@@ -70,7 +71,6 @@ const CmsDetail = () => {
       </div>
     );
   }
-
   if (error || !article) {
     return (
       <div className="text-center">
@@ -79,14 +79,12 @@ const CmsDetail = () => {
       </div>
     );
   }
-
   const offlineNotice =
     article.status === 2
       ? '此文章已下线，仅管理员可见'
       : article.status === 0
         ? '此文章为草稿，仅管理员可见'
         : null;
-
   return (
     <div className="py-3">
       <nav aria-label="breadcrumb" className="mb-3">
@@ -96,14 +94,12 @@ const CmsDetail = () => {
           <li className="breadcrumb-item active">{article.title}</li>
         </ol>
       </nav>
-
       {offlineNotice && (
         <div className="alert alert-warning d-flex align-items-center" role="alert">
           <i className="fas fa-eye-slash me-2"></i>
           <span>{offlineNotice}</span>
         </div>
       )}
-
       <article className="card shadow-sm">
         {article.cover_url && (
           <img src={article.cover_url} className="card-img-top" alt={article.title} style={{ maxHeight: '400px', objectFit: 'cover' }} />
@@ -129,7 +125,6 @@ const CmsDetail = () => {
           </div>
         </div>
       </article>
-
       <div className="mt-4 d-flex flex-wrap justify-content-center gap-2">
         <button
           type="button"
@@ -149,3 +144,4 @@ const CmsDetail = () => {
 };
 
 export default CmsDetail;
+

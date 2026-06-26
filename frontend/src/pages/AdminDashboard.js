@@ -1,3 +1,9 @@
+/**
+ * @file AdminDashboard.js
+ * @module PawRescue
+ * @description 管理后台主页：运营数据与审核入口。
+ */
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { adoptAPI, adminAPI, cmsAPI, petsAPI } from '../api/api';
@@ -5,7 +11,6 @@ import CarouselAdminPanel from '../components/CarouselAdminPanel';
 import CmsMarkdownEditor from '../components/CmsMarkdownEditor';
 import { SITE_NAME, ADOPTION_STATUS, ONLINE_STATUS, ARTICLE_TYPES } from '../constants/site';
 import getQuestionnaireEntries, { formatAttachmentType } from '../utils/adoptQuestionnaireDisplay';
-
 const SPECIES_LABELS = {
   dog: '狗',
   cat: '猫',
@@ -14,50 +19,41 @@ const SPECIES_LABELS = {
   fish: '鱼',
   other: '其他',
 };
-
 const ROLE_LABELS = {
   admin: '管理员',
   user: '普通用户',
   visitor: '访客',
 };
-
 const MODERATION_ACTION_LABELS = {
   approve: '通过',
   hide: '隐藏',
   delete: '删除',
   ban: '封禁',
 };
-
 const CONTENT_TYPE_OPTIONS = [
   { value: 'community_post', label: '社区帖子' },
   { value: 'cms_article', label: '资讯文章' },
   { value: 'lost_found_post', label: '报失寻主' },
   { value: 'user', label: '用户' },
 ];
-
 const CONFIG_LABELS = {
   max_upload_mb: '最大上传文件大小（MB）',
   ai_daily_limit: '每日最大 AI 调用次数',
   ai_total_limit: 'AI 总调用次数上限',
 };
-
 const FEATURE_TYPE_LABELS = {
   breed_detect: '品种识别',
   adopt_copy: '领养文案',
   qa_assistant: '智能问答',
 };
-
 const AI_LOG_PAGE_SIZE = 20;
-
 const toList = (data) => (Array.isArray(data) ? data : data?.results ?? []);
-
 const getApiError = (err) => {
   const d = err.response?.data;
   if (typeof d === 'string') return d;
   if (d?.detail) return String(d.detail);
   return err.message || '请求失败';
 };
-
 const TABS = [
   { key: 'dashboard', label: '数据概览', icon: 'fa-chart-line' },
   { key: 'users', label: '用户管理', icon: 'fa-users' },
@@ -69,7 +65,6 @@ const TABS = [
   { key: 'config', label: '系统配置', icon: 'fa-cog' },
   { key: 'ai-logs', label: 'AI 日志', icon: 'fa-robot' },
 ];
-
 const KPI_CARDS = [
   { key: 'users', label: '用户', icon: 'fa-users', color: 'primary' },
   { key: 'pets', label: '宠物', icon: 'fa-paw', color: 'success' },
@@ -79,17 +74,17 @@ const KPI_CARDS = [
   { key: 'cms_articles', label: '资讯文章', icon: 'fa-newspaper', color: 'secondary' },
   { key: 'lost_found_posts', label: '寻宠招领', icon: 'fa-search-location', color: 'dark' },
 ];
-
 const emptyArticleForm = () => ({
   title: '', summary: '', content: '', article_type: 'science', status: 1, is_pinned: false,
 });
-
+/**
+ * 功能：管理后台主页。【权限】仅 admin。
+ */
 const AdminDashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'dashboard');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const [dashboard, setDashboard] = useState(null);
   const [users, setUsers] = useState([]);
   const [applications, setApplications] = useState([]);
@@ -101,7 +96,6 @@ const AdminDashboard = () => {
   const [aiLogPage, setAiLogPage] = useState(1);
   const [aiLogTotal, setAiLogTotal] = useState(0);
   const [aiLogStats, setAiLogStats] = useState(null);
-
   const [auditForm, setAuditForm] = useState({});
   const [modFilter, setModFilter] = useState({ content_type: '', action: '' });
   const [configEdits, setConfigEdits] = useState({});
@@ -110,12 +104,11 @@ const AdminDashboard = () => {
   const [showArticleForm, setShowArticleForm] = useState(false);
   const [reviewDetail, setReviewDetail] = useState(null);
   const [reviewLoadingId, setReviewLoadingId] = useState(null);
-
   useEffect(() => {
     const tab = searchParams.get('tab');
     if (tab && TABS.some((t) => t.key === tab)) setActiveTab(tab);
   }, [searchParams]);
-
+  /** 【权限】admin：AI 日志 */
   const loadAiLogsData = useCallback(async (page) => {
     const res = await adminAPI.getAiLogs({ page, page_size: AI_LOG_PAGE_SIZE });
     setAiLogs(toList(res.data));
@@ -123,7 +116,7 @@ const AdminDashboard = () => {
     const statsRes = await adminAPI.getAiLogStats();
     setAiLogStats(statsRes.data);
   }, []);
-
+  /** 【权限】admin：各 Tab 数据 */
   const loadTabData = useCallback(async (tab) => {
     setLoading(true);
     setError(null);
@@ -187,7 +180,6 @@ const AdminDashboard = () => {
       setLoading(false);
     }
   }, []);
-
   useEffect(() => {
     if (activeTab === 'ai-logs') {
       setLoading(true);
@@ -203,7 +195,7 @@ const AdminDashboard = () => {
     }
     loadTabData(activeTab);
   }, [activeTab, aiLogPage, loadTabData, loadAiLogsData]);
-
+  /** 【权限】admin：封禁/改角色 */
   const handleUserUpdate = async (userId, data) => {
     try {
       const res = await adminAPI.updateUser(userId, data);
@@ -213,7 +205,6 @@ const AdminDashboard = () => {
       console.error(err);
     }
   };
-
   const loadReviewDetail = async (appId) => {
     if (reviewDetail?.id === appId) {
       setReviewDetail(null);
@@ -230,13 +221,12 @@ const AdminDashboard = () => {
       setReviewLoadingId(null);
     }
   };
-
   const getAuditFormForApp = (appId) => ({
     online_status: 'approved',
     audit_opinion: '',
     ...(auditForm[appId] || {}),
   });
-
+  /** 【权限】admin：领养审核 */
   const handleAudit = async (appId) => {
     const form = getAuditFormForApp(appId);
     if (!form.online_status) {
@@ -252,7 +242,7 @@ const AdminDashboard = () => {
       console.error(err);
     }
   };
-
+  /** 【权限】admin：平台配置含 AI 配额 */
   const handleConfigSave = async (key) => {
     try {
       await adminAPI.updateConfig(key, { config_value: configEdits[key] });
@@ -263,7 +253,7 @@ const AdminDashboard = () => {
       console.error(err);
     }
   };
-
+  /** 【权限】admin：修改宠物 */
   const handlePetPatch = async (petId, data) => {
     try {
       await petsAPI.update(petId, data);
@@ -272,7 +262,7 @@ const AdminDashboard = () => {
       alert(getApiError(err));
     }
   };
-
+  /** 【权限】admin：删除宠物 */
   const handlePetDelete = async (petId) => {
     if (!window.confirm('确定删除该宠物档案？')) return;
     try {
@@ -282,7 +272,6 @@ const AdminDashboard = () => {
       alert(getApiError(err));
     }
   };
-
   const openArticleEditor = (article) => {
     if (article) {
       setEditingArticleId(article.id);
@@ -300,7 +289,6 @@ const AdminDashboard = () => {
     }
     setShowArticleForm(true);
   };
-
   const handleArticleSave = async (e) => {
     e.preventDefault();
     try {
@@ -315,7 +303,6 @@ const AdminDashboard = () => {
       alert(getApiError(err));
     }
   };
-
   const handleArticleStatus = async (id, status) => {
     try {
       await cmsAPI.updateArticle(id, { status });
@@ -324,7 +311,6 @@ const AdminDashboard = () => {
       alert(getApiError(err));
     }
   };
-
   const handleArticlePin = async (id, isPinned) => {
     try {
       await cmsAPI.updateArticle(id, { is_pinned: isPinned });
@@ -333,20 +319,16 @@ const AdminDashboard = () => {
       alert(getApiError(err));
     }
   };
-
   const switchTab = (key) => {
     if (key === 'ai-logs') setAiLogPage(1);
     setActiveTab(key);
     setSearchParams({ tab: key });
   };
-
   const formatLimit = (used, limit) => {
     if (!limit || limit <= 0) return `${used} / 不限制`;
     return `${used} / ${limit}`;
   };
-
   const aiLogTotalPages = Math.max(1, Math.ceil(aiLogTotal / AI_LOG_PAGE_SIZE));
-
   const renderDashboard = () => (
     <div>
       <div className="row g-3 mb-4">
@@ -378,7 +360,6 @@ const AdminDashboard = () => {
       )}
     </div>
   );
-
   const renderUsers = () => (
     <div className="table-responsive">
       <table className="table table-hover">
@@ -418,7 +399,6 @@ const AdminDashboard = () => {
       </table>
     </div>
   );
-
   const renderQuestionnairePreview = (answers) => {
     const entries = getQuestionnaireEntries(answers);
     if (!entries.length) return <span className="text-muted">无问卷数据</span>;
@@ -433,7 +413,6 @@ const AdminDashboard = () => {
       </dl>
     );
   };
-
   const normalizeQuestionnaire = (rawQuestionnaire) => {
     if (!rawQuestionnaire) return null;
     if (typeof rawQuestionnaire === 'object') return rawQuestionnaire;
@@ -447,7 +426,6 @@ const AdminDashboard = () => {
     }
     return null;
   };
-
   const renderAdoptAudit = () => (
     <div>
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -565,7 +543,6 @@ const AdminDashboard = () => {
       )}
     </div>
   );
-
   const renderPets = () => (
     <div>
       <div className="mb-3">
@@ -596,7 +573,6 @@ const AdminDashboard = () => {
       </div>
     </div>
   );
-
   const renderCms = () => (
     <div>
       <button type="button" className="btn btn-success btn-sm mb-3" onClick={() => openArticleEditor(null)}>新建文章</button>
@@ -672,13 +648,11 @@ const AdminDashboard = () => {
       </div>
     </div>
   );
-
   const filteredModeration = moderation.filter((item) => {
     if (modFilter.content_type && item.content_type !== modFilter.content_type) return false;
     if (modFilter.action && item.action !== modFilter.action) return false;
     return true;
   });
-
   const renderModeration = () => (
     <div>
       <div className="row g-2 mb-3">
@@ -740,7 +714,6 @@ const AdminDashboard = () => {
       </div>
     </div>
   );
-
   const renderConfig = () => (
     <div>
       {aiLogStats && (
@@ -780,7 +753,6 @@ const AdminDashboard = () => {
       </div>
     </div>
   );
-
   const renderAiLogs = () => (
     <div>
       <div className="alert alert-info small">
@@ -838,7 +810,6 @@ const AdminDashboard = () => {
       )}
     </div>
   );
-
   const renderTabContent = () => {
     switch (activeTab) {
       case 'dashboard': return renderDashboard();
@@ -853,11 +824,9 @@ const AdminDashboard = () => {
       default: return null;
     }
   };
-
   return (
     <div className="py-3">
       <h2 className="mb-4"><i className="fas fa-cog me-2"></i>{SITE_NAME} 管理后台</h2>
-
       <div className="row">
         <div className="col-md-3 col-lg-2">
           <div className="list-group mb-4">
@@ -896,3 +865,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+

@@ -1,9 +1,13 @@
+/**
+ * @file ForgotPassword.js
+ * @module PawRescue
+ * @description 页面组件：ForgotPassword。
+ */
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authAPI } from '../api/api';
-
 const RESET_CODE_MAILBOX = '1714929806@qq.com';
-
 const ForgotPassword = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -14,7 +18,6 @@ const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
-
   const handleRequestReset = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -31,7 +34,6 @@ const ForgotPassword = () => {
       setLoading(false);
     }
   };
-
   const handleConfirmReset = async (e) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
@@ -58,7 +60,6 @@ const ForgotPassword = () => {
       setLoading(false);
     }
   };
-
   return (
     <div className="d-flex align-items-center justify-content-center py-5">
       <div className="card shadow-lg p-4 rounded-4" style={{ maxWidth: 420, width: '100%' }}>
@@ -71,10 +72,8 @@ const ForgotPassword = () => {
               : '输入验证码和新密码'}
           </p>
         </div>
-
         {error && <div className="alert alert-danger">{error}</div>}
         {message && <div className="alert alert-success">{message}</div>}
-
         {step === 1 ? (
           <form onSubmit={handleRequestReset}>
             <div className="mb-3">
@@ -145,7 +144,6 @@ const ForgotPassword = () => {
             </button>
           </form>
         )}
-
         <div className="text-center mt-3">
           <Link to="/login" className="text-decoration-none text-success">返回登录</Link>
         </div>
@@ -155,3 +153,4 @@ const ForgotPassword = () => {
 };
 
 export default ForgotPassword;
+

@@ -1,3 +1,9 @@
+/**
+ * @file App.js
+ * @module PawRescue
+ * @description React 根组件与路由配置。
+ */
+
 import React from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import './App.css';
@@ -21,7 +27,6 @@ import LostFoundList from './pages/LostFoundList';
 import LostFoundPublish from './pages/LostFoundPublish';
 import ApplicationDetail from './pages/ApplicationDetail';
 import MyApplications from './pages/MyApplications';
-
 import AdoptApplication from './pages/AdoptApplication';
 import PetDetail from './pages/PetDetail';
 import PetList from './pages/PetList';
@@ -40,7 +45,6 @@ import AdminRoute from './components/AdminRoute';
 import { ManageModeProvider } from './context/ManageModeContext';
 import { AuthPromptProvider } from './context/AuthPromptContext';
 import AiAssistantWidget from './components/AiAssistantWidget';
-
 function App() {
   return (
     <Router>
@@ -78,7 +82,6 @@ function App() {
               <Route path="/users/:id" element={<UserPublicProfile />} />
               <Route path="/account" element={<ProtectedRoute><AccountCenter /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
-
               <Route path="/my-applications" element={<ProtectedRoute><MyApplications /></ProtectedRoute>} />
               <Route path="/my-applications/:id" element={<ProtectedRoute><ApplicationDetail /></ProtectedRoute>} />
               <Route path="/login" element={<Login />} />
@@ -96,3 +99,4 @@ function App() {
 }
 
 export default App;
+

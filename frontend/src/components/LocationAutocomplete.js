@@ -1,6 +1,11 @@
+/**
+ * @file LocationAutocomplete.js
+ * @module PawRescue
+ * @description 可复用组件：LocationAutocomplete。
+ */
+
 import React, { useEffect, useRef, useState } from 'react';
 import { searchAmapPlaces } from '../utils/amapLocation';
-
 const emptyLocation = {
   country: '中国',
   province: '',
@@ -10,7 +15,6 @@ const emptyLocation = {
   latitude: null,
   longitude: null,
 };
-
 const LocationAutocomplete = ({
   value,
   onChange,
@@ -24,11 +28,9 @@ const LocationAutocomplete = ({
   const [showDropdown, setShowDropdown] = useState(false);
   const wrapperRef = useRef(null);
   const timerRef = useRef(null);
-
   useEffect(() => {
     setQuery(value?.location_text || '');
   }, [value?.location_text]);
-
   useEffect(() => {
     const onDocumentClick = (event) => {
       if (!wrapperRef.current?.contains(event.target)) {
@@ -38,7 +40,6 @@ const LocationAutocomplete = ({
     document.addEventListener('mousedown', onDocumentClick);
     return () => document.removeEventListener('mousedown', onDocumentClick);
   }, []);
-
   const handleSearch = (text) => {
     setQuery(text);
     if (timerRef.current) clearTimeout(timerRef.current);
@@ -61,7 +62,6 @@ const LocationAutocomplete = ({
       }
     }, 300);
   };
-
   const handlePick = (item) => {
     onChange({
       country: item.country || '中国',
@@ -75,7 +75,6 @@ const LocationAutocomplete = ({
     setQuery(item.location_text || item.name || '');
     setShowDropdown(false);
   };
-
   return (
     <div ref={wrapperRef} className="position-relative">
       <input
@@ -119,3 +118,4 @@ const LocationAutocomplete = ({
 };
 
 export default LocationAutocomplete;
+

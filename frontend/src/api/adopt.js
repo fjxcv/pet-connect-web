@@ -1,3 +1,9 @@
+/**
+ * @file adopt.js
+ * @module PawRescue
+ * @description API 封装：adopt。
+ */
+
 import api from './index';
 
 export const adoptAPI = {
@@ -12,3 +18,4 @@ export const adoptAPI = {
   getReviewDetail: (id) => api.get(`/adopt/applications/${id}/review-detail/`),
   offlineVerify: (id, data) => api.put(`/adopt/offline-verify/${id}/`, data),
 };
+

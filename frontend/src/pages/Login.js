@@ -1,8 +1,13 @@
+/**
+ * @file Login.js
+ * @module PawRescue
+ * @description 页面组件：Login。
+ */
+
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { authAPI } from '../api/api';
 import { SITE_NAME } from '../constants/site';
-
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -10,16 +15,13 @@ const Login = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-
     try {
       const response = await authAPI.login(formData);
       localStorage.setItem('token', response.data.access);
@@ -38,7 +40,6 @@ const Login = () => {
       setLoading(false);
     }
   };
-
   return (
     <div className="login-wrapper d-flex align-items-center justify-content-center min-vh-100">
       <div className="login-card shadow-lg p-4 rounded-4 bg-white">
@@ -49,7 +50,6 @@ const Login = () => {
           <h3 className="fw-bold mt-2 text-paw">欢迎使用 {SITE_NAME}</h3>
           <p className="text-muted">登录以继续您的救助之旅</p>
         </div>
-
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label htmlFor="username" className="form-label fw-semibold">用户名</label>
@@ -64,7 +64,6 @@ const Login = () => {
               placeholder="请输入用户名"
             />
           </div>
-
           <div className="mb-3">
             <label htmlFor="password" className="form-label fw-semibold">密码</label>
             <input
@@ -78,11 +77,9 @@ const Login = () => {
               placeholder="请输入密码"
             />
           </div>
-
           {error && (
             <div className="alert alert-danger rounded-3">{error}</div>
           )}
-
           <button
             type="submit"
             className="btn btn-paw w-100 py-2 rounded-3 fw-semibold"
@@ -91,7 +88,6 @@ const Login = () => {
             {loading ? '登录中...' : '登录'}
           </button>
         </form>
-
         <div className="text-center mt-3">
           <p className="text-muted">
             <Link to="/forgot-password" className="text-decoration-none text-paw fw-semibold">
@@ -106,37 +102,30 @@ const Login = () => {
           </p>
         </div>
       </div>
-
       <style>{`
         .login-wrapper {
           background: linear-gradient(to right, #fdf0e5, #fef5ef);
         }
-
         .login-card {
           max-width: 420px;
           width: 100%;
         }
-
         .btn-paw {
           background-color: #A0522D;
           border: none;
           color: white;
           transition: all 0.3s ease;
         }
-
         .btn-paw:hover {
           background-color: #8B4513;
         }
-
         .text-paw {
           color: #A0522D;
         }
-
         .form-control:focus {
           border-color: #A0522D;
           box-shadow: 0 0 0 0.2rem rgba(160, 82, 45, 0.25);
         }
-
         .logo-placeholder {
           width: 60px;
           height: 60px;
@@ -147,11 +136,9 @@ const Login = () => {
           justify-content: center;
           margin: 0 auto;
         }
-
         .logo-placeholder i {
           color: white;
         }
-
         @media (max-width: 576px) {
           .login-card {
             padding: 2rem 1.5rem;
@@ -163,3 +150,4 @@ const Login = () => {
 };
 
 export default Login;
+

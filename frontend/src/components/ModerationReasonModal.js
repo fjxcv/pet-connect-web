@@ -1,5 +1,10 @@
-import React, { useState } from 'react';
+/**
+ * @file ModerationReasonModal.js
+ * @module PawRescue
+ * @description 可复用组件：ModerationReasonModal。
+ */
 
+import React, { useState } from 'react';
 const ModerationReasonModal = ({
   show,
   title,
@@ -11,13 +16,11 @@ const ModerationReasonModal = ({
 }) => {
   const [reason, setReason] = useState('');
   const [error, setError] = useState('');
-
   const handleClose = () => {
     setReason('');
     setError('');
     onCancel();
   };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     const trimmed = reason.trim();
@@ -28,9 +31,7 @@ const ModerationReasonModal = ({
     setError('');
     onConfirm(trimmed);
   };
-
   if (!show) return null;
-
   return (
     <div className="modal show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
       <div className="modal-dialog">
@@ -73,3 +74,4 @@ const ModerationReasonModal = ({
 };
 
 export default ModerationReasonModal;
+

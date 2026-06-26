@@ -1,6 +1,13 @@
 /**
+ * @file apiError.js
+ * @module PawRescue
+ * @description 工具函数：apiError。
+ */
+
+/**
  * Format DRF / axios error payload for display.
  */
+
 export function formatApiError(err, fallback = '操作失败，请稍后重试。') {
   if (!err?.response?.data) {
     return err?.message || fallback;
@@ -29,3 +36,4 @@ export function roundCoordinate(value) {
   if (!Number.isFinite(n)) return null;
   return Math.round(n * 1e6) / 1e6;
 }
+

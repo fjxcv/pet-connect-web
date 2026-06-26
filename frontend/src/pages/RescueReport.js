@@ -1,17 +1,20 @@
+/**
+ * @file RescueReport.js
+ * @module PawRescue
+ * @description 页面组件：RescueReport。
+ */
+
 import React, { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { rescueAPI, uploadAPI } from '../api/api';
 import { SIZE_CATEGORY, HEALTH_STATUS } from '../constants/site';
 import { formatApiError, roundCoordinate } from '../utils/apiError';
-
 // 文件校验常量
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
 const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-
 // 高德地图 API Key
 const AMAP_KEY = '0cd985d74a8143ce3e159294a37635a2';
-
 // 逆地理编码：通过高德 API 将经纬度转换为可读地址
 const reverseGeocode = async (lat, lng) => {
   try {
@@ -28,11 +31,9 @@ const reverseGeocode = async (lat, lng) => {
     return '';
   }
 };
-
 const RescueReport = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
-
   const [form, setForm] = useState({
     nickname: '',
     contact: '',
@@ -51,7 +52,6 @@ const RescueReport = () => {
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   const [successNo, setSuccessNo] = useState('');
-
   // ---- 表单字段处理 ----
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -60,7 +60,6 @@ const RescueReport = () => {
       setFieldErrors((prev) => ({ ...prev, [name]: '' }));
     }
   };
-
   // ---- 自动定位 + 逆地理编码 ----
   const handleUseCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -70,16 +69,13 @@ const RescueReport = () => {
     setError('');
     setLocating(true);
     setLocationHint('');
-
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const lat = roundCoordinate(pos.coords.latitude);
         const lng = roundCoordinate(pos.coords.longitude);
         const meters = Math.round(pos.coords.accuracy);
-
         // 调用逆地理编码获取可读地址
         const geocoded = await reverseGeocode(lat, lng);
-
         setForm((prev) => ({
           ...prev,
           discover_latitude: String(lat),
@@ -88,7 +84,6 @@ const RescueReport = () => {
             ? geocoded
             : '当前位置',
         }));
-
         if (geocoded) {
           setLocationHint(`已定位并解析地址（精度约 ${meters} 米），可在此基础上修改。`);
         } else {
@@ -108,12 +103,10 @@ const RescueReport = () => {
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 120000 },
     );
   };
-
   // ---- 照片上传 ----
   const handlePhotoSelect = async (e) => {
     const files = Array.from(e.target.files);
     if (!files.length) return;
-
     for (const f of files) {
       const ext = '.' + f.name.split('.').pop().toLowerCase();
       if (!ALLOWED_TYPES.includes(f.type) && !ALLOWED_EXTENSIONS.includes(ext)) {
@@ -127,7 +120,6 @@ const RescueReport = () => {
         return;
       }
     }
-
     setUploading(true);
     setError('');
     try {
@@ -145,17 +137,14 @@ const RescueReport = () => {
       e.target.value = '';
     }
   };
-
   const removePhoto = (index) => {
     setPhotos((prev) => prev.filter((_, i) => i !== index));
   };
-
   const formatFileSize = (bytes) => {
     if (bytes < 1024) return bytes + ' B';
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
-
   // ---- 表单校验 ----
   const validate = () => {
     const errs = {};
@@ -172,13 +161,11 @@ const RescueReport = () => {
     setFieldErrors(errs);
     return Object.keys(errs).length === 0;
   };
-
   // ---- 提交 ----
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     if (!validate()) return;
-
     setSubmitting(true);
     try {
       const lat = roundCoordinate(form.discover_latitude);
@@ -206,7 +193,6 @@ const RescueReport = () => {
       setSubmitting(false);
     }
   };
-
   const handleReset = () => {
     setForm({
       nickname: '',
@@ -223,7 +209,6 @@ const RescueReport = () => {
     setFieldErrors({});
     setSuccessNo('');
   };
-
   // ---- 成功页 ----
   if (successNo) {
     return (
@@ -246,10 +231,8 @@ const RescueReport = () => {
       </div>
     );
   }
-
   const labelCol = 'col-sm-2 col-form-label';
   const inputCol = 'col-sm-10';
-
   return (
     <div className="py-3">
       {/* 面包屑 */}
@@ -259,19 +242,15 @@ const RescueReport = () => {
           <li className="breadcrumb-item active">流浪动物发现上报</li>
         </ol>
       </nav>
-
       <h2 className="mb-4"><i className="fas fa-clipboard-list me-2 text-success"></i>流浪动物发现上报</h2>
-
       {error && (
         <div className="alert alert-danger d-flex align-items-center gap-2">
           <i className="fas fa-exclamation-triangle"></i>
           <span>{error}</span>
         </div>
       )}
-
       <form onSubmit={handleSubmit} className="card shadow-sm" noValidate>
         <div className="card-body">
-
           {/* 您的昵称 */}
           <div className="row mb-3 align-items-center">
             <label className={`${labelCol} fw-bold`}>您的昵称 <span className="text-danger">*</span></label>
@@ -292,7 +271,6 @@ const RescueReport = () => {
               </div>
             )}
           </div>
-
           {/* 您的联系方式 */}
           <div className="row mb-3 align-items-center">
             <label className={`${labelCol} fw-bold`}>您的联系方式 <span className="text-danger">*</span></label>
@@ -314,7 +292,6 @@ const RescueReport = () => {
               </div>
             )}
           </div>
-
           {/* 发现的详细位置 */}
           <div className="row mb-3 align-items-center">
             <label className={`${labelCol} fw-bold`}>发现的详细位置 <span className="text-danger">*</span></label>
@@ -361,7 +338,6 @@ const RescueReport = () => {
               </div>
             )}
           </div>
-
           {/* 上传动物照片 */}
           <div className="row mb-3">
             <label className={`${labelCol} fw-bold pt-2`}>上传动物照片</label>
@@ -385,7 +361,6 @@ const RescueReport = () => {
                   onChange={handlePhotoSelect}
                   disabled={uploading || submitting}
                 />
-
                 {uploading ? (
                   <div className="py-4">
                     <span className="spinner-border text-success" role="status" />
@@ -459,7 +434,6 @@ const RescueReport = () => {
               </div>
             </div>
           </div>
-
           {/* 体型描述 */}
           <div className="row mb-3 align-items-center">
             <label className={`${labelCol} fw-bold`}>体型描述 <span className="text-danger">*</span></label>
@@ -487,7 +461,6 @@ const RescueReport = () => {
               </div>
             )}
           </div>
-
           {/* 健康状况 */}
           <div className="row mb-3 align-items-center">
             <label className={`${labelCol} fw-bold`}>健康状况 <span className="text-danger">*</span></label>
@@ -515,7 +488,6 @@ const RescueReport = () => {
               </div>
             )}
           </div>
-
           {/* 是否怕人 */}
           <div className="row mb-3 align-items-center">
             <label className={`${labelCol} fw-bold`}>是否怕人 <span className="text-danger">*</span></label>
@@ -553,9 +525,7 @@ const RescueReport = () => {
               </div>
             )}
           </div>
-
         </div>
-
         {/* 底部按钮 */}
         <div className="card-footer d-flex justify-content-center gap-2">
           <button
@@ -582,3 +552,4 @@ const RescueReport = () => {
 };
 
 export default RescueReport;
+

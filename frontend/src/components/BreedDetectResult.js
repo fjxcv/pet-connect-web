@@ -1,8 +1,16 @@
-import React from 'react';
+/**
+ * @file BreedDetectResult.js
+ * @module PawRescue
+ * @description 可复用组件：BreedDetectResult。
+ */
 
+import React from 'react';
+/**
+ * 功能：展示 AI 品种识别结果。
+ * 【权限】由 AddPet 等页面在登录后调用。
+ */
 const BreedDetectResult = ({ data, className = '' }) => {
   if (!data) return null;
-
   const {
     species,
     breed,
@@ -12,21 +20,16 @@ const BreedDetectResult = ({ data, className = '' }) => {
     breed_candidates: candidates,
     low_confidence: lowConfidence,
   } = data;
-
   const list = Array.isArray(candidates) && candidates.length > 0
     ? candidates
     : (breed && breed !== '不确定' ? [{ breed, confidence: confidence ?? 0.85 }] : []);
-
   const hasStructured = Boolean(
     (species && species !== '不确定')
     || list.length > 0
     || (summary && summary !== '不确定' && summary !== '无'),
   );
-
   const showResultFallback = Boolean(result) && !hasStructured;
-
   if (!hasStructured && !showResultFallback) return null;
-
   return (
     <div className={`breed-detect-result ${className}`.trim()}>
       {species && species !== '不确定' && (
@@ -83,3 +86,4 @@ const BreedDetectResult = ({ data, className = '' }) => {
 };
 
 export default BreedDetectResult;
+

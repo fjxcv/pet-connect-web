@@ -1,3 +1,9 @@
+/**
+ * @file Home.js
+ * @module PawRescue
+ * @description 页面组件：Home。
+ */
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Carousel } from 'bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
@@ -9,16 +15,13 @@ import catImg from '../Photo/cat.webp';
 import dogImg from '../Photo/dog.webp';
 import fishImg from '../Photo/fish.webp';
 import rabbitImg from '../Photo/rabbit.jpeg';
-
 const toList = (data) => (Array.isArray(data) ? data : data?.results ?? []);
-
 const STATS_CONFIG = [
   { key: 'total_rescued', label: '累计救助', icon: 'fa-check-circle', color: 'success' },
   { key: 'total_adopted', label: '累计领养', icon: 'fa-home', color: 'primary' },
   { key: 'searching_count', label: '正在寻找', icon: 'fa-search', color: 'danger' },
   { key: 'today_reported', label: '今日上报', icon: 'fa-flag', color: 'warning' },
 ];
-
 const PET_CATEGORIES = [
   { name: '猫', image: catImg, link: '/pets?type=cat' },
   { name: '狗', image: dogImg, link: '/pets?type=dog' },
@@ -26,7 +29,6 @@ const PET_CATEGORIES = [
   { name: '兔', image: rabbitImg, link: '/pets?type=rabbit' },
   { name: '鱼', image: fishImg, link: '/pets?type=fish' },
 ];
-
 const Home = () => {
   const navigate = useNavigate();
   const [carouselItems, setCarouselItems] = useState([]);
@@ -37,22 +39,18 @@ const Home = () => {
   const [aiDetectData, setAiDetectData] = useState(null);
   const [aiError, setAiError] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
-
   const [stats, setStats] = useState(null);
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsError, setStatsError] = useState(false);
-
   const [dashboard, setDashboard] = useState(null);
   const [dashboardLoading, setDashboardLoading] = useState(true);
   const [dashboardError, setDashboardError] = useState(false);
-
   const normalizeCarouselTitle = (title) => {
     if (!title) return '';
     const t = String(title).trim();
     if (/welcome\s*to\s*adoption/i.test(t)) return '欢迎领养';
     return t;
   };
-
   useEffect(() => {
     const fetchCarousel = async () => {
       try {
@@ -70,7 +68,6 @@ const Home = () => {
     };
     fetchCarousel();
   }, []);
-
   // 轮播是异步渲染的，Bootstrap 的 data-bs-ride 不会自动初始化，故手动启用自动轮播
   useEffect(() => {
     if (carouselLoading || carouselItems.length === 0 || !carouselRef.current) return undefined;
@@ -80,7 +77,6 @@ const Home = () => {
       try { instance.dispose(); } catch (e) { /* element already unmounted */ }
     };
   }, [carouselLoading, carouselItems]);
-
   const fetchStats = useCallback(async () => {
     setStatsLoading(true);
     setStatsError(false);
@@ -94,11 +90,9 @@ const Home = () => {
       setStatsLoading(false);
     }
   }, []);
-
   useEffect(() => {
     fetchStats();
   }, [fetchStats]);
-
   const fetchDashboard = useCallback(async () => {
     setDashboardLoading(true);
     setDashboardError(false);
@@ -112,11 +106,9 @@ const Home = () => {
       setDashboardLoading(false);
     }
   }, []);
-
   useEffect(() => {
     fetchDashboard();
   }, [fetchDashboard]);
-
   return (
     <div>
       {/* 轮播图 */}
@@ -169,7 +161,6 @@ const Home = () => {
           </button>
         </div>
       )}
-
       {/* 核心数据统计 */}
       <div className="container py-4">
         <h4 className="text-center mb-4">
@@ -203,7 +194,6 @@ const Home = () => {
           </div>
         ) : null}
       </div>
-
       {/* 最新聚合动态 */}
       <div className="container py-4">
         <h4 className="text-center mb-4">
@@ -257,7 +247,6 @@ const Home = () => {
                 </div>
               </div>
             </div>
-
             {/* 科普文章 */}
             <div className="col-md-4">
               <div className="card shadow-sm h-100">
@@ -287,7 +276,6 @@ const Home = () => {
                 </div>
               </div>
             </div>
-
             {/* 最新公告 */}
             <div className="col-md-4">
               <div className="card shadow-sm h-100">
@@ -320,7 +308,6 @@ const Home = () => {
           </div>
         ) : null}
       </div>
-
       {/* Hero 区域 */}
       <div className="hero-section text-center py-5 position-relative">
         <div className="hero-background">
@@ -332,7 +319,6 @@ const Home = () => {
             <i className="fas fa-heart pet-float-5"></i>
           </div>
         </div>
-
         <div className="container position-relative z-2">
           <h1 className="display-4 fw-bold mb-4">
             <span className="text-dark">寻找你的</span>
@@ -365,7 +351,6 @@ const Home = () => {
           </div>
         </div>
       </div>
-
       {/* AI 品种识别 */}
       <div className="container py-4">
         <div className="card shadow-sm border-success">
@@ -435,7 +420,6 @@ const Home = () => {
           </div>
         </div>
       </div>
-
       {/* 宠物分类 */}
       <div className="pet-categories-section py-5">
         <div className="container">
@@ -460,7 +444,6 @@ const Home = () => {
           </div>
         </div>
       </div>
-
       <style>{`
         .hero-section {
           background: linear-gradient(135deg, #FFF8F0 0%, #FAFAFA 100%);
@@ -470,7 +453,6 @@ const Home = () => {
           position: relative;
           overflow: hidden;
         }
-
         .hero-background {
           position: absolute;
           top: 0;
@@ -480,66 +462,54 @@ const Home = () => {
           opacity: 0.1;
           z-index: 1;
         }
-
         .floating-pets {
           position: relative;
           width: 100%;
           height: 100%;
         }
-
         .pet-float-1, .pet-float-2, .pet-float-3, .pet-float-4, .pet-float-5 {
           position: absolute;
           font-size: 3rem;
           color:rgb(91, 215, 60);
           animation: float 6s ease-in-out infinite;
         }
-
         .pet-float-1 { top: 20%; left: 10%; animation-delay: 0s; }
         .pet-float-2 { top: 30%; right: 15%; animation-delay: 1s; }
         .pet-float-3 { bottom: 25%; left: 20%; animation-delay: 2s; }
         .pet-float-4 { bottom: 15%; right: 25%; animation-delay: 3s; }
         .pet-float-5 { top: 50%; left: 50%; animation-delay: 4s; }
-
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-20px) rotate(10deg); }
         }
-
         .hero-btn {
           transition: all 0.3s ease;
           position: relative;
           overflow: hidden;
         }
-
         .hero-btn:hover {
           transform: translateY(-3px);
           box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
-
         .hero-btn:hover .btn-icon {
           transform: translateX(5px);
         }
-
         .btn-icon {
           transition: transform 0.3s ease;
         }
-
         .btn-success {
           background-color: #00C897;
           border-color: #00C897;
           color: white;
         }
-
         .btn-success:hover {
           background-color: #00B386;
           border-color: #00B386;
           color: white;
         }
-
         .pet-categories-section {
           background-color: #FFF8F0;
         }
-
         .pet-category-circle {
           position: relative;
           width: 120px;
@@ -551,27 +521,22 @@ const Home = () => {
           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
           cursor: pointer;
         }
-
         .pet-category-circle:hover {
           transform: scale(1.15) translateY(-5px);
           box-shadow: 0 12px 35px rgba(0,0,0,0.2);
         }
-
         .pet-category-circle:hover .pet-category-text {
           color: #444444;
         }
-
         .pet-category-img {
           width: 100%;
           height: 100%;
           object-fit: cover;
           transition: transform 0.4s ease;
         }
-
         .pet-category-circle:hover .pet-category-img {
           transform: scale(1.1);
         }
-
         .pet-category-overlay {
           position: absolute;
           bottom: 0;
@@ -584,13 +549,11 @@ const Home = () => {
           font-weight: bold;
           transition: all 0.3s ease;
         }
-
         .pet-category-text {
           display: block;
           text-align: center;
           transition: color 0.3s ease;
         }
-
         .z-2 {
           z-index: 2;
         }
@@ -600,3 +563,4 @@ const Home = () => {
 };
 
 export default Home;
+

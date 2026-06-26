@@ -1,3 +1,9 @@
+/**
+ * @file auth.js
+ * @module PawRescue
+ * @description 工具函数：auth。
+ */
+
 export const logout = (navigate) => {
   localStorage.removeItem('token');
   if (navigate) {
@@ -12,3 +18,4 @@ export const confirmLogout = (navigate) => {
     logout(navigate);
   }
 };
+

@@ -1,3 +1,7 @@
+"""
+AI 图片加载。
+"""
+
 import base64
 import io
 import os
@@ -58,6 +62,9 @@ def _compress_image_bytes(image_bytes: bytes, max_bytes: int = 750_000) -> tuple
 
 
 def _load_from_base64(image_base64: str) -> tuple[bytes, str, str]:
+    """
+    功能：解析 base64（支持 data: 前缀），压缩后返回 bytes/mime/filename。
+    """
     raw = image_base64.strip()
     mime = 'image/jpeg'
     if raw.startswith('data:'):
@@ -88,6 +95,9 @@ def _media_relative_path(url_path: str) -> str | None:
 
 
 def _load_from_url(image_url: str, request=None) -> tuple[bytes, str, str]:
+    """
+    功能：支持 MEDIA 本地文件直读 + 外网 URL 下载（避免 localhost 给云 API 用）。
+    """
     parsed = urlparse(image_url.strip())
     if not parsed.scheme and not parsed.path:
         raise ImageLoadError('image_url is required')
@@ -135,6 +145,12 @@ def _load_from_url(image_url: str, request=None) -> tuple[bytes, str, str]:
 
 
 def load_image_for_ai(*, image_url: str = '', image_base64: str = '', request=None) -> dict:
+    """
+    功能：统一图片加载入口（base64 优先，URL 次之），返回 bytes + data_url 供 CNN/LLM。
+    参数：image_url / image_base64 / request
+    返回：dict（bytes, mime, filename, data_url）
+    【权限】user/admin（breed_detect / AddPet 调用）
+    """
     if image_base64:
         image_bytes, mime, filename = _load_from_base64(image_base64)
     elif image_url:

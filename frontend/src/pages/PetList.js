@@ -1,3 +1,9 @@
+/**
+ * @file PetList.js
+ * @module PawRescue
+ * @description 页面组件：PetList。
+ */
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { petsAPI } from '../api/api';
@@ -5,7 +11,6 @@ import { ADOPTION_STATUS } from '../constants/site';
 import AdminManageBar from '../components/AdminManageBar';
 import { useManageMode } from '../context/ManageModeContext';
 import { reverseAmapLocation } from '../utils/amapLocation';
-
 const SPECIES_LABELS = {
   dog: '狗',
   cat: '猫',
@@ -14,13 +19,11 @@ const SPECIES_LABELS = {
   fish: '鱼',
   other: '其他',
 };
-
 const GENDER_LABELS = {
   male: '公',
   female: '母',
   unknown: '未知',
 };
-
 const AGE_STAGE_OPTIONS = [
   { value: '', label: '不限阶段', min: null, max: null },
   { value: 'baby', label: '幼龄（0-6个月）', min: 0, max: 6 },
@@ -28,9 +31,7 @@ const AGE_STAGE_OPTIONS = [
   { value: 'adult', label: '成年（25-84个月）', min: 25, max: 84 },
   { value: 'senior', label: '高龄（85个月以上）', min: 85, max: null },
 ];
-
 const NON_DOG_SPECIES = ['cat', 'bird', 'rabbit', 'fish', 'other'];
-
 const HEALTH_STATUS_LABELS = {
   vaccinated: '已接种疫苗',
   neutered: '已绝育',
@@ -47,13 +48,11 @@ const HEALTH_STATUS_LABELS = {
   recovered: '已康复',
   unknown: '未知',
 };
-
 const ADOPTION_BADGE = {
   available: 'success',
   pending: 'warning text-dark',
   adopted: 'secondary',
 };
-
 const CITY_TO_PROVINCE = {
   '北京市': '北京市',
   '天津市': '天津市',
@@ -97,7 +96,6 @@ const CITY_TO_PROVINCE = {
   '香港': '香港特别行政区',
   '澳门': '澳门特别行政区',
 };
-
 const CHINA_PROVINCES = [
   '北京市', '天津市', '上海市', '重庆市',
   '河北省', '山西省', '辽宁省', '吉林省', '黑龙江省',
@@ -108,7 +106,6 @@ const CHINA_PROVINCES = [
   '内蒙古自治区', '广西壮族自治区', '西藏自治区', '宁夏回族自治区', '新疆维吾尔自治区',
   '香港特别行政区', '澳门特别行政区',
 ];
-
 const inferRegionFromAddress = (address = '') => {
   const text = String(address || '');
   const provinceMatch = text.match(/([^省]+省|.+自治区|上海市|北京市|天津市|重庆市)/);
@@ -121,7 +118,6 @@ const inferRegionFromAddress = (address = '') => {
     city,
   };
 };
-
 const normalizeRegion = (pet) => {
   const fallback = inferRegionFromAddress(pet.rescue_case_address);
   return {
@@ -131,28 +127,24 @@ const normalizeRegion = (pet) => {
     city: pet.city || fallback.city,
   };
 };
-
 const getRegionDisplay = (pet) => {
   const normalized = normalizeRegion(pet);
   const region = [normalized.country, normalized.province, normalized.city].filter(Boolean).join(' / ');
   if (region) return region;
   return normalized.rescue_case_address || '未知';
 };
-
 const formatHealthStatus = (status) => {
   if (!status) return null;
   if (/[\u4e00-\u9fff]/.test(status)) return status;
   const lower = status.toLowerCase().trim();
   return HEALTH_STATUS_LABELS[lower] || status;
 };
-
 const formatSizeDisplay = (pet) => {
   if (pet.size_category_display) return pet.size_category_display;
   if (pet.species === 'dog') return null;
   if (NON_DOG_SPECIES.includes(pet.species)) return '小型';
   return null;
 };
-
 const formatAgeMonths = (months) => {
   if (months == null || months === '') return '未知';
   const m = Number(months);
@@ -162,7 +154,6 @@ const formatAgeMonths = (months) => {
   if (rem === 0) return `${years}岁`;
   return `${years}岁${rem}个月`;
 };
-
 const buildRegionOptions = (pets) => {
   const normalizedPets = pets.map(normalizeRegion);
   const countries = [...new Set(normalizedPets.map((p) => p.country).filter(Boolean))].sort();
@@ -173,17 +164,14 @@ const buildRegionOptions = (pets) => {
   const cities = [...new Set(normalizedPets.map((p) => p.city).filter(Boolean))].sort();
   return { countries, provinces, cities };
 };
-
 const PetList = () => {
   const navigate = useNavigate();
   const { canManage } = useManageMode();
   const [searchParams, setSearchParams] = useSearchParams();
-
   const [pets, setPets] = useState([]);
   const [allAvailablePets, setAllAvailablePets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const [searchText, setSearchText] = useState(searchParams.get('search') || '');
   const [search, setSearch] = useState(searchParams.get('search') || '');
   const [speciesFilter, setSpeciesFilter] = useState(searchParams.get('species') || '');
@@ -195,11 +183,9 @@ const PetList = () => {
   const [ageStage, setAgeStage] = useState(searchParams.get('age_stage') || '');
   const [customAgeMin, setCustomAgeMin] = useState(searchParams.get('age_min') || '');
   const [customAgeMax, setCustomAgeMax] = useState(searchParams.get('age_max') || '');
-
   // 本地输入状态：仅在回车或失焦时才提交到上面的筛选状态，避免每次按键都触发 API 请求
   const [ageMinInput, setAgeMinInput] = useState(searchParams.get('age_min') || '');
   const [ageMaxInput, setAgeMaxInput] = useState(searchParams.get('age_max') || '');
-
   const [nearbyMode, setNearbyMode] = useState(searchParams.get('nearby') === 'true');
   const [radiusKm, setRadiusKm] = useState(searchParams.get('radius_km') || '10');
   const [nearbyLoading, setNearbyLoading] = useState(false);
@@ -210,16 +196,13 @@ const PetList = () => {
     province: '',
     city: '',
   });
-
   const regionOptions = useMemo(() => buildRegionOptions(allAvailablePets), [allAvailablePets]);
   const normalizedAllPets = useMemo(() => allAvailablePets.map(normalizeRegion), [allAvailablePets]);
-
   const fetchAllAvailablePets = useCallback(async () => {
     const response = await petsAPI.getAll({ adoption_status: 'available' });
     const list = Array.isArray(response.data) ? response.data : response.data.results || [];
     setAllAvailablePets(list);
   }, []);
-
   const buildCommonParams = useCallback(() => {
     const params = { adoption_status: 'available' };
     if (search) params.search = search;
@@ -249,7 +232,6 @@ const PetList = () => {
     search,
     speciesFilter,
   ]);
-
   const fetchPets = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -289,15 +271,12 @@ const PetList = () => {
       setLoading(false);
     }
   }, [buildCommonParams, nearbyMode, provinceFilter, radiusKm, userLocation.city, userLocation.lat, userLocation.lon, userLocation.province]);
-
   useEffect(() => {
     fetchAllAvailablePets().catch((err) => console.error(err));
   }, [fetchAllAvailablePets]);
-
   useEffect(() => {
     fetchPets();
   }, [fetchPets]);
-
   useEffect(() => {
     const params = new URLSearchParams();
     if (search) params.set('search', search);
@@ -332,21 +311,17 @@ const PetList = () => {
     setSearchParams,
     speciesFilter,
   ]);
-
   const handleConfirmSearch = () => {
     setSearch(searchText.trim());
   };
-
   const handleCustomAgeInput = (setter) => (event) => {
     const next = event.target.value.replace(/[^\d]/g, '');
     setter(next);
   };
-
   const handleConfirmAge = () => {
     setCustomAgeMin(ageMinInput);
     setCustomAgeMax(ageMaxInput);
   };
-
   const handleNearbySearch = () => {
     if (!navigator.geolocation) {
       setError('当前浏览器不支持定位，请更换浏览器重试。');
@@ -388,7 +363,6 @@ const PetList = () => {
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );
   };
-
   const clearFilters = () => {
     setSearchText('');
     setSearch('');
@@ -407,7 +381,6 @@ const PetList = () => {
     setRadiusKm('10');
     setLocationHint('');
   };
-
   const hasActiveFilters = Boolean(
     search ||
       speciesFilter ||
@@ -420,7 +393,6 @@ const PetList = () => {
       customAgeMax ||
       nearbyMode
   );
-
   const filteredProvinceOptions = useMemo(() => {
     if (!countryFilter) return regionOptions.provinces;
     if (countryFilter === '中国') {
@@ -436,7 +408,6 @@ const PetList = () => {
       ),
     ].sort();
   }, [normalizedAllPets, countryFilter, regionOptions.provinces]);
-
   const filteredCityOptions = useMemo(() => {
     return [
       ...new Set(
@@ -448,7 +419,6 @@ const PetList = () => {
       ),
     ].sort();
   }, [normalizedAllPets, countryFilter, provinceFilter]);
-
   if (loading) {
     return (
       <div className="text-center py-5">
@@ -459,11 +429,9 @@ const PetList = () => {
       </div>
     );
   }
-
   if (error) {
     return <div className="alert alert-danger">{error}</div>;
   }
-
   return (
     <div className="pet-list-container">
       <div className="search-filter-section mb-4">
@@ -485,7 +453,6 @@ const PetList = () => {
               </button>
             </div>
           </div>
-
           <div className="row g-2 mb-2">
             <div className="col-6 col-md-2">
               <select className="form-select" value={speciesFilter} onChange={(e) => setSpeciesFilter(e.target.value)}>
@@ -542,7 +509,6 @@ const PetList = () => {
               </button>
             </div>
           </div>
-
           <div className="row g-2 mb-2">
             <div className="col-12 col-md-2">
               <select className="form-select" value={ageMode} onChange={(e) => setAgeMode(e.target.value)}>
@@ -621,7 +587,6 @@ const PetList = () => {
           {locationHint && <small className="text-muted">{locationHint}</small>}
         </div>
       </div>
-
       <div className="container mb-4 d-flex justify-content-between align-items-center">
         <h5 className="text-muted mb-0">
           共找到 <strong className="text-success">{pets.length}</strong> 只可领养宠物
@@ -630,7 +595,6 @@ const PetList = () => {
           我的申请与核验
         </Link>
       </div>
-
       <div className="container">
         <div className="row">
           {pets.map((pet) => (
@@ -699,7 +663,6 @@ const PetList = () => {
           )}
         </div>
       </div>
-
       <style>{`
         .pet-list-container {
           background-color: #fafafa;
@@ -761,3 +724,4 @@ const PetList = () => {
 };
 
 export default PetList;
+

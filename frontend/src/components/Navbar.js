@@ -1,3 +1,9 @@
+/**
+ * @file Navbar.js
+ * @module PawRescue
+ * @description 可复用组件：Navbar。
+ */
+
 import { useCallback, useEffect, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { authAPI } from '../api/api';
@@ -5,7 +11,6 @@ import { SITE_NAME } from '../constants/site';
 import { logout } from '../utils/auth';
 import { isAdminUser } from './AdminRoute';
 import { useManageMode } from '../context/ManageModeContext';
-
 const MAIN_NAV = [
   { to: '/', label: '\u9996\u9875', end: true },
   { to: '/pets', label: '\u9886\u517b\u5ba0\u7269' },
@@ -14,21 +19,16 @@ const MAIN_NAV = [
   { to: '/community', label: '\u793e\u533a' },
   { to: '/rescue', label: '\u6551\u52a9\u8ddf\u8e2a' },
 ];
-
 const ADMIN_NAV = [
   { to: '/add-pet', label: '\u6dfb\u52a0\u6863\u6848' },
   { to: '/admin', label: '\u7ba1\u7406\u540e\u53f0' },
 ];
-
 const mainNavClass = ({ isActive }) =>
   `nav-link navbar-main-link${isActive ? ' active' : ''}`;
-
 const adminNavClass = ({ isActive }) =>
   `nav-link navbar-main-link navbar-main-link--admin${isActive ? ' active' : ''}`;
-
 const authNavClass = ({ isActive }) =>
   `nav-link navbar-auth-link${isActive ? ' active' : ''}`;
-
 const Navbar = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -36,7 +36,6 @@ const Navbar = () => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const token = localStorage.getItem('token');
   const { manageMode, setManageMode, refreshAdmin } = useManageMode();
-
   const fetchUserProfile = useCallback(async () => {
     if (!token) return;
     try {
@@ -54,7 +53,6 @@ const Navbar = () => {
       }
     }
   }, [navigate, token, refreshAdmin]);
-
   useEffect(() => {
     if (token) fetchUserProfile();
     else {
@@ -62,21 +60,18 @@ const Navbar = () => {
       setIsAdmin(false);
     }
   }, [token, fetchUserProfile]);
-
   useEffect(() => {
     if (!userMenuOpen) return undefined;
     const close = () => setUserMenuOpen(false);
     document.addEventListener('click', close);
     return () => document.removeEventListener('click', close);
   }, [userMenuOpen]);
-
   const handleLogout = () => {
     logout(navigate);
     setUser(null);
     setIsAdmin(false);
     setManageMode(false);
   };
-
   const L = {
     profile: '\u4e2a\u4eba\u4e2d\u5fc3',
     publicPage: '\u6211\u7684\u4e3b\u9875',
@@ -89,7 +84,6 @@ const Navbar = () => {
     user: '\u7528\u6237',
     manage: '\u7ba1\u7406\u6a21\u5f0f',
   };
-
   return (
     <nav className="navbar navbar-expand-lg navbar-dark navbar-main" style={{ backgroundColor: '#ff8c00' }}>
       <div className="container">
@@ -189,3 +183,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

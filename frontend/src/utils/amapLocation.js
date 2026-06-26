@@ -1,5 +1,10 @@
-import { AMAP_KEY } from '../config/amap';
+/**
+ * @file amapLocation.js
+ * @module PawRescue
+ * @description 工具函数：amapLocation。
+ */
 
+import { AMAP_KEY } from '../config/amap';
 const normalizeAmapResponse = (json) => (json && typeof json === 'object' ? json : {});
 
 export const parseAmapAddress = (addressComponent = {}) => ({
@@ -61,3 +66,4 @@ export async function reverseAmapLocation(latitude, longitude) {
     location_text: json.regeocode.formatted_address || '',
   };
 }
+

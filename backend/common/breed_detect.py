@@ -1,33 +1,47 @@
 import json
 import time
 
+"""
+品种识别编排。
+"""
+
 from common.breed_classifier import BreedModelNotReadyError, is_model_ready, model_paths, predict_breeds
 from common.image_loader import load_image_for_ai
 
 _LOW_CONFIDENCE_THRESHOLD = 0.35
-_UNCERTAIN = '\u4e0d\u786e\u5b9a'
-_NONE = '\u65e0'
+_UNCERTAIN = '不确定'
+_NONE = '无'
 
 
 def _fallback_breeds_for_species(species: str) -> list[dict]:
+    """
+    功能：模型未就绪或置信度低时，返回物种默认候选品种。
+    参数：species — 物种（猫/狗）
+    返回：list[dict] — breed, confidence
+    """
     s = (species or '').strip()
-    if '\u732b' in s:
+    if '猫' in s:
         return [
-            {'breed': '\u4e2d\u534e\u7530\u56ed\u732b', 'confidence': 0.45},
-            {'breed': '\u6df7\u8840\u4e2a\u4f53\uff08\u54c1\u79cd\u5f85\u786e\u8ba4\uff09', 'confidence': 0.35},
+            {'breed': '中华田园猫', 'confidence': 0.45},
+            {'breed': '混血个体（品种待确认）', 'confidence': 0.35},
         ]
-    if '\u72d7' in s:
+    if '狗' in s:
         return [
-            {'breed': '\u4e2d\u534e\u7530\u56ed\u72ac', 'confidence': 0.45},
-            {'breed': '\u6df7\u8840\u4e2a\u4f53\uff08\u54c1\u79cd\u5f85\u786e\u8ba4\uff09', 'confidence': 0.35},
+            {'breed': '中华田园犬', 'confidence': 0.45},
+            {'breed': '混血个体（品种待确认）', 'confidence': 0.35},
         ]
     return [
-        {'breed': '\u6df7\u8840\u4e2a\u4f53\uff08\u54c1\u79cd\u5f85\u786e\u8ba4\uff09', 'confidence': 0.45},
-        {'breed': '\u54c1\u79cd\u5f85\u8fdb\u4e00\u6b65\u786e\u8ba4', 'confidence': 0.35},
+        {'breed': '混血个体（品种待确认）', 'confidence': 0.45},
+        {'breed': '品种待进一步确认', 'confidence': 0.35},
     ]
 
 
 def _ensure_breed_candidates(species: str, candidates: list[dict]) -> tuple[list[dict], bool]:
+    """
+    功能：合并 CNN 结果与 fallback，保证至少 2 个候选，置信度低时标记 low_confidence。
+    参数：species, candidates
+    返回：(merged_candidates, low_confidence_flag)
+    """
     fallbacks = _fallback_breeds_for_species(species)
     if not candidates:
         return fallbacks[:2], True
@@ -49,14 +63,24 @@ def _ensure_breed_candidates(species: str, candidates: list[dict]) -> tuple[list
 
 
 def _build_result_text(species: str, candidates: list[dict]) -> str:
+    """
+    功能：生成前端展示的推荐文本（Top1 + 置信度）。
+    参数：species, candidates
+    返回：str
+    """
     if not candidates:
-        return f'\u7269\u79cd\uff1a{species}' if species else ''
+        return f'物种：{species}' if species else ''
     top = candidates[0]
     pct = int(top['confidence'] * 100)
-    return f"\u63a8\u8350\u54c1\u79cd\uff1a{top['breed']}\uff08\u7f6e\u4fe1\u5ea6\u7ea6 {pct}%\uff09"
+    return f"推荐品种：{top['breed']}（置信度约 {pct}%）"
 
 
 def _predictions_to_payload(predictions: list[dict]) -> dict:
+    """
+    功能：将 CNN Top-K 结果转换为统一 payload（含 low_confidence 标记）。
+    参数：predictions — breed_classifier 返回的 list
+    返回：dict（species/breed/breed_candidates/low_confidence 等）
+    """
     if not predictions:
         species = _UNCERTAIN
         candidates, low_confidence = _ensure_breed_candidates(species, [])
@@ -91,12 +115,19 @@ def _predictions_to_payload(predictions: list[dict]) -> dict:
 
 
 def detect_pet_breed(*, image_url: str = '', image_base64: str = '', description: str = '', request=None) -> dict:
+    """
+    功能：品种识别主流程（AddPet 调用）。
+    1. 检查模型就绪 → 2. 加载图片 → 3. CNN 推理 → 4. 组装 payload
+    参数：image_url / image_base64 / description / request
+    返回：dict（result/breed/species/breed_candidates/low_confidence/debug_meta）
+    【权限】user/admin（经 aiAPI.breedDetect）
+    """
     if not is_model_ready():
         paths = model_paths()
         raise BreedModelNotReadyError(
-            f'\u672c\u5730\u54c1\u79cd\u6a21\u578b\u672a\u5c31\u7eea\u3002\u8bf7\u5728\u9879\u76ee\u6839\u76ee\u5f55\u6267\u884c\uff1a'
+            f'本地品种模型未就绪。请在项目根目录执行：'
             f'backend\\venv\\Scripts\\python.exe scripts\\download_breed_model.py'
-            f'\uff08\u6216 scripts\\train_breed_model.py\uff09\u3002\u6743\u91cd\u8def\u5f84\uff1a{paths["weights"]}'
+            f'（或 scripts\\train_breed_model.py）。权重路径：{paths["weights"]}'
         )
 
     image = load_image_for_ai(

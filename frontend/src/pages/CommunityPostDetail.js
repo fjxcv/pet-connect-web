@@ -1,3 +1,9 @@
+/**
+ * @file CommunityPostDetail.js
+ * @module PawRescue
+ * @description 页面组件：CommunityPostDetail。
+ */
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { authAPI, communityAPI, usersAPI } from '../api/api';
@@ -6,7 +12,6 @@ import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 import { POST_CATEGORIES } from '../constants/site';
 import { isAdminUser } from '../components/AdminRoute';
 import { useAuthPrompt } from '../context/AuthPromptContext';
-
 const CommunityPostDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -22,17 +27,14 @@ const CommunityPostDetail = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState({ visible: false, message: '', onConfirm: null });
   const [deleteLoading, setDeleteLoading] = useState(false);
-
   const fetchPost = useCallback(async () => {
     const response = await communityAPI.getPost(id);
     setPost(response.data);
   }, [id]);
-
   const fetchComments = useCallback(async () => {
     const response = await communityAPI.getComments(id);
     setComments(response.data);
   }, [id]);
-
   useEffect(() => {
     const load = async () => {
       try {
@@ -57,16 +59,13 @@ const CommunityPostDetail = () => {
     };
     load();
   }, [fetchPost, fetchComments]);
-
   const { requireAuth } = useAuthPrompt();
   const getActionError = (detail, fallback) => (
     detail === 'account_banned' ? '账号已被封禁，无法执行该操作' : fallback
   );
-
   const canManagePost = post && currentUser && (
     post.author?.id === currentUser.id || isAdminUser(currentUser)
   );
-
   const handleLike = async () => {
     if (!requireAuth()) return;
     setActionLoading(true);
@@ -85,7 +84,6 @@ const CommunityPostDetail = () => {
       setActionLoading(false);
     }
   };
-
   const handleFavorite = async () => {
     if (!requireAuth()) return;
     setActionLoading(true);
@@ -104,11 +102,9 @@ const CommunityPostDetail = () => {
       setActionLoading(false);
     }
   };
-
   const closeDeleteDialog = () => {
     setDeleteDialog({ visible: false, message: '', onConfirm: null });
   };
-
   const handleConfirmDelete = async () => {
     if (!deleteDialog.onConfirm) return;
     setDeleteLoading(true);
@@ -122,7 +118,6 @@ const CommunityPostDetail = () => {
       setDeleteLoading(false);
     }
   };
-
   const handleDeletePost = () => {
     setError(null);
     setDeleteDialog({
@@ -134,7 +129,6 @@ const CommunityPostDetail = () => {
       },
     });
   };
-
   const handleBlockAuthor = async () => {
     if (!post?.author?.id || !window.confirm('确定拉黑该用户？')) return;
     try {
@@ -145,13 +139,11 @@ const CommunityPostDetail = () => {
       alert('操作失败');
     }
   };
-
   const submitComment = async (content, parentId = null) => {
     await communityAPI.addComment(id, { content: content.trim(), parent: parentId });
     await fetchComments();
     setPost((p) => ({ ...p, comment_count: p.comment_count + 1 }));
   };
-
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!requireAuth()) return;
@@ -174,7 +166,6 @@ const CommunityPostDetail = () => {
       setSubmittingComment(false);
     }
   };
-
   const handleSubmitReply = async () => {
     if (!requireAuth() || !replyTarget || !replyText.trim()) return;
     setSubmittingComment(true);
@@ -196,7 +187,6 @@ const CommunityPostDetail = () => {
       setSubmittingComment(false);
     }
   };
-
   const handleCommentLike = async (comment) => {
     if (!requireAuth()) return;
     try {
@@ -211,7 +201,6 @@ const CommunityPostDetail = () => {
       alert(getActionError(err.response?.data?.detail, '操作失败'));
     }
   };
-
   const handleCommentDelete = (comment) => {
     setError(null);
     setDeleteDialog({
@@ -224,13 +213,11 @@ const CommunityPostDetail = () => {
       },
     });
   };
-
   const handleReplyTarget = (comment) => {
     if (!requireAuth()) return;
     setReplyTarget(comment);
     setReplyText('');
   };
-
   if (loading) {
     return (
       <div className="text-center py-5">
@@ -240,7 +227,6 @@ const CommunityPostDetail = () => {
       </div>
     );
   }
-
   if (error || !post) {
     return (
       <div className="text-center">
@@ -249,9 +235,7 @@ const CommunityPostDetail = () => {
       </div>
     );
   }
-
   const authorName = post.author?.profile?.nickname || post.author?.username;
-
   return (
     <div className="py-3">
       <nav aria-label="breadcrumb" className="mb-3">
@@ -260,7 +244,6 @@ const CommunityPostDetail = () => {
           <li className="breadcrumb-item active">{post.title}</li>
         </ol>
       </nav>
-
       <article className="card shadow-sm mb-4">
         <div className="card-body">
           <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
@@ -289,7 +272,6 @@ const CommunityPostDetail = () => {
           <div className="post-content text-start" style={{ whiteSpace: 'pre-wrap', lineHeight: 1.8 }}>
             {post.content}
           </div>
-
           {post.image_urls?.length > 0 && (
             <div className="row mt-3">
               {post.image_urls.map((url) => (
@@ -299,7 +281,6 @@ const CommunityPostDetail = () => {
               ))}
             </div>
           )}
-
           <div className="d-flex flex-wrap justify-content-center gap-2 mt-4 pt-3 border-top">
             <button
               type="button"
@@ -327,7 +308,6 @@ const CommunityPostDetail = () => {
           </div>
         </div>
       </article>
-
       <div className="card shadow-sm">
         <div className="card-header bg-white">
           <h5 className="mb-0"><i className="fas fa-comments me-2" />评论 ({post.comment_count})</h5>
@@ -345,7 +325,6 @@ const CommunityPostDetail = () => {
               {submittingComment ? '提交中...' : '发表评论'}
             </button>
           </form>
-
           <CommentThread
             comments={comments}
             post={post}
@@ -359,7 +338,6 @@ const CommunityPostDetail = () => {
             onDelete={handleCommentDelete}
             submitting={submittingComment}
           />
-
           <ConfirmDeleteModal
             visible={deleteDialog.visible}
             message={deleteDialog.message}
@@ -369,7 +347,6 @@ const CommunityPostDetail = () => {
           />
         </div>
       </div>
-
       <div className="mt-4 text-center">
         <Link to="/community" className="btn btn-outline-secondary">
           <i className="fas fa-arrow-left me-1" />返回社区
@@ -380,3 +357,4 @@ const CommunityPostDetail = () => {
 };
 
 export default CommunityPostDetail;
+

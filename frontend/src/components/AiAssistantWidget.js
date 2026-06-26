@@ -1,9 +1,13 @@
+/**
+ * @file AiAssistantWidget.js
+ * @module PawRescue
+ * @description 智能养宠问答挂件（可拖拽浮窗）。
+ */
+
 import React, { useEffect, useRef, useState } from 'react';
 import { aiAPI } from '../api/api';
 import './AiAssistantWidget.css';
-
 const DRAG_THRESHOLD_PX = 8;
-
 const T = {
   welcome: '\u4f60\u597d\uff0c\u6211\u662f\u6696\u722a\u667a\u80fd\u517b\u5ba0\u52a9\u624b\uff0c\u6709\u4ec0\u4e48\u517b\u5ba0\u95ee\u9898\u53ef\u4ee5\u95ee\u6211\u3002',
   loginFirst: '\u8bf7\u5148\u767b\u5f55\u540e\u518d\u4f7f\u7528\u667a\u80fd\u52a9\u624b',
@@ -21,7 +25,10 @@ const T = {
   timeout: '\u8bf7\u6c42\u8d85\u65f6\uff0c\u8bf7\u7a0d\u540e\u91cd\u8bd5',
   genericFail: '\u8bf7\u6c42\u5931\u8d25\uff0c\u8bf7\u786e\u8ba4\u540e\u7aef\u5df2\u542f\u52a8\u4e14 LLM \u5df2\u914d\u7f6e',
 };
-
+/**
+ * 功能：智能养宠助手浮窗，调用 aiAPI.qa。
+ * 【权限】visitor 需登录；user/admin 可用。
+ */
 const AiAssistantWidget = () => {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
@@ -36,7 +43,6 @@ const AiAssistantWidget = () => {
   const pointerStartRef = useRef({ x: 0, y: 0 });
   const dragModeRef = useRef('fab');
   const movedRef = useRef(false);
-
   useEffect(() => {
     const saved = localStorage.getItem('aiWidgetPos');
     if (saved) {
@@ -47,13 +53,11 @@ const AiAssistantWidget = () => {
       }
     }
   }, []);
-
   const savePosition = (x, y) => {
     const next = { x, y };
     setPos(next);
     localStorage.setItem('aiWidgetPos', JSON.stringify(next));
   };
-
   const beginPointerDrag = (e, mode) => {
     if (!rootRef.current) return;
     const rect = rootRef.current.getBoundingClientRect();
@@ -69,10 +73,8 @@ const AiAssistantWidget = () => {
       document.body.classList.add('ai-widget-dragging');
     }
   };
-
   useEffect(() => {
     if (!pointerActive) return undefined;
-
     const onMove = (e) => {
       if (!movedRef.current && dragModeRef.current === 'fab') {
         const dx = e.clientX - pointerStartRef.current.x;
@@ -89,7 +91,6 @@ const AiAssistantWidget = () => {
         y: e.clientY - dragOffsetRef.current.offsetY,
       });
     };
-
     const onUp = (e) => {
       if (movedRef.current) {
         savePosition(
@@ -103,7 +104,6 @@ const AiAssistantWidget = () => {
       setPointerActive(false);
       document.body.classList.remove('ai-widget-dragging');
     };
-
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
     window.addEventListener('pointercancel', onUp);
@@ -114,19 +114,17 @@ const AiAssistantWidget = () => {
       document.body.classList.remove('ai-widget-dragging');
     };
   }, [pointerActive]);
-
   const onDragHandleDown = (e) => {
     e.preventDefault();
     e.stopPropagation();
     beginPointerDrag(e, 'handle');
   };
-
   const onFabPointerDown = (e) => {
     e.preventDefault();
     beginPointerDrag(e, 'fab');
     e.currentTarget.setPointerCapture(e.pointerId);
   };
-
+  /** 功能：将 API 错误转为友好提示。 */
   const formatAiError = (err) => {
     const status = err.response?.status;
     let detail = err.response?.data?.detail || '';
@@ -139,10 +137,11 @@ const AiAssistantWidget = () => {
     if (detail) return detail;
     return T.genericFail;
   };
-
+  /** 功能：发送问题调用 AI。【权限】需 token。 */
   const send = async () => {
     const q = input.trim();
     if (!q || loading) return;
+    // 【权限】游客未登录
     if (!localStorage.getItem('token')) {
       alert(T.loginFirst);
       return;
@@ -161,10 +160,8 @@ const AiAssistantWidget = () => {
       setLoading(false);
     }
   };
-
   const style = pos.x != null ? { left: pos.x, top: pos.y, right: 'auto', bottom: 'auto' } : {};
   const fabDragging = pointerActive && movedRef.current;
-
   return (
     <div className="ai-widget-root" style={style} ref={rootRef}>
       {open && (
@@ -220,3 +217,4 @@ const AiAssistantWidget = () => {
 };
 
 export default AiAssistantWidget;
+

@@ -1,10 +1,13 @@
+/**
+ * @file CommentThread.js
+ * @module PawRescue
+ * @description 可复用组件：CommentThread。
+ */
+
 import React, { useState } from 'react';
 import './CommentThread.css';
-
 const REPLY_PREVIEW = 3;
-
 const displayName = (author) => author?.profile?.nickname || author?.username || '用户';
-
 const CommentRow = ({
   comment,
   postAuthorId,
@@ -20,7 +23,6 @@ const CommentRow = ({
     || postAuthorId === currentUserId
     || isAdminViewer
   );
-
   return (
     <div className={isReply ? 'comment-reply-item' : ''}>
       <div className={isReply ? 'comment-reply-header' : 'comment-header'}>
@@ -61,7 +63,6 @@ const CommentRow = ({
     </div>
   );
 };
-
 const ReplyForm = ({
   replyTarget,
   replyText,
@@ -96,7 +97,6 @@ const ReplyForm = ({
     </div>
   </div>
 );
-
 const ReplyList = ({
   replies,
   postAuthorId,
@@ -114,10 +114,8 @@ const ReplyList = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   if (!replies?.length) return null;
-
   const hiddenCount = Math.max(0, replies.length - REPLY_PREVIEW);
   const visible = expanded || hiddenCount === 0 ? replies : replies.slice(0, REPLY_PREVIEW);
-
   return (
     <div className="comment-replies">
       {visible.map((reply) => (
@@ -157,7 +155,6 @@ const ReplyList = ({
     </div>
   );
 };
-
 const CommentFloor = ({
   comment,
   postAuthorId,
@@ -213,7 +210,6 @@ const CommentFloor = ({
     </div>
   </div>
 );
-
 const CommentThread = ({
   comments,
   post,
@@ -230,11 +226,9 @@ const CommentThread = ({
   const postAuthorId = post?.author?.id;
   const currentUserId = currentUser?.id;
   const isAdminViewer = currentUser?.profile?.role === 'admin';
-
   if (!comments?.length) {
     return <p className="text-muted">暂无评论</p>;
   }
-
   return (
     <div className="comment-thread">
       {comments.map((comment) => (
@@ -263,3 +257,4 @@ const CommentThread = ({
 };
 
 export default CommentThread;
+

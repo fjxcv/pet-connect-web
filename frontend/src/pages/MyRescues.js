@@ -1,8 +1,13 @@
+/**
+ * @file MyRescues.js
+ * @module PawRescue
+ * @description 页面组件：MyRescues。
+ */
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { rescueAPI } from '../api/api';
 import { RESCUE_STATUS } from '../constants/site';
-
 // 状态对应的颜色标签
 const STATUS_COLOR = {
   pending_rescue: 'secondary',
@@ -12,14 +17,12 @@ const STATUS_COLOR = {
   rescued: 'success',
   abandoned: 'dark',
 };
-
 // 格式化日期为 "年.月.日"
 const formatDate = (iso) => {
   if (!iso) return '—';
   const d = new Date(iso);
   return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`;
 };
-
 const MyRescues = () => {
   const navigate = useNavigate();
   const [records, setRecords] = useState([]);
@@ -29,7 +32,6 @@ const MyRescues = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-
   const fetchHelped = useCallback(async (pageNum, filter) => {
     try {
       setLoading(true);
@@ -55,31 +57,25 @@ const MyRescues = () => {
       setLoading(false);
     }
   }, []);
-
   useEffect(() => {
     fetchHelped(page, statusFilter);
   }, [page, statusFilter, fetchHelped]);
-
   const handleFilterChange = (e) => {
     setStatusFilter(e.target.value);
     setPage(1);
   };
-
   const handleReset = () => {
     setStatusFilter('');
     setPage(1);
   };
-
   // 是否显示"更新状态"按钮（救助成功和已终止不显示）
   const showUpdateBtn = (status) => status !== 'rescued' && status !== 'abandoned';
-
   return (
     <div className="d-flex flex-column py-3" style={{ minHeight: 'calc(100vh - 160px)' }}>
       {/* 顶部标题 */}
       <h2 className="mb-4">
         <i className="fas fa-heart me-2 text-success"></i>我的救助
       </h2>
-
       {/* 筛选栏 */}
       <div className="d-flex align-items-center gap-2 mb-4 flex-wrap">
         <label className="form-label mb-0 fw-bold">按状态筛选：</label>
@@ -100,7 +96,6 @@ const MyRescues = () => {
           <i className="fas fa-redo me-1"></i>重置
         </button>
       </div>
-
       {/* 加载中 */}
       {loading && (
         <div className="text-center py-5">
@@ -108,7 +103,6 @@ const MyRescues = () => {
           <p className="mt-2 text-muted">加载中...</p>
         </div>
       )}
-
       {/* 错误提示 */}
       {error && (
         <div className="alert alert-danger d-flex align-items-center gap-2">
@@ -119,7 +113,6 @@ const MyRescues = () => {
           </button>
         </div>
       )}
-
       {/* 空状态 */}
       {!loading && !error && records.length === 0 && (
         <div className="text-center py-5">
@@ -127,7 +120,6 @@ const MyRescues = () => {
           <p className="text-muted">暂无救助动物记录。</p>
         </div>
       )}
-
       {/* 列表 */}
       {!loading && !error && records.length > 0 && (
         <>
@@ -167,24 +159,20 @@ const MyRescues = () => {
                       )}
                     </div>
                   </td>
-
                   {/* 救助编号 */}
                   <td>
                     <span className="fw-bold" style={{ fontSize: '0.85rem' }}>{item.rescue_no}</span>
                   </td>
-
                   {/* 当前状态 */}
                   <td>
                     <span className={`badge bg-${STATUS_COLOR[item.current_status] || 'secondary'}`} style={{ fontSize: '0.75rem' }}>
                       {RESCUE_STATUS[item.current_status] || item.current_status}
                     </span>
                   </td>
-
                   {/* 救助日期 */}
                   <td>
                     <span style={{ fontSize: '0.85rem' }}>{formatDate(item.help_date || item.updated_at)}</span>
                   </td>
-
                   {/* 操作按钮 */}
                   <td>
                     <div className="d-flex gap-1 justify-content-center">
@@ -235,10 +223,8 @@ const MyRescues = () => {
             </button>
           </div>
         )}
-
         </>
       )}
-
       {/* 返回按钮：贴近白色区域底部 */}
       <div className="text-center mt-auto pt-4 pb-3">
         <button className="btn btn-outline-success" onClick={() => navigate('/rescue')}>
@@ -250,3 +236,4 @@ const MyRescues = () => {
 };
 
 export default MyRescues;
+

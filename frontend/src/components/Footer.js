@@ -1,7 +1,12 @@
+/**
+ * @file Footer.js
+ * @module PawRescue
+ * @description 可复用组件：Footer。
+ */
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { SITE_NAME } from '../constants/site';
-
 const Footer = () => (
   <footer className="footer-gradient text-white py-5 mt-auto">
     <div className="container">
@@ -37,4 +42,6 @@ const Footer = () => (
     <style>{`.footer-gradient{background:linear-gradient(135deg,rgb(9,17,65),rgb(8,17,60));}`}</style>
   </footer>
 );
+
 export default Footer;
+

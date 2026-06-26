@@ -1,10 +1,15 @@
+/**
+ * @file LostFoundList.js
+ * @module PawRescue
+ * @description 页面组件：LostFoundList。
+ */
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { adminAPI, authAPI, lostFoundAPI } from '../api/api';
 import AdminManageBar from '../components/AdminManageBar';
 import ModerationReasonModal from '../components/ModerationReasonModal';
 import { LOST_FOUND_STATUS, LOST_FOUND_TYPE } from '../constants/site';
-
 const getApiError = (err) => {
   const d = err.response?.data;
   if (typeof d === 'string') return d;
@@ -12,17 +17,14 @@ const getApiError = (err) => {
   if (d?.reason) return String(d.reason);
   return err.message || '请求失败';
 };
-
 const POST_TYPE_TABS = [
   { key: '', label: '全部类型' },
   ...Object.entries(LOST_FOUND_TYPE).map(([key, label]) => ({ key, label })),
 ];
-
 const STATUS_TABS = [
   { key: '', label: '全部状态' },
   ...Object.entries(LOST_FOUND_STATUS).map(([key, label]) => ({ key, label })),
 ];
-
 const LostFoundList = () => {
   const [posts, setPosts] = useState([]);
   const [postType, setPostType] = useState('');
@@ -31,7 +33,6 @@ const LostFoundList = () => {
   const [searchQ, setSearchQ] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   // 附近搜索
   const [nearbyMode, setNearbyMode] = useState(false);
   const [nearbyLoading, setNearbyLoading] = useState(false);
@@ -39,29 +40,23 @@ const LostFoundList = () => {
   const [userLocation, setUserLocation] = useState(null);
   const [nearbyRadius, setNearbyRadius] = useState(5);
   const [nearbyLocationFixed, setNearbyLocationFixed] = useState(null); // 固定用户位置，避免重复定位
-
   // 悬赏筛
   const [hasReward, setHasReward] = useState(false);
-
   // 地图显示
   const [showMap, setShowMap] = useState(false);
-
   // 当前用户ID（用于显示管理按钮）
   const [currentUserId, setCurrentUserId] = useState(null);
   const [modal, setModal] = useState(null);
   const [modalSubmitting, setModalSubmitting] = useState(false);
-
   useEffect(() => {
     authAPI.getProfile().then((res) => {
       setCurrentUserId(res.data?.id || null);
     }).catch(() => {});
   }, []);
-
   useEffect(() => {
     const timer = setTimeout(() => setSearchQ(searchInput.trim()), 300);
     return () => clearTimeout(timer);
   }, [searchInput]);
-
   const fetchPosts = useCallback(async () => {
     try {
       setLoading(true);
@@ -80,13 +75,11 @@ const LostFoundList = () => {
       setLoading(false);
     }
   }, [postType, status, searchQ, hasReward]);
-
   useEffect(() => {
     if (!nearbyMode) {
       fetchPosts();
     }
   }, [fetchPosts, nearbyMode]);
-
   // 执行附近搜索（使用已保存的位置）
   const doNearbySearch = useCallback(async (location, radius, type, st, q, reward) => {
     if (!location) return;
@@ -111,14 +104,12 @@ const LostFoundList = () => {
       setNearbyLoading(false);
     }
   }, []);
-
   // 附近模式下，筛选条件变化时自动重新搜索
   useEffect(() => {
     if (nearbyMode && nearbyLocationFixed) {
       doNearbySearch(nearbyLocationFixed, nearbyRadius, postType, status, searchQ, hasReward);
     }
   }, [nearbyMode, nearbyLocationFixed, nearbyRadius, postType, status, searchQ, hasReward, doNearbySearch]);
-
   const refreshPosts = useCallback(() => {
     if (nearbyMode && nearbyLocationFixed) {
       doNearbySearch(nearbyLocationFixed, nearbyRadius, postType, status, searchQ, hasReward);
@@ -126,7 +117,6 @@ const LostFoundList = () => {
       fetchPosts();
     }
   }, [nearbyMode, nearbyLocationFixed, nearbyRadius, postType, status, searchQ, hasReward, doNearbySearch, fetchPosts]);
-
   const openModerationModal = (type, post) => {
     if (type === 'delete') {
       setModal({
@@ -146,7 +136,6 @@ const LostFoundList = () => {
       });
     }
   };
-
   const handleModerationConfirm = async (reason) => {
     if (!modal) return;
     setModalSubmitting(true);
@@ -177,7 +166,6 @@ const LostFoundList = () => {
       setModalSubmitting(false);
     }
   };
-
   // 首次附近搜索（获取位置）
   const handleNearbySearch = () => {
     if (!navigator.geolocation) {
@@ -207,7 +195,6 @@ const LostFoundList = () => {
       { enableHighAccuracy: true, timeout: 10000 },
     );
   };
-
   // 逢出附近搜索模弄
   const exitNearbyMode = () => {
     setNearbyMode(false);
@@ -216,7 +203,6 @@ const LostFoundList = () => {
     setNearbyLocationFixed(null);
     setNearbyError(null);
   };
-
   // 使用 Leaflet 构建带多个标记点的地图 HTML
   const mapHtml = useMemo(() => {
     if (!userLocation) return '';
@@ -232,7 +218,6 @@ const LostFoundList = () => {
     const maxLon = Math.max(...lons) + 0.01;
     const centerLat = (minLat + maxLat) / 2;
     const centerLon = (minLon + maxLon) / 2;
-
     // 构建标记点 JS 代码
     const markersJs = [];
     // 用户位置（腾讯地图风格定位图标 - 蓝色水滴形）
@@ -245,7 +230,6 @@ const LostFoundList = () => {
         const species = (p.pet_species || '').replace(/'/g, "\\'");
         markersJs.push(`L.marker([${p.latitude}, ${p.longitude}], {icon: L.divIcon({className: 'post-marker', html: '<a href="/lost-found/${p.id}" target="_parent" style="display:block;width:16px;height:16px;border-radius:50%;background:${color};border:3px solid white;box-shadow:0 0 4px rgba(0,0,0,0.5);cursor:pointer" title="${species}"></a>', iconSize: [16,16], iconAnchor: [8,8]})}).addTo(map)`);
       });
-
     return `
 <!DOCTYPE html>
 <html>
@@ -276,7 +260,6 @@ const LostFoundList = () => {
 </body>
 </html>`;
   }, [userLocation, posts]);
-
   return (
     <div className="py-3">
       <ModerationReasonModal
@@ -311,7 +294,6 @@ const LostFoundList = () => {
           </Link>
         </div>
       </div>
-
       {/* 附近搜索控制栏 */}
       {nearbyMode && (
         <div className="alert alert-info d-flex flex-wrap align-items-center gap-2 mb-3">
@@ -345,14 +327,12 @@ const LostFoundList = () => {
           </div>
         </div>
       )}
-
       {nearbyError && (
         <div className="alert alert-warning alert-dismissible fade show">
           {nearbyError}
           <button type="button" className="btn-close" onClick={() => setNearbyError(null)}></button>
         </div>
       )}
-
       {/* 地图 */}
       {showMap && userLocation && (
         <div className="mb-4">
@@ -388,7 +368,6 @@ const LostFoundList = () => {
           </div>
         </div>
       )}
-
       {/* 搜索和筛选 */}
       <div className="row mb-3">
         <div className="col-md-6">
@@ -418,7 +397,6 @@ const LostFoundList = () => {
           </div>
         </div>
       </div>
-
       <ul className="nav nav-pills mb-2 flex-wrap gap-1">
         {POST_TYPE_TABS.map((tab) => (
           <li className="nav-item" key={`type-${tab.key || 'all'}`}>
@@ -432,7 +410,6 @@ const LostFoundList = () => {
           </li>
         ))}
       </ul>
-
       <ul className="nav nav-pills mb-4 flex-wrap gap-1">
         {STATUS_TABS.map((tab) => (
           <li className="nav-item" key={`status-${tab.key || 'all'}`}>
@@ -446,7 +423,6 @@ const LostFoundList = () => {
           </li>
         ))}
       </ul>
-
       {loading && (
         <div className="text-center py-5">
           <div className="spinner-border text-success" role="status">
@@ -454,9 +430,7 @@ const LostFoundList = () => {
           </div>
         </div>
       )}
-
       {error && <div className="alert alert-danger">{error}</div>}
-
       {!loading && !error && (
         <div className="row">
           {posts.length === 0 ? (
@@ -546,3 +520,4 @@ const LostFoundList = () => {
 };
 
 export default LostFoundList;
+

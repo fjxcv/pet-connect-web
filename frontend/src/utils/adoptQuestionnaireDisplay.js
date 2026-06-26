@@ -1,3 +1,9 @@
+/**
+ * @file adoptQuestionnaireDisplay.js
+ * @module PawRescue
+ * @description 工具函数：adoptQuestionnaireDisplay。
+ */
+
 const QUESTIONNAIRE_FIELD_ORDER = [
   'full_name',
   'address',
@@ -15,7 +21,6 @@ const QUESTIONNAIRE_FIELD_ORDER = [
   'pet_experience_desc',
   'future_changes',
 ];
-
 const QUESTIONNAIRE_LABELS = {
   full_name: '\u59d3\u540d',
   address: '\u5730\u5740',
@@ -33,7 +38,6 @@ const QUESTIONNAIRE_LABELS = {
   pet_experience_desc: '\u517b\u5ba0\u7ecf\u9a8c',
   future_changes: '\u672a\u6765\u751f\u6d3b\u53d8\u5316\u8bf4\u660e',
 };
-
 const VALUE_MAPS = {
   gender: {
     male: '\u7537',
@@ -66,7 +70,6 @@ const VALUE_MAPS = {
     no: '\u5426',
   },
 };
-
 const ATTACHMENT_TYPE_LABELS = {
   id_card: '\u8eab\u4efd\u8bc1',
   housing_proof: '\u4f4f\u623f\u8bc1\u660e',
@@ -112,3 +115,4 @@ export const getQuestionnaireEntries = (answers) => {
 export const formatAttachmentType = (fileType) => ATTACHMENT_TYPE_LABELS[fileType] || fileType || '\u9644\u4ef6';
 
 export default getQuestionnaireEntries;
+

@@ -1,7 +1,12 @@
+/**
+ * @file CmsMarkdownEditor.js
+ * @module PawRescue
+ * @description 可复用组件：CmsMarkdownEditor。
+ */
+
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-
 const CmsMarkdownEditor = ({
   value,
   onChange,
@@ -12,7 +17,6 @@ const CmsMarkdownEditor = ({
 }) => {
   const [tab, setTab] = useState('edit');
   const placeholderText = placeholder || '支持 Markdown 语法（标题、列表、链接等）';
-
   return (
     <div className="col-12">
       <ul className="nav nav-tabs mb-2">
@@ -50,3 +54,4 @@ const CmsMarkdownEditor = ({
 };
 
 export default CmsMarkdownEditor;
+

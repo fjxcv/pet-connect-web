@@ -1,9 +1,18 @@
+/**
+ * @file AddPet.js
+ * @module PawRescue
+ * @description 添加 / 编辑宠物档案页（仅管理员）。
+ */
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { aiAPI, authAPI, petsAPI, rescueAPI, uploadAPI } from '../api/api';
 import CmsMarkdownEditor from '../components/CmsMarkdownEditor';
 import LocationAutocomplete from '../components/LocationAutocomplete';
-
+/**
+ * 功能：添加宠物档案，支持 AI 品种识别与文案生成。
+ * 【权限】创建需 admin。
+ */
 const AddPet = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -37,7 +46,6 @@ const AddPet = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [initialLoading, setInitialLoading] = useState(false);
-
   useEffect(() => {
     const checkAdmin = async () => {
       try {
@@ -61,7 +69,6 @@ const AddPet = () => {
     };
     checkAdmin();
   }, [navigate]);
-
   useEffect(() => {
     if (!isEditMode || !authorized) return;
     const loadPet = async () => {
@@ -98,7 +105,6 @@ const AddPet = () => {
     };
     loadPet();
   }, [authorized, editId, isEditMode]);
-
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({
@@ -106,14 +112,13 @@ const AddPet = () => {
       [name]: type === 'checkbox' ? checked : value,
     }));
   };
-
   const handleLocationChange = (location) => {
     setForm((prev) => ({
       ...prev,
       ...location,
     }));
   };
-
+  /** 功能：上传照片并调用品种识别。 */
   const handlePhotoChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -128,7 +133,7 @@ const AddPet = () => {
       setPhotoUploading(false);
     }
   };
-
+  /** 功能：提交创建宠物档案。【权限】admin */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -173,7 +178,6 @@ const AddPet = () => {
       setLoading(false);
     }
   };
-
   if (authChecking) {
     return (
       <div className="text-center py-5">
@@ -182,7 +186,6 @@ const AddPet = () => {
       </div>
     );
   }
-
   if (initialLoading) {
     return (
       <div className="text-center py-5">
@@ -191,9 +194,7 @@ const AddPet = () => {
       </div>
     );
   }
-
   if (!authorized) return null;
-
   return (
     <div className="container py-5">
       <div className="row justify-content-center">
@@ -337,14 +338,12 @@ const AddPet = () => {
                     </div>
                   </div>
                 </div>
-
                 {error && <div className="alert alert-danger mt-3">{error}</div>}
                 {success && (
                   <div className="alert alert-success mt-3">
                     {isEditMode ? '保存成功，正在跳转...' : '添加成功，正在跳转...'}
                   </div>
                 )}
-
                 <div className="d-grid gap-2 mt-4">
                   <button type="submit" className="btn btn-success btn-lg" disabled={loading || photoUploading}>
                     {loading ? '提交中...' : (isEditMode ? '保存修改' : '提交档案')}
@@ -363,3 +362,4 @@ const AddPet = () => {
 };
 
 export default AddPet;
+

@@ -1,8 +1,10 @@
+"""
+模块说明：api 模块 URL 路由。
+"""
+
 from django.urls import include, path
 from rest_framework_simplejwt.views import TokenRefreshView
-
 from common.views import UploadView
-
 urlpatterns = [
     path('', include('accounts.urls')),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
@@ -16,3 +18,4 @@ urlpatterns = [
     path('community/', include('community.urls')),
     path('', include('system.urls')),
 ]
+

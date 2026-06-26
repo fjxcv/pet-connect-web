@@ -1,22 +1,23 @@
+/**
+ * @file AuthPromptContext.js
+ * @module PawRescue
+ * @description React Context：AuthPromptContext。
+ */
+
 import React, { createContext, useCallback, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 const AuthPromptContext = createContext(null);
 
 export const AuthPromptProvider = ({ children }) => {
   const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
-
   const promptLogin = useCallback(() => setVisible(true), []);
-
   const requireAuth = useCallback(() => {
     if (localStorage.getItem('token')) return true;
     setVisible(true);
     return false;
   }, []);
-
   const close = useCallback(() => setVisible(false), []);
-
   return (
     <AuthPromptContext.Provider value={{ requireAuth, promptLogin, close }}>
       {children}
@@ -57,3 +58,4 @@ export const AuthPromptProvider = ({ children }) => {
 export const useAuthPrompt = () => useContext(AuthPromptContext);
 
 export default AuthPromptContext;
+

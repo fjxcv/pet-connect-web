@@ -1,5 +1,8 @@
-from .models import UserProfile
+"""
+模块说明：源码：backend/accounts/admin_utils.py
+"""
 
+from .models import UserProfile
 
 def sync_admin_profile_role(user):
     """Ensure superuser/staff accounts have profile.role=admin."""
@@ -14,3 +17,4 @@ def sync_admin_profile_role(user):
     if profile.role != 'admin':
         profile.role = 'admin'
         profile.save(update_fields=['role'])
+

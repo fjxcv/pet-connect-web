@@ -1,3 +1,9 @@
+/**
+ * @file pets.js
+ * @module PawRescue
+ * @description API 封装：pets。
+ */
+
 import api from './index';
 
 export const uploadAPI = {
@@ -32,3 +38,4 @@ export const rescueAPI = {
   getStageRecords: (id) => api.get(`/rescue/cases/${id}/stage-records/`),
   addStageRecord: (id, data) => api.post(`/rescue/cases/${id}/stage-records/`, data),
 };
+

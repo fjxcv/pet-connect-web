@@ -1,7 +1,12 @@
+/**
+ * @file ApplicationDetail.js
+ * @module PawRescue
+ * @description 页面组件：ApplicationDetail。
+ */
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { adoptAPI } from '../api/api';
-
 // ===== 格式化时间 =====
 const formatDateTime = (dateStr) => {
   if (!dateStr) return '—';
@@ -13,7 +18,6 @@ const formatDateTime = (dateStr) => {
   const minute = String(d.getMinutes()).padStart(2, '0');
   return `${year}.${month}.${day} ${hour}:${minute}`;
 };
-
 // ===== 判断详情类型 =====
 const getDetailType = (app) => {
   // 核验失败优先（更具体的失败阶段）
@@ -38,21 +42,18 @@ const getDetailType = (app) => {
   }
   return null;
 };
-
 const ApplicationDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [application, setApplication] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
       navigate('/login');
       return;
     }
-
     const fetchDetail = async () => {
       try {
         setLoading(true);
@@ -72,10 +73,8 @@ const ApplicationDetail = () => {
         setLoading(false);
       }
     };
-
     fetchDetail();
   }, [id, navigate]);
-
   if (loading) {
     return (
       <div className="text-center py-5">
@@ -86,7 +85,6 @@ const ApplicationDetail = () => {
       </div>
     );
   }
-
   if (error || !application) {
     return (
       <div className="container py-4">
@@ -97,9 +95,7 @@ const ApplicationDetail = () => {
       </div>
     );
   }
-
   const detail = getDetailType(application);
-
   if (!detail) {
     return (
       <div className="container py-4">
@@ -112,7 +108,6 @@ const ApplicationDetail = () => {
       </div>
     );
   }
-
   return (
     <div className="application-detail-page">
       {/* ===== 面包屑导航 ===== */}
@@ -128,7 +123,6 @@ const ApplicationDetail = () => {
           </nav>
         </div>
       </div>
-
       <div className="container py-4">
         <div className="row justify-content-center">
           <div className="col-lg-8 col-xl-7">
@@ -151,7 +145,6 @@ const ApplicationDetail = () => {
                 申请时间：{formatDateTime(application.created_at)}
               </span>
             </div>
-
             {/* ===== 详情卡片 ===== */}
             <div className="detail-card">
               {/* 标题区 */}
@@ -164,7 +157,6 @@ const ApplicationDetail = () => {
                   {detail.title === '核验失败' ? '核验' : '审核'}时间：{formatDateTime(detail.time)}
                 </p>
               </div>
-
               {/* 详情区 */}
               <div className="detail-card-body">
                 <h5 className="detail-section-title">
@@ -182,7 +174,6 @@ const ApplicationDetail = () => {
                   </div>
                 </div>
               </div>
-
               {/* 操作区 */}
               <div className="detail-card-footer">
                 <Link to="/my-applications" className="btn btn-submit px-4">
@@ -193,7 +184,6 @@ const ApplicationDetail = () => {
           </div>
         </div>
       </div>
-
       {/* ===== 样式 ===== */}
       <style>{`
         .application-detail-page {
@@ -201,14 +191,12 @@ const ApplicationDetail = () => {
           min-height: 100vh;
           padding-bottom: 3rem;
         }
-
         .detail-breadcrumb {
           background: white;
           border-bottom: 1px solid #eee;
           padding: 0.75rem 0;
         }
         .breadcrumb { font-size: 0.9rem; }
-
         /* 宠物摘要条 */
         .pet-summary-bar {
           display: flex;
@@ -247,7 +235,6 @@ const ApplicationDetail = () => {
           color: #888;
           white-space: nowrap;
         }
-
         /* 详情卡片 */
         .detail-card {
           background: white;
@@ -255,7 +242,6 @@ const ApplicationDetail = () => {
           overflow: hidden;
           box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         }
-
         /* 标题头部 */
         .detail-card-header {
           padding: 2rem 2rem 1.5rem;
@@ -279,7 +265,6 @@ const ApplicationDetail = () => {
           font-size: 0.9rem;
           opacity: 0.85;
         }
-
         /* 详情主体 */
         .detail-card-body {
           padding: 2rem;
@@ -295,7 +280,6 @@ const ApplicationDetail = () => {
         .detail-section-title i {
           color: #dc3545;
         }
-
         /* 原因展示框 */
         .reason-box {
           background: #fdf5f5;
@@ -322,7 +306,6 @@ const ApplicationDetail = () => {
         .reason-line:last-child {
           margin-bottom: 0;
         }
-
         /* 底部操作 */
         .detail-card-footer {
           padding: 1.25rem 2rem;
@@ -330,7 +313,6 @@ const ApplicationDetail = () => {
           border-top: 1px solid #eee;
           text-align: center;
         }
-
         /* 返回按钮 */
         .btn-submit {
           background: linear-gradient(135deg, #00C897, #00A87A);
@@ -349,7 +331,6 @@ const ApplicationDetail = () => {
           box-shadow: 0 8px 25px rgba(0, 200, 151, 0.4);
           color: white;
         }
-
         @media (max-width: 576px) {
           .detail-card-header {
             padding: 1.5rem 1.25rem 1rem;
@@ -367,3 +348,4 @@ const ApplicationDetail = () => {
 };
 
 export default ApplicationDetail;
+

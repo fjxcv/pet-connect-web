@@ -1,13 +1,17 @@
+/**
+ * @file UserProfile.js
+ * @module PawRescue
+ * @description 页面组件：UserProfile。
+ */
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authAPI, uploadAPI } from '../api/api';
-
 const ROLE_LABELS = {
   admin: { label: '管理员', badge: 'bg-danger' },
   user: { label: '普通用户', badge: 'bg-success' },
   visitor: { label: '访客', badge: 'bg-secondary' },
 };
-
 const UserProfile = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -24,7 +28,6 @@ const UserProfile = () => {
   const [updateLoading, setUpdateLoading] = useState(false);
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
-
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -33,7 +36,6 @@ const UserProfile = () => {
     }
     fetchUserProfile();
   }, [navigate]);
-
   const fetchUserProfile = async () => {
     try {
       setLoading(true);
@@ -54,16 +56,13 @@ const UserProfile = () => {
       setLoading(false);
     }
   };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
-
   const handleAvatarUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     try {
       setAvatarUploading(true);
       const response = await uploadAPI.upload(file, 'avatars');
@@ -75,13 +74,11 @@ const UserProfile = () => {
       setAvatarUploading(false);
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setUpdateLoading(true);
     setUpdateSuccess(false);
     setError(null);
-
     try {
       await authAPI.updateProfile(form);
       setUpdateSuccess(true);
@@ -95,12 +92,10 @@ const UserProfile = () => {
       setUpdateLoading(false);
     }
   };
-
   const getRoleDisplay = (role) => {
     const info = ROLE_LABELS[role] || { label: role || '未知', badge: 'bg-secondary' };
     return <span className={`badge ${info.badge}`}>{info.label}</span>;
   };
-
   if (loading) {
     return (
       <div className="text-center py-5">
@@ -111,7 +106,6 @@ const UserProfile = () => {
       </div>
     );
   }
-
   if (error && !user) {
     return (
       <div className="alert alert-danger" role="alert">
@@ -119,9 +113,7 @@ const UserProfile = () => {
       </div>
     );
   }
-
   const profile = user?.profile || {};
-
   return (
     <div className="container py-5">
       <div className="row justify-content-center">
@@ -156,7 +148,6 @@ const UserProfile = () => {
                       </div>
                     )}
                   </div>
-
                   <div className="row g-3">
                     <div className="col-md-6">
                       <label className="form-label fw-bold">用户名</label>
@@ -193,7 +184,6 @@ const UserProfile = () => {
                       </p>
                     </div>
                   </div>
-
                   <div className="d-grid gap-2 mt-4">
                     <button className="btn btn-primary" onClick={() => setIsEditing(true)}>
                       <i className="fas fa-edit me-2"></i>
@@ -271,21 +261,18 @@ const UserProfile = () => {
                       )}
                     </div>
                   </div>
-
                   {updateSuccess && (
                     <div className="alert alert-success mt-3">
                       <i className="fas fa-check-circle me-2"></i>
                       资料更新成功！
                     </div>
                   )}
-
                   {error && (
                     <div className="alert alert-danger mt-3">
                       <i className="fas fa-exclamation-triangle me-2"></i>
                       {error}
                     </div>
                   )}
-
                   <div className="d-grid gap-2 mt-4">
                     <button type="submit" className="btn btn-primary" disabled={updateLoading}>
                       {updateLoading ? (
@@ -321,3 +308,4 @@ const UserProfile = () => {
 };
 
 export default UserProfile;
+

@@ -1,3 +1,9 @@
+/**
+ * @file AccountCenter.js
+ * @module PawRescue
+ * @description 页面组件：AccountCenter。
+ */
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authAPI, cmsAPI, communityAPI } from '../api/api';
@@ -5,18 +11,15 @@ import { ARTICLE_TYPES, POST_CATEGORIES } from '../constants/site';
 import { confirmLogout } from '../utils/auth';
 import { isAdminUser } from '../components/AdminRoute';
 import { useManageMode } from '../context/ManageModeContext';
-
 const ROLE_LABELS = {
   admin: { label: '管理员', badge: 'bg-danger' },
   user: { label: '普通用户', badge: 'bg-success' },
   visitor: { label: '访客', badge: 'bg-secondary' },
 };
-
 const formatDate = (value) => {
   if (!value) return '-';
   return new Date(value).toLocaleString();
 };
-
 const AccountCenter = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -29,18 +32,15 @@ const AccountCenter = () => {
   const [articleFavorites, setArticleFavorites] = useState([]);
   const [favLoading, setFavLoading] = useState(false);
   const [actionId, setActionId] = useState(null);
-
   const profile = user?.profile || {};
   const roleInfo = ROLE_LABELS[profile.role] || ROLE_LABELS.user;
   const isAdmin = isAdminUser(user);
   const { manageMode, setManageMode } = useManageMode();
-
   const loadProfile = useCallback(async () => {
     const res = await authAPI.getProfile();
     setUser(res.data);
     return res.data;
   }, []);
-
   const loadMyPosts = useCallback(async (userId) => {
     if (!userId) return;
     setPostsLoading(true);
@@ -54,7 +54,6 @@ const AccountCenter = () => {
       setPostsLoading(false);
     }
   }, []);
-
   const loadFavorites = useCallback(async () => {
     setFavLoading(true);
     try {
@@ -70,7 +69,6 @@ const AccountCenter = () => {
       setFavLoading(false);
     }
   }, []);
-
   useEffect(() => {
     (async () => {
       try {
@@ -85,7 +83,6 @@ const AccountCenter = () => {
       }
     })();
   }, [loadProfile, loadFavorites, navigate]);
-
   const handleUnfavoritePost = async (postId) => {
     setActionId(`post-${postId}`);
     try {
@@ -98,7 +95,6 @@ const AccountCenter = () => {
       setActionId(null);
     }
   };
-
   const handleUnfavoriteArticle = async (articleId) => {
     setActionId(`article-${articleId}`);
     try {
@@ -111,7 +107,6 @@ const AccountCenter = () => {
       setActionId(null);
     }
   };
-
   if (loading) {
     return (
       <div className="text-center py-5">
@@ -120,7 +115,6 @@ const AccountCenter = () => {
       </div>
     );
   }
-
   return (
     <div className="container py-4">
       <div className="card shadow-sm mb-4">
@@ -155,7 +149,6 @@ const AccountCenter = () => {
           </div>
         </div>
       </div>
-
       <ul className="nav nav-tabs mb-3">
         <li className="nav-item">
           <button
@@ -194,7 +187,6 @@ const AccountCenter = () => {
           </button>
         </li>
       </ul>
-
       {mainTab === 'posts' && (
         <div>
           <div className="d-flex justify-content-end mb-3">
@@ -238,7 +230,6 @@ const AccountCenter = () => {
           )}
         </div>
       )}
-
       {mainTab === 'favorites' && (
         <div>
           <ul className="nav nav-pills mb-3">
@@ -261,7 +252,6 @@ const AccountCenter = () => {
               </button>
             </li>
           </ul>
-
           {favLoading ? (
             <div className="text-center py-4">
               <div className="spinner-border spinner-border-sm text-success"></div>
@@ -349,7 +339,6 @@ const AccountCenter = () => {
           )}
         </div>
       )}
-
       {mainTab === 'business' && (
         <div className="row g-3">
           {isAdmin && (
@@ -387,7 +376,6 @@ const AccountCenter = () => {
           </div>
         </div>
       )}
-
       {mainTab === 'security' && (
         <div className="card shadow-sm">
           <div className="card-body text-center py-4">
@@ -418,3 +406,4 @@ const AccountCenter = () => {
 };
 
 export default AccountCenter;
+

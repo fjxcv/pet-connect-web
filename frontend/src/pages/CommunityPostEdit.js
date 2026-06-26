@@ -1,14 +1,18 @@
+/**
+ * @file CommunityPostEdit.js
+ * @module PawRescue
+ * @description 页面组件：CommunityPostEdit。
+ */
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { communityAPI } from '../api/api';
 import { uploadAPI } from '../api/pets';
 import { POST_CATEGORIES } from '../constants/site';
-
 const CATEGORY_OPTIONS = Object.entries(POST_CATEGORIES).map(([value, label]) => ({ value, label }));
 const MAX_IMAGES = 9;
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
-
 const CommunityPostEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -21,7 +25,6 @@ const CommunityPostEdit = () => {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [dragActive, setDragActive] = useState(false);
-
   useEffect(() => {
     (async () => {
       try {
@@ -41,7 +44,6 @@ const CommunityPostEdit = () => {
       }
     })();
   }, [id]);
-
   useEffect(() => {
     return () => {
       imageItems.forEach((item) => {
@@ -49,7 +51,6 @@ const CommunityPostEdit = () => {
       });
     };
   }, [imageItems]);
-
   const validateImageFile = (file) => {
     const ext = file.name.split('.').pop()?.toLowerCase();
     if (!ext || !ALLOWED_IMAGE_EXTENSIONS.includes(ext)) {
@@ -60,19 +61,15 @@ const CommunityPostEdit = () => {
     }
     return '';
   };
-
   const uploadFiles = async (files) => {
     const selected = Array.from(files);
     if (!selected.length) return;
-
     if (imageItems.length + selected.length > MAX_IMAGES) {
       setUploadError(`最多只能上传 ${MAX_IMAGES} 张图片`);
       return;
     }
-
     setUploadError('');
     setUploading(true);
-
     try {
       for (const file of selected) {
         const invalidMessage = validateImageFile(file);
@@ -91,17 +88,14 @@ const CommunityPostEdit = () => {
       setUploading(false);
     }
   };
-
   const handleFileInputChange = async (e) => {
     await uploadFiles(e.target.files);
     e.target.value = '';
   };
-
   const handleDragOver = (e) => {
     e.preventDefault();
     e.stopPropagation();
   };
-
   const handleDrop = async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -110,7 +104,6 @@ const CommunityPostEdit = () => {
       await uploadFiles(e.dataTransfer.files);
     }
   };
-
   const handleRemoveImage = (index) => {
     setImageItems((prev) => {
       const next = [...prev];
@@ -121,11 +114,9 @@ const CommunityPostEdit = () => {
       return next;
     });
   };
-
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -144,7 +135,6 @@ const CommunityPostEdit = () => {
       setSubmitting(false);
     }
   };
-
   if (loading) {
     return (
       <div className="text-center py-5">
@@ -152,7 +142,6 @@ const CommunityPostEdit = () => {
       </div>
     );
   }
-
   return (
     <div className="py-3">
       <nav aria-label="breadcrumb" className="mb-3">
@@ -162,12 +151,9 @@ const CommunityPostEdit = () => {
           <li className="breadcrumb-item active">编辑</li>
         </ol>
       </nav>
-
       <h2 className="mb-4"><i className="fas fa-edit me-2 text-success" />编辑帖子</h2>
-
       {error && <div className="alert alert-danger">{error}</div>}
       {uploadError && <div className="alert alert-warning">{uploadError}</div>}
-
       <form onSubmit={handleSubmit} className="card shadow-sm">
         <div className="card-body">
           <div className="mb-3">
@@ -186,7 +172,6 @@ const CommunityPostEdit = () => {
             <label className="form-label">内容</label>
             <textarea name="content" className="form-control" rows={8} value={form.content} onChange={handleChange} required />
           </div>
-
           <div
             className={`upload-drop-zone mb-3 ${dragActive ? 'upload-drop-zone--active' : ''}`}
             onDrop={handleDrop}
@@ -218,7 +203,6 @@ const CommunityPostEdit = () => {
               disabled={uploading || submitting}
             />
           </div>
-
           {imageItems.length > 0 && (
             <div className="mb-3">
               <div className="row g-2">
@@ -254,3 +238,4 @@ const CommunityPostEdit = () => {
 };
 
 export default CommunityPostEdit;
+

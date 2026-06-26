@@ -1,14 +1,18 @@
+/**
+ * @file MyPets.js
+ * @module PawRescue
+ * @description 页面组件：MyPets。
+ */
+
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { lostFoundAPI } from '../api/api';
 import { LOST_FOUND_STATUS, LOST_FOUND_TYPE } from '../constants/site';
-
 const MyPets = () => {
   const navigate = useNavigate();
   const [lostPosts, setLostPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   useEffect(() => {
     if (!localStorage.getItem('token')) {
       navigate('/login');
@@ -16,7 +20,6 @@ const MyPets = () => {
     }
     fetchMyData();
   }, [navigate]);
-
   const fetchMyData = async () => {
     try {
       setLoading(true);
@@ -29,7 +32,6 @@ const MyPets = () => {
       setLoading(false);
     }
   };
-
   const handleMarkFound = async (id) => {
     try {
       await lostFoundAPI.update(id, { status: 'found' });
@@ -38,7 +40,6 @@ const MyPets = () => {
       alert('操作失败');
     }
   };
-
   const handleCancel = async (id) => {
     if (!window.confirm('确定要撤销这条发布吗？')) return;
     try {
@@ -48,7 +49,6 @@ const MyPets = () => {
       alert('操作失败');
     }
   };
-
   if (loading) {
     return (
       <div className="text-center py-5">
@@ -58,11 +58,9 @@ const MyPets = () => {
       </div>
     );
   }
-
   if (error) {
     return <div className="alert alert-danger">{error}</div>;
   }
-
   return (
     <div className="container py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -71,7 +69,6 @@ const MyPets = () => {
           <i className="fas fa-plus me-1"></i>发布信息
         </Link>
       </div>
-
       {lostPosts.length === 0 ? (
         <div className="text-center py-5 text-muted">
           <p>暂无报失寻主记录。</p>
@@ -143,3 +140,4 @@ const MyPets = () => {
 };
 
 export default MyPets;
+

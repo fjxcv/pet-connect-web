@@ -1,3 +1,9 @@
+/**
+ * @file CommunityList.js
+ * @module PawRescue
+ * @description 页面组件：CommunityList。
+ */
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { adminAPI, communityAPI } from '../api/api';
@@ -5,19 +11,15 @@ import AdminManageBar from '../components/AdminManageBar';
 import ModerationReasonModal from '../components/ModerationReasonModal';
 import { POST_CATEGORIES } from '../constants/site';
 import { useAuthPrompt } from '../context/AuthPromptContext';
-
 const CATEGORY_TABS = [
   { key: '', label: '全部' },
   ...Object.entries(POST_CATEGORIES).map(([key, label]) => ({ key, label })),
 ];
-
 const FAVORITES_TAB = { key: 'favorites', label: '我的收藏' }; // 新增收藏标签
-
 const ORDER_OPTIONS = [
   { key: 'latest', label: '最新发布' },
   { key: 'likes', label: '最多点赞' },
 ];
-
 const getApiError = (err) => {
   const d = err.response?.data;
   if (typeof d === 'string') return d;
@@ -25,9 +27,7 @@ const getApiError = (err) => {
   if (d?.reason) return String(d.reason);
   return err.message || '请求失败';
 };
-
 const PAGE_SIZE = 10;
-
 const CommunityList = () => {
   const [posts, setPosts] = useState([]);
   const [favoriteItems, setFavoriteItems] = useState([]);
@@ -43,14 +43,11 @@ const CommunityList = () => {
   const [favoriteMode, setFavoriteMode] = useState(false);
   const [favoritesLoading, setFavoritesLoading] = useState(false);
   const [page, setPage] = useState(1);
-
   const authPrompt = useAuthPrompt();
-
   useEffect(() => {
     const timer = setTimeout(() => setSearchQ(searchInput.trim()), 300);
     return () => clearTimeout(timer);
   }, [searchInput]);
-
   const fetchPosts = useCallback(async () => {
     try {
       setLoading(true);
@@ -72,7 +69,6 @@ const CommunityList = () => {
       setLoading(false);
     }
   }, [category, ordering, page, searchQ]);
-
   const fetchFavorites = useCallback(async () => {
     try {
       setFavoritesLoading(true);
@@ -88,7 +84,6 @@ const CommunityList = () => {
       setFavoritesLoading(false);
     }
   }, []);
-
   useEffect(() => {
     if (favoriteMode) {
       fetchFavorites();
@@ -96,24 +91,20 @@ const CommunityList = () => {
     }
     fetchPosts();
   }, [fetchPosts, fetchFavorites, favoriteMode]);
-
   useEffect(() => {
     setPage(1);
   }, [searchQ, ordering, favoriteMode]);
-
   const handleCategoryTab = async (tabKey) => {
     if (tabKey === FAVORITES_TAB.key) {
       if (!authPrompt.requireAuth()) return;
       setFavoriteMode(true); // 新增：进入收藏模式
       return;
     }
-
     if (favoriteMode) {
       setFavoriteMode(false); // 退出收藏模式
     }
     setCategory(tabKey);
   };
-
   const openModerationModal = (type, post) => {
     if (type === 'delete') {
       setModal({
@@ -133,7 +124,6 @@ const CommunityList = () => {
       });
     }
   };
-
   const handleModerationConfirm = async (reason) => {
     if (!modal) return;
     setModalSubmitting(true);
@@ -170,7 +160,6 @@ const CommunityList = () => {
       setModalSubmitting(false);
     }
   };
-
   const handleLike = async (post) => {
     if (!authPrompt.requireAuth()) return;
     setLikingId(post.id);
@@ -215,7 +204,6 @@ const CommunityList = () => {
       setLikingId(null);
     }
   };
-
   const handleUnfavorite = async (postId) => {
     setLikingId(postId);
     try {
@@ -228,7 +216,6 @@ const CommunityList = () => {
       setLikingId(null);
     }
   };
-
   const filteredFavoriteItems = useMemo(() => {
     if (!searchQ) return favoriteItems;
     return favoriteItems.filter((item) => {
@@ -237,7 +224,6 @@ const CommunityList = () => {
       return target.includes(searchQ.toLowerCase());
     });
   }, [favoriteItems, searchQ]);
-
   const sortedFavoriteItems = useMemo(() => {
     const items = [...filteredFavoriteItems];
     if (ordering === 'likes') {
@@ -247,16 +233,13 @@ const CommunityList = () => {
     }
     return items;
   }, [filteredFavoriteItems, ordering]);
-
   const pageCount = Math.max(1, Math.ceil(sortedFavoriteItems.length / PAGE_SIZE));
   const pagedFavoriteItems = sortedFavoriteItems.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-
   useEffect(() => {
     if (favoriteMode && page > pageCount) {
       setPage(pageCount);
     }
   }, [favoriteMode, page, pageCount]);
-
   const renderPagination = (count) => {
     if (count <= 1) return null;
     return (
@@ -283,18 +266,15 @@ const CommunityList = () => {
       </nav>
     );
   };
-
   const getTabClass = (tabKey) => {
     if (favoriteMode) {
       return tabKey === FAVORITES_TAB.key ? 'nav-link active' : 'nav-link text-muted';
     }
     return `nav-link ${category === tabKey ? 'active' : ''}`;
   };
-
   const currentPosts = favoriteMode ? pagedFavoriteItems.map((item) => item.post).filter(Boolean) : posts;
   const currentLoading = favoriteMode ? favoritesLoading : loading;
   const currentEmptyText = favoriteMode ? '暂无收藏的帖子' : '暂无帖子';
-
   return (
     <div className="py-3">
       <ModerationReasonModal
@@ -306,14 +286,12 @@ const CommunityList = () => {
         onConfirm={handleModerationConfirm}
         onCancel={() => !modalSubmitting && setModal(null)}
       />
-
       <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <h2><i className="fas fa-comments me-2 text-success"></i>社区交流</h2>
         <Link to="/community/publish" className="btn btn-success">
           <i className="fas fa-pen me-1"></i>发帖
         </Link>
       </div>
-
       <div className="row g-2 mb-3">
         <div className="col-md-8">
           <div className="input-group">
@@ -339,7 +317,6 @@ const CommunityList = () => {
           </select>
         </div>
       </div>
-
       <ul className="nav nav-pills mb-4 tab-wrap">
         {CATEGORY_TABS.map((tab) => (
           <li className="nav-item" key={tab.key || 'all'}>
@@ -362,7 +339,6 @@ const CommunityList = () => {
           </button>
         </li>
       </ul>
-
       {currentLoading && (
         <div className="text-center py-5">
           <div className="spinner-border text-success" role="status">
@@ -370,9 +346,7 @@ const CommunityList = () => {
           </div>
         </div>
       )}
-
       {error && <div className="alert alert-danger">{error}</div>}
-
       {!currentLoading && !error && (
         <div className="list-group">
           {currentPosts.length === 0 ? (
@@ -418,12 +392,11 @@ const CommunityList = () => {
           )}
         </div>
       )}
-
       {favoriteMode && renderPagination(pageCount)}
-
       
     </div>
   );
 };
 
 export default CommunityList;
+

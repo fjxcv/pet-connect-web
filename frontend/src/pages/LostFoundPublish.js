@@ -1,10 +1,15 @@
+/**
+ * @file LostFoundPublish.js
+ * @module PawRescue
+ * @description 页面组件：LostFoundPublish。
+ */
+
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { aiAPI, lostFoundAPI, uploadAPI } from '../api/api';
 import { LOST_FOUND_TYPE } from '../constants/site';
 import { AMAP_KEY, AMAP_TILE_URL, AMAP_TILE_OPTIONS } from '../config/amap';
 import { formatApiError, roundCoordinate } from '../utils/apiError';
-
 /**
  * GCJ-02 转 WGS-84（火星坐标系 → GPS 标准坐标系）
  * 高德地图使用 GCJ-02，Leaflet/OpenStreetMap 使用 WGS-84
@@ -13,7 +18,6 @@ import { formatApiError, roundCoordinate } from '../utils/apiError';
 function gcj02ToWgs84(lat, lng) {
   const a = 6378245.0; // 长半轴
   const ee = 0.00669342162296594323; // 扁率
-
   function transformLat(x, y) {
     let ret = -100.0 + 2.0 * x + 3.0 * y + 0.2 * y * y + 0.1 * x * y + 0.2 * Math.sqrt(Math.abs(x));
     ret += ((20.0 * Math.sin(6.0 * x * Math.PI) + 20.0 * Math.sin(2.0 * x * Math.PI)) * 2.0) / 3.0;
@@ -21,7 +25,6 @@ function gcj02ToWgs84(lat, lng) {
     ret += ((160.0 * Math.sin((y / 12.0) * Math.PI) + 320.0 * Math.sin((y * Math.PI) / 30.0)) * 2.0) / 3.0;
     return ret;
   }
-
   function transformLng(x, y) {
     let ret = 300.0 + x + 2.0 * y + 0.1 * x * x + 0.1 * x * y + 0.1 * Math.sqrt(Math.abs(x));
     ret += ((20.0 * Math.sin(6.0 * x * Math.PI) + 20.0 * Math.sin(2.0 * x * Math.PI)) * 2.0) / 3.0;
@@ -29,12 +32,10 @@ function gcj02ToWgs84(lat, lng) {
     ret += ((150.0 * Math.sin((x / 12.0) * Math.PI) + 300.0 * Math.sin((x / 30.0) * Math.PI)) * 2.0) / 3.0;
     return ret;
   }
-
   // 判断是否在中国境内，不在则不转换
   if (lng < 72.004 || lng > 137.8347 || lat < 0.8293 || lat > 55.8271) {
     return { lat, lng };
   }
-
   let dLat = transformLat(lng - 105.0, lat - 35.0);
   let dLng = transformLng(lng - 105.0, lat - 35.0);
   const radLat = (lat / 180.0) * Math.PI;
@@ -48,7 +49,6 @@ function gcj02ToWgs84(lat, lng) {
     lng: lng - dLng,
   };
 }
-
 /**
  * 高德地图 POI 关键词搜索
  * https://restapi.amap.com/v3/place/text
@@ -79,7 +79,6 @@ async function amapPlaceText(keywords, city = '成都') {
     };
   });
 }
-
 /**
  * 高德地图逆地理编码（坐标 → 文字地址）
  * 注意：传入的坐标需要是 GCJ-02 坐标系
@@ -102,7 +101,6 @@ async function amapRegeo(lat, lng) {
   }
   return data.regeocode.formatted_address || '';
 }
-
 const LostFoundPublish = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -127,7 +125,6 @@ const LostFoundPublish = () => {
   const mapRef = useRef(null);
   const markerRef = useRef(null);
   const leafletMapRef = useRef(null);
-
   // ---- 地点搜索（高德 POI）----
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -135,7 +132,6 @@ const LostFoundPublish = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const searchTimerRef = useRef(null);
   const dropdownRef = useRef(null);
-
   // 防抖搜索
   const handleSearchInput = (e) => {
     const val = e.target.value;
@@ -160,7 +156,6 @@ const LostFoundPublish = () => {
       }
     }, 400);
   };
-
   // 选中搜索结果
   const handleSelectResult = (poi) => {
     setSearchQuery(poi.name);
@@ -179,7 +174,6 @@ const LostFoundPublish = () => {
       markerRef.current.setLatLng([poi.lat, poi.lng]);
     }
   };
-
   // 点击外部关闭下拉
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -190,13 +184,11 @@ const LostFoundPublish = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
   const hasCoordinates = () => {
     const lat = parseFloat(form.latitude);
     const lng = parseFloat(form.longitude);
     return Number.isFinite(lat) && Number.isFinite(lng);
   };
-
   // 逆地理编码（高德）：坐标 → 文字地址
   const reverseGeocode = useCallback(async (lat, lng) => {
     try {
@@ -206,7 +198,6 @@ const LostFoundPublish = () => {
       return '';
     }
   }, []);
-
   // 更新地图标记位置
   const updateMarkerPosition = useCallback(async (lat, lng) => {
     const roundedLat = roundCoordinate(lat);
@@ -224,37 +215,30 @@ const LostFoundPublish = () => {
     }
     setLocationHint(`已定位：${roundedLat}, ${roundedLng}`);
   }, [reverseGeocode]);
-
   // 初始化地图
   useEffect(() => {
     if (!mapRef.current || leafletMapRef.current) return;
-
     let cancelled = false;
     const initMap = () => {
       if (cancelled || !mapRef.current) return;
       const L = window.L;
       const map = L.map(mapRef.current).setView(mapCenter, 13);
       L.tileLayer(AMAP_TILE_URL, AMAP_TILE_OPTIONS).addTo(map);
-
       const marker = L.marker(mapCenter, { draggable: true }).addTo(map);
       markerRef.current = marker;
       leafletMapRef.current = map;
-
       // 点击地图移动标记
       map.on('click', (e) => {
         marker.setLatLng(e.latlng);
         updateMarkerPosition(e.latlng.lat, e.latlng.lng);
       });
-
       // 拖动标记
       marker.on('dragend', () => {
         const pos = marker.getLatLng();
         updateMarkerPosition(pos.lat, pos.lng);
       });
-
       if (!cancelled) setMapReady(true);
     };
-
     if (window.L) {
       initMap();
     } else {
@@ -279,7 +263,6 @@ const LostFoundPublish = () => {
         }, 200);
       }
     }
-
     return () => {
       cancelled = true;
       if (leafletMapRef.current) {
@@ -290,7 +273,6 @@ const LostFoundPublish = () => {
       }
     };
   }, [mapCenter, updateMarkerPosition]);
-
   // 当使用当前位置时，移动地图和标记
   useEffect(() => {
     if (mapReady && hasCoordinates() && leafletMapRef.current && markerRef.current) {
@@ -302,7 +284,6 @@ const LostFoundPublish = () => {
       }
     }
   }, [form.latitude, form.longitude, mapReady]);
-
   const handleUseCurrentLocation = () => {
     if (!navigator.geolocation) {
       setError('当前浏览器不支持定位，请换用手机浏览器或 Chrome/Edge。');
@@ -342,11 +323,9 @@ const LostFoundPublish = () => {
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 120000 },
     );
   };
-
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-
   const handlePhotoUpload = async (e) => {
     const files = Array.from(e.target.files);
     if (!files.length) return;
@@ -367,11 +346,9 @@ const LostFoundPublish = () => {
       e.target.value = '';
     }
   };
-
   const removePhoto = (index) => {
     setPhotoUrls((prev) => prev.filter((_, i) => i !== index));
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const address = form.address_text.trim();
@@ -416,7 +393,6 @@ const LostFoundPublish = () => {
       setSubmitting(false);
     }
   };
-
   return (
     <div className="py-3">
       <nav aria-label="breadcrumb" className="mb-3">
@@ -425,11 +401,8 @@ const LostFoundPublish = () => {
           <li className="breadcrumb-item active">发布信息</li>
         </ol>
       </nav>
-
       <h2 className="mb-4"><i className="fas fa-edit me-2 text-success"></i>发布报失/寻主信息</h2>
-
       {error && <div className="alert alert-danger">{error}</div>}
-
       <form onSubmit={handleSubmit} className="card shadow-sm">
         <div className="card-body">
           <div className="row g-3">
@@ -472,13 +445,11 @@ const LostFoundPublish = () => {
               }}>AI 识图辅助特征</button>
               <textarea name="features" className="form-control" rows={4} value={form.features} onChange={handleChange} required placeholder="毛色、体型、特殊标志等" />
             </div>
-
             {/* ========== 事发地点（地图选点 + 高德搜索） ========== */}
             <div className="col-12">
               <label className="form-label">
                 事发地点 <small className="text-muted">（搜索地点，或在地图上点击/拖动标记精确定位）</small>
               </label>
-
               {/* 搜索框 + 操作按钮 */}
               <div className="mb-2 position-relative" ref={dropdownRef}>
                 <div className="d-flex flex-wrap align-items-center gap-2">
@@ -519,7 +490,6 @@ const LostFoundPublish = () => {
                     <span className="badge bg-light text-success border">已定位</span>
                   )}
                 </div>
-
                 {/* 搜索下拉结果 */}
                 {showDropdown && (
                   <ul
@@ -542,7 +512,6 @@ const LostFoundPublish = () => {
                   </ul>
                 )}
               </div>
-
               {/* 地址详情输入框 */}
               <input
                 type="text"
@@ -556,16 +525,13 @@ const LostFoundPublish = () => {
                 required
                 placeholder="详细地址（自动填写，可手动修改）"
               />
-
               {locationHint && <small className="text-muted d-block mb-2">{locationHint}</small>}
-
               {/* Leaflet 地图 */}
               <div
                 ref={mapRef}
                 style={{ width: '100%', height: 350, borderRadius: 8, border: '1px solid #ddd' }}
               />
             </div>
-
             <div className="col-md-6">
               <label className="form-label">悬赏金额（元）</label>
               <input type="number" step="0.01" min="0" name="reward_amount" className="form-control" value={form.reward_amount} onChange={handleChange} />
@@ -606,3 +572,4 @@ const LostFoundPublish = () => {
 };
 
 export default LostFoundPublish;
+

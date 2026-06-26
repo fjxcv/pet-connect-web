@@ -1,5 +1,13 @@
+/**
+ * @file modules.js
+ * @module PawRescue
+ * @description REST API 模块化封装。
+ */
+
 import api from './index';
 
+
+/** 门户首页：轮播图与统计数据 */
 export const portalAPI = {
   getCarousel: () => api.get('/portal/carousel/'),
   createCarousel: (data) => api.post('/portal/carousel/', data),
@@ -9,6 +17,8 @@ export const portalAPI = {
   getDashboard: () => api.get('/portal/dashboard/'),
 };
 
+
+/** CMS 内容：文章、收藏与公告 */
 export const cmsAPI = {
   getCategories: () => api.get('/cms/categories/'),
   getArticles: (params) => api.get('/cms/articles/', { params }),
@@ -22,12 +32,16 @@ export const cmsAPI = {
   getAnnouncements: () => api.get('/cms/announcements/'),
 };
 
+
+/** 用户公开主页与屏蔽 */
 export const usersAPI = {
   getPublicProfile: (id) => api.get(`/users/${id}/public/`),
   blockUser: (id) => api.post(`/users/${id}/block/`),
   unblockUser: (id) => api.delete(`/users/${id}/block/`),
 };
 
+
+/** 寻宠资助帖 */
 export const lostFoundAPI = {
   getAll: (params) => api.get('/lost-found/', { params }),
   getById: (id) => api.get(`/lost-found/${id}/`),
@@ -37,6 +51,8 @@ export const lostFoundAPI = {
   getMyPosts: () => api.get('/lost-found/my_posts/'),
 };
 
+
+/** 社区动态与互动 */
 export const communityAPI = {
   getPosts: (params) => api.get('/community/posts/', { params }),
   getPost: (id) => api.get(`/community/posts/${id}/`),
@@ -55,6 +71,9 @@ export const communityAPI = {
   unlikeComment: (id) => api.delete(`/community/comments/${id}/like/`),
 };
 
+
+/** 后台管理：看板、审核、配置与 AI 日志 */
+/** 后台管理：看板、审核、配置与 AI 日志。【权限】仅 admin */
 export const adminAPI = {
   getDashboard: () => api.get('/admin/dashboard/'),
   getUsers: (params) => api.get('/admin/users/', { params }),
@@ -66,11 +85,13 @@ export const adminAPI = {
   getAiLogs: (params) => api.get('/admin/ai-logs/', { params }),
   getAiLogStats: () => api.get('/admin/ai-logs/stats/'),
 };
-
 const AI_TIMEOUT_MS = 90000;
 
+
+/** AI 辅助。【权限】user/admin 需登录 */
 export const aiAPI = {
   breedDetect: (data) => api.post('/ai/breed-detect/', data, { timeout: AI_TIMEOUT_MS }),
   adoptCopy: (data) => api.post('/ai/adopt-copy/', data, { timeout: AI_TIMEOUT_MS }),
   qa: (data) => api.post('/ai/qa/', data, { timeout: AI_TIMEOUT_MS }),
 };
+

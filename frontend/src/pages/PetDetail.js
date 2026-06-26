@@ -1,10 +1,15 @@
+/**
+ * @file PetDetail.js
+ * @module PawRescue
+ * @description 页面组件：PetDetail。
+ */
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { adoptAPI, petsAPI, uploadAPI } from '../api/api';
 import { ADOPTION_STATUS } from '../constants/site';
-
 const SPECIES_LABELS = {
   dog: '狗',
   cat: '猫',
@@ -13,13 +18,11 @@ const SPECIES_LABELS = {
   fish: '鱼',
   other: '其他',
 };
-
 const GENDER_LABELS = {
   male: '公',
   female: '母',
   unknown: '未知',
 };
-
 const formatAgeMonths = (months) => {
   if (months == null || months === '') return '未知';
   const m = Number(months);
@@ -29,16 +32,13 @@ const formatAgeMonths = (months) => {
   if (rem === 0) return `${years}岁`;
   return `${years}岁${rem}个月`;
 };
-
 const getRegionDisplay = (pet) => {
   const region = [pet.country, pet.province, pet.city].filter(Boolean).join(' / ');
   if (region) return region;
   return pet.rescue_case_address || null;
 };
-
 // 非犬类物种通常体型较小
 const NON_DOG_SPECIES = ['cat', 'bird', 'rabbit', 'fish', 'other'];
-
 // 健康状态中英文映射
 const HEALTH_STATUS_LABELS = {
   vaccinated: '已接种疫苗',
@@ -56,7 +56,6 @@ const HEALTH_STATUS_LABELS = {
   recovered: '已康复',
   unknown: '未知',
 };
-
 const formatHealthStatus = (status) => {
   if (!status) return null;
   if (/[一-龥]/.test(status)) return status;
@@ -71,20 +70,17 @@ const formatHealthStatus = (status) => {
   }
   return /[一-龥]/.test(result) ? result : status;
 };
-
 const formatSizeDisplay = (pet) => {
   if (pet.size_category_display) return pet.size_category_display;
   if (pet.species === 'dog') return null;
   if (NON_DOG_SPECIES.includes(pet.species)) return '小型';
   return null;
 };
-
 const ADOPTION_BADGE = {
   available: 'success',
   pending: 'warning text-dark',
   adopted: 'secondary',
 };
-
 const QUESTIONNAIRE_FIELDS = [
   { key: 'housing_type', label: '居住类型（公寓/独栋/其他）' },
   { key: 'has_other_pets', label: '是否已有其他宠物？（是/否）' },
@@ -92,14 +88,12 @@ const QUESTIONNAIRE_FIELDS = [
   { key: 'daily_hours', label: '每日在家时长（小时）' },
   { key: 'family_agreement', label: '家人是否同意领养？（是/否）' },
 ];
-
 const FILE_TYPE_LABELS = {
   id_card: '身份证',
   income_proof: '收入证明',
   housing_proof: '住房证明',
   other: '其他',
 };
-
 // 获取当前登录用户名
 const getCurrentUsername = () => {
   try {
@@ -111,7 +105,6 @@ const getCurrentUsername = () => {
   } catch (e) { /* ignore */ }
   return '访客';
 };
-
 const PetDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -120,7 +113,6 @@ const PetDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [username] = useState(getCurrentUsername());
-
   // 领养申请状态
   const [adoptStep, setAdoptStep] = useState(1);
   const [applicationId, setApplicationId] = useState(null);
@@ -134,7 +126,6 @@ const PetDetail = () => {
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [showAdoptForm, setShowAdoptForm] = useState(false);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -153,17 +144,14 @@ const PetDetail = () => {
         setLoading(false);
       }
     };
-
     fetchData();
   }, [id]);
-
   // 前后切换
   const currentIndex = allPets.findIndex((p) => p.id === parseInt(id));
   const hasPrev = currentIndex > 0;
   const hasNext = currentIndex >= 0 && currentIndex < allPets.length - 1;
   const prevPet = hasPrev ? allPets[currentIndex - 1] : null;
   const nextPet = hasNext ? allPets[currentIndex + 1] : null;
-
   const goToPrev = () => {
     if (prevPet) {
       setLoading(true);
@@ -174,7 +162,6 @@ const PetDetail = () => {
       navigate(`/pets/${prevPet.id}`);
     }
   };
-
   const goToNext = () => {
     if (nextPet) {
       setLoading(true);
@@ -185,7 +172,6 @@ const PetDetail = () => {
       navigate(`/pets/${nextPet.id}`);
     }
   };
-
   const requireAuth = () => {
     if (!localStorage.getItem('token')) {
       navigate('/login');
@@ -193,7 +179,6 @@ const PetDetail = () => {
     }
     return true;
   };
-
   const handleStep1Submit = async (e) => {
     e.preventDefault();
     if (!requireAuth()) return;
@@ -210,7 +195,6 @@ const PetDetail = () => {
       setSubmitting(false);
     }
   };
-
   const handleStep2Submit = async (e) => {
     e.preventDefault();
     if (!requireAuth() || !applicationId) return;
@@ -225,7 +209,6 @@ const PetDetail = () => {
       setSubmitting(false);
     }
   };
-
   const handleStep3Submit = async (e) => {
     e.preventDefault();
     if (!requireAuth() || !applicationId || !attachmentFile) {
@@ -249,11 +232,9 @@ const PetDetail = () => {
       setSubmitting(false);
     }
   };
-
   const handleQuestionnaireChange = (key, value) => {
     setQuestionnaire((prev) => ({ ...prev, [key]: value }));
   };
-
   if (loading) {
     return (
       <div className="text-center py-5">
@@ -264,7 +245,6 @@ const PetDetail = () => {
       </div>
     );
   }
-
   if (error || !pet) {
     return (
       <div className="container py-4 text-center">
@@ -277,11 +257,9 @@ const PetDetail = () => {
       </div>
     );
   }
-
   const canAdopt = pet.adoption_status === 'available';
   const cityName = getRegionDisplay(pet);
   const petAge = formatAgeMonths(pet.age_months);
-
   return (
     <div className="pet-detail-page">
       {/* ===== 面包屑导航 ===== */}
@@ -296,7 +274,6 @@ const PetDetail = () => {
           </nav>
         </div>
       </div>
-
       <div className="container py-4">
         {/* ===== 上半部分：照片（左）+ 问候语（右）===== */}
         <div className="row g-4">
@@ -312,7 +289,6 @@ const PetDetail = () => {
               >
                 <i className="fas fa-chevron-left"></i>
               </button>
-
               <img
                 src={pet.photo_url || 'https://via.placeholder.com/600x400?text=Pet+Photo'}
                 className="detail-image"
@@ -321,7 +297,6 @@ const PetDetail = () => {
                   e.target.src = 'https://via.placeholder.com/600x400?text=Pet+Photo';
                 }}
               />
-
               <button
                 className={`nav-arrow nav-arrow-right ${!hasNext ? 'disabled' : ''}`}
                 onClick={goToNext}
@@ -330,20 +305,17 @@ const PetDetail = () => {
               >
                 <i className="fas fa-chevron-right"></i>
               </button>
-
               {allPets.length > 1 && (
                 <span className="nav-position-badge">
                   {currentIndex + 1} / {allPets.length}
                 </span>
               )}
-
               {canAdopt && (
                 <span className="detail-available-badge">
                   <i className="fas fa-heart me-1"></i>等待领养
                 </span>
               )}
             </div>
-
             {/* 照片下方：宠物信息（中等字体） */}
             <div className="pet-info-below">
               <div className="pet-info-grid">
@@ -387,7 +359,6 @@ const PetDetail = () => {
               </span>
             </div>
           </div>
-
           {/* 右侧：四行问候语 + 带我回家 */}
           <div className="col-lg-6">
             <div className="greeting-card">
@@ -403,7 +374,6 @@ const PetDetail = () => {
               <p className="greeting-line">
                 我正身处于<strong>{cityName || '未知地区'}</strong>
               </p>
-
               <div className="greeting-actions mt-4">
                 {canAdopt ? (
                   <button
@@ -425,7 +395,6 @@ const PetDetail = () => {
             </div>
           </div>
         </div>
-
         {/* ===== 捡拾详情描述（整行）===== */}
         <div className="detail-bottom-section mt-4">
           <div className="detail-description-card">
@@ -441,7 +410,6 @@ const PetDetail = () => {
             </div>
           </div>
         </div>
-
         {/* ===== 领养申请表单（点击带我回家后才显示）===== */}
         {canAdopt && showAdoptForm && (
           <div id="adopt-form-section" className="adopt-form-section mt-4">
@@ -452,7 +420,6 @@ const PetDetail = () => {
                 </h4>
                 <small className="text-white-50">步骤 {adoptStep} / 3</small>
               </div>
-
               <div className="adopt-form-body">
                 <div className="adopt-progress mb-4">
                   <div className="progress-steps">
@@ -472,7 +439,6 @@ const PetDetail = () => {
                     </div>
                   </div>
                 </div>
-
                 {submitSuccess ? (
                   <div className="alert alert-success text-center py-4">
                     <i className="fas fa-check-circle fa-3x mb-3"></i>
@@ -506,7 +472,6 @@ const PetDetail = () => {
                         </button>
                       </form>
                     )}
-
                     {adoptStep === 2 && (
                       <form onSubmit={handleStep2Submit}>
                         <p className="text-muted small mb-3">
@@ -540,7 +505,6 @@ const PetDetail = () => {
                         </div>
                       </form>
                     )}
-
                     {adoptStep === 3 && (
                       <form onSubmit={handleStep3Submit}>
                         <p className="text-muted small mb-3">
@@ -592,7 +556,6 @@ const PetDetail = () => {
           </div>
         )}
       </div>
-
       {/* ===== 底部返回按钮 ===== */}
       <div className="container py-3 text-center">
         <button
@@ -602,7 +565,6 @@ const PetDetail = () => {
           <i className="fas fa-arrow-left me-2"></i>返回领养列表
         </button>
       </div>
-
       {/* ===== 样式 ===== */}
       <style>{`
         .pet-detail-page {
@@ -610,14 +572,12 @@ const PetDetail = () => {
           min-height: 100vh;
           padding-bottom: 3rem;
         }
-
         .detail-breadcrumb {
           background: white;
           border-bottom: 1px solid #eee;
           padding: 0.75rem 0;
         }
         .breadcrumb { font-size: 0.9rem; }
-
         /* ===== 照片 + 箭头 ===== */
         .detail-image-wrapper {
           position: relative;
@@ -632,7 +592,6 @@ const PetDetail = () => {
           object-fit: cover;
           display: block;
         }
-
         .nav-arrow {
           position: absolute;
           top: 50%;
@@ -661,7 +620,6 @@ const PetDetail = () => {
         .nav-arrow-left  { left: 12px; }
         .nav-arrow-right { right: 12px; }
         .nav-arrow.disabled { opacity: 0.35; cursor: not-allowed; }
-
         .nav-position-badge {
           position: absolute;
           top: 12px;
@@ -685,7 +643,6 @@ const PetDetail = () => {
           font-weight: 500;
           box-shadow: 0 2px 10px rgba(0,200,151,0.4);
         }
-
         /* ===== 照片下方宠物信息 ===== */
         .pet-info-below {
           background: white;
@@ -719,7 +676,6 @@ const PetDetail = () => {
           padding: 0.3em 0.8em;
           border-radius: 15px;
         }
-
         /* ===== 右侧问候卡片 ===== */
         .greeting-card {
           background: white;
@@ -752,7 +708,6 @@ const PetDetail = () => {
           margin-top: auto;
           padding-top: 1.5rem;
         }
-
         /* 带我回家按钮 */
         .btn-adopt {
           background: linear-gradient(135deg, #00C897, #00A87A);
@@ -772,7 +727,6 @@ const PetDetail = () => {
           box-shadow: 0 8px 25px rgba(0, 200, 151, 0.4);
           color: white;
         }
-
         /* ===== 捡拾详情描述 ===== */
         .detail-description-card {
           background: white;
@@ -794,7 +748,6 @@ const PetDetail = () => {
           line-height: 1.8;
           font-size: 0.95rem;
         }
-
         /* ===== 领养表单 ===== */
         .adopt-form-section { scroll-margin-top: 2rem; }
         .adopt-form-card {
@@ -812,7 +765,6 @@ const PetDetail = () => {
           align-items: center;
         }
         .adopt-form-body { padding: 2rem; }
-
         .progress-steps {
           display: flex;
           align-items: center;
@@ -851,7 +803,6 @@ const PetDetail = () => {
           transition: all 0.3s ease;
         }
         .step-line.completed { background: #28a745; }
-
         /* ===== 底部返回按钮 ===== */
         .back-btn-bottom {
           border-radius: 30px;
@@ -874,3 +825,4 @@ const PetDetail = () => {
 };
 
 export default PetDetail;
+

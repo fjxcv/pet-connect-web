@@ -1,14 +1,18 @@
+/**
+ * @file UserPublicProfile.js
+ * @module PawRescue
+ * @description 页面组件：UserPublicProfile。
+ */
+
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { adminAPI, authAPI, usersAPI } from '../api/api';
 import { POST_CATEGORIES } from '../constants/site';
 import { isAdminUser } from '../components/AdminRoute';
-
 const formatDate = (value) => {
   if (!value) return '-';
   return new Date(value).toLocaleString();
 };
-
 const PostList = ({ posts, emptyText }) => {
   if (!posts?.length) {
     return <p className="text-muted">{emptyText}</p>;
@@ -31,7 +35,6 @@ const PostList = ({ posts, emptyText }) => {
     </ul>
   );
 };
-
 const UserPublicProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -41,7 +44,6 @@ const UserPublicProfile = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [tab, setTab] = useState('all');
   const [blockLoading, setBlockLoading] = useState(false);
-
   useEffect(() => {
     (async () => {
       try {
@@ -66,9 +68,7 @@ const UserPublicProfile = () => {
       }
     })();
   }, [id]);
-
   const isSelf = currentUser && String(currentUser.id) === String(id);
-
   const handleBan = async () => {
     if (!window.confirm('确定封禁该用户？')) return;
     try {
@@ -79,7 +79,6 @@ const UserPublicProfile = () => {
       alert('操作失败');
     }
   };
-
   const handleBlock = async () => {
     if (!data) return;
     const blockedByMe = !!data.is_blocked_by_me;
@@ -104,18 +103,14 @@ const UserPublicProfile = () => {
       setBlockLoading(false);
     }
   };
-
   if (loading) {
     return <div className="text-center py-5"><div className="spinner-border text-success" /></div>;
   }
-
   if (!data) {
     return <div className="alert alert-danger">{errorMsg || '用户不存在或已禁用'}</div>;
   }
-
   const showAdminActions = currentUser && isAdminUser(currentUser);
   const isBanned = data?.is_banned;
-
   return (
     <div className="py-3">
       {isBanned && (
@@ -162,7 +157,6 @@ const UserPublicProfile = () => {
           </div>
         </div>
       </div>
-
       <h5 className="mb-3">{isSelf ? '我发布的帖子' : 'TA 发布的帖子'}</h5>
       {!isBanned && (
       <ul className="nav nav-tabs mb-3">
@@ -183,7 +177,6 @@ const UserPublicProfile = () => {
         </li>
       </ul>
       )}
-
       {!isBanned && tab === 'all' && (
         <PostList posts={data.community_posts} emptyText="暂无发布的社区帖子" />
       )}
@@ -212,3 +205,4 @@ const UserPublicProfile = () => {
 };
 
 export default UserPublicProfile;
+

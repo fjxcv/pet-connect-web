@@ -1,6 +1,11 @@
+/**
+ * @file CarouselAdminPanel.js
+ * @module PawRescue
+ * @description 可复用组件：CarouselAdminPanel。
+ */
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { petsAPI, portalAPI, uploadAPI } from '../api/api';
-
 const emptyForm = () => ({
   title: '',
   image_url: '',
@@ -8,9 +13,7 @@ const emptyForm = () => ({
   sort_order: 0,
   status: 1,
 });
-
 const toList = (data) => (Array.isArray(data) ? data : data?.results ?? []);
-
 const CarouselAdminPanel = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,7 +24,6 @@ const CarouselAdminPanel = () => {
   const [uploading, setUploading] = useState(false);
   const [adoptPets, setAdoptPets] = useState([]);
   const [selectedPetId, setSelectedPetId] = useState('');
-
   const loadItems = useCallback(async () => {
     setLoading(true);
     setError('');
@@ -34,7 +36,6 @@ const CarouselAdminPanel = () => {
       setLoading(false);
     }
   }, []);
-
   const loadAdoptPets = useCallback(async () => {
     try {
       const res = await petsAPI.getAll({ adoption_status: 'available', is_public: 'true' });
@@ -43,12 +44,10 @@ const CarouselAdminPanel = () => {
       console.error(err);
     }
   }, []);
-
   useEffect(() => {
     loadItems();
     loadAdoptPets();
   }, [loadItems, loadAdoptPets]);
-
   const openEditor = (item) => {
     if (item) {
       setEditingId(item.id);
@@ -66,7 +65,6 @@ const CarouselAdminPanel = () => {
     }
     setShowForm(true);
   };
-
   const handlePetFill = (petId) => {
     setSelectedPetId(petId);
     const pet = adoptPets.find((p) => String(p.id) === String(petId));
@@ -82,7 +80,6 @@ const CarouselAdminPanel = () => {
       link_url: `/pets/${pet.id}`,
     }));
   };
-
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -100,7 +97,6 @@ const CarouselAdminPanel = () => {
       e.target.value = '';
     }
   };
-
   const handleSave = async (e) => {
     e.preventDefault();
     if (!form.image_url.trim()) {
@@ -124,7 +120,6 @@ const CarouselAdminPanel = () => {
       alert(err.response?.data?.detail || '保存失败');
     }
   };
-
   const handleMove = async (index, dir) => {
     const next = index + dir;
     if (next < 0 || next >= items.length) return;
@@ -142,7 +137,6 @@ const CarouselAdminPanel = () => {
       loadItems();
     }
   };
-
   const handleDelete = async (id) => {
     if (!window.confirm('确定删除该轮播项？')) return;
     try {
@@ -152,7 +146,6 @@ const CarouselAdminPanel = () => {
       alert('删除失败');
     }
   };
-
   if (loading) {
     return (
       <div className="text-center py-4">
@@ -162,14 +155,12 @@ const CarouselAdminPanel = () => {
       </div>
     );
   }
-
   return (
     <div>
       {error && <div className="alert alert-danger">{error}</div>}
       <button type="button" className="btn btn-success btn-sm mb-3" onClick={() => openEditor(null)}>
         新建轮播
       </button>
-
       {showForm && (
         <form className="card mb-4" onSubmit={handleSave}>
           <div className="card-header">{editingId ? '编辑轮播' : '新建轮播'}</div>
@@ -228,7 +219,6 @@ const CarouselAdminPanel = () => {
           </div>
         </form>
       )}
-
       <div className="table-responsive">
         <table className="table table-hover align-middle">
           <thead>
@@ -274,3 +264,4 @@ const CarouselAdminPanel = () => {
 };
 
 export default CarouselAdminPanel;
+

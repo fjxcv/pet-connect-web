@@ -1,8 +1,13 @@
+/**
+ * @file Register.js
+ * @module PawRescue
+ * @description 页面组件：Register。
+ */
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authAPI } from '../api/api';
 import { SITE_NAME } from '../constants/site';
-
 const Register = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -11,11 +16,9 @@ const Register = () => {
     password: '',
     has_privacy_consent: false,
   });
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
-
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
@@ -23,37 +26,29 @@ const Register = () => {
       [name]: type === 'checkbox' ? checked : value,
     });
   };
-
   const openPrivacyModal = () => setShowPrivacyModal(true);
   const closePrivacyModal = () => setShowPrivacyModal(false);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!formData.has_privacy_consent) {
       setError('注册前须同意隐私政策。');
       return;
     }
-
     if (formData.password.length < 8) {
       setError('密码长度至少 8 位。');
       return;
     }
-
     setLoading(true);
     setError('');
-
     try {
       await authAPI.register(formData);
       alert(`欢迎加入 ${SITE_NAME}！请登录。`);
       navigate('/login');
     } catch (err) {
       console.error('Registration error details:', err);
-
       if (err.response) {
         const status = err.response.status;
         const data = err.response.data;
-
         if (status === 400) {
           if (data.username) {
             setError(`用户名问题：${data.username[0]}`);
@@ -80,7 +75,6 @@ const Register = () => {
       setLoading(false);
     }
   };
-
   return (
     <div className="login-wrapper d-flex align-items-center justify-content-center min-vh-100">
       <div className="login-card shadow-lg p-4 rounded-4 bg-white">
@@ -91,7 +85,6 @@ const Register = () => {
           <h3 className="fw-bold mt-2 text-paw">欢迎加入 {SITE_NAME}</h3>
           <p className="text-muted">注册后即可参与社区救助与宠物分享。</p>
         </div>
-
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label htmlFor="username" className="form-label fw-semibold">用户名</label>
@@ -106,7 +99,6 @@ const Register = () => {
               placeholder="请输入用户名"
             />
           </div>
-
           <div className="mb-3">
             <label htmlFor="email" className="form-label fw-semibold">邮箱地址</label>
             <input
@@ -120,7 +112,6 @@ const Register = () => {
               placeholder="请输入邮箱地址"
             />
           </div>
-
           <div className="mb-3">
             <label htmlFor="password" className="form-label fw-semibold">设置密码</label>
             <input
@@ -135,7 +126,6 @@ const Register = () => {
               placeholder="至少 8 位字符"
             />
           </div>
-
           <div className="mb-3 form-check">
             <input
               type="checkbox"
@@ -159,13 +149,11 @@ const Register = () => {
               {' '}及数据处理条款 *
             </label>
           </div>
-
           {error && (
             <div className="alert alert-danger rounded-3" role="alert">
               {error}
             </div>
           )}
-
           <button
             type="submit"
             className="btn btn-paw w-100 py-2 rounded-3 fw-semibold"
@@ -174,7 +162,6 @@ const Register = () => {
             {loading ? '注册中...' : '创建账号'}
           </button>
         </form>
-
         <div className="text-center mt-3">
           <p className="text-muted mb-0">
             已有账号？{' '}
@@ -184,7 +171,6 @@ const Register = () => {
           </p>
         </div>
       </div>
-
       {showPrivacyModal && (
         <div
           className="modal fade show d-block"
@@ -212,37 +198,30 @@ const Register = () => {
           </div>
         </div>
       )}
-
       <style>{`
         .login-wrapper {
           background: linear-gradient(to right, #fdf0e5, #fef5ef);
         }
-
         .login-card {
           max-width: 420px;
           width: 100%;
         }
-
         .btn-paw {
           background-color: #A0522D;
           border: none;
           color: white;
           transition: all 0.3s ease;
         }
-
         .btn-paw:hover {
           background-color: #8B4513;
         }
-
         .text-paw {
           color: #A0522D;
         }
-
         .privacy-text {
           font-size: 13px;
           color: #9ca3af;
         }
-
         .privacy-policy-link {
           color: #A0522D;
           text-decoration: none;
@@ -252,16 +231,13 @@ const Register = () => {
           font: inherit;
           cursor: pointer;
         }
-
         .privacy-policy-link:hover {
           text-decoration: underline;
         }
-
         .form-control:focus {
           border-color: #A0522D;
           box-shadow: 0 0 0 0.2rem rgba(160, 82, 45, 0.25);
         }
-
         .logo-placeholder {
           width: 60px;
           height: 60px;
@@ -272,16 +248,13 @@ const Register = () => {
           justify-content: center;
           margin: 0 auto;
         }
-
         .logo-placeholder i {
           color: white;
         }
-
         /* 弹窗底部按钮居中核心样式 */
         .modal-footer {
           justify-content: center;
         }
-
         @media (max-width: 576px) {
           .login-card {
             padding: 2rem 1.5rem;
@@ -293,3 +266,4 @@ const Register = () => {
 };
 
 export default Register;
+

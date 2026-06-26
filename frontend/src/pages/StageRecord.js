@@ -1,18 +1,21 @@
+/**
+ * @file StageRecord.js
+ * @module PawRescue
+ * @description 页面组件：StageRecord。
+ */
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { rescueAPI } from '../api/api';
-
 // 格式化时间为 "年.月.日 时:分"
 const formatDateTime = (iso) => {
   if (!iso) return '—';
   const d = new Date(iso);
   return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 };
-
 const StageRecord = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
   const [caseData, setCaseData] = useState(null);
   const [records, setRecords] = useState([]);
   const [content, setContent] = useState('');
@@ -21,7 +24,6 @@ const StageRecord = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [validationError, setValidationError] = useState('');
-
   // 加载救助案例和已有记录
   const fetchData = useCallback(async () => {
     try {
@@ -40,20 +42,16 @@ const StageRecord = () => {
       setLoading(false);
     }
   }, [id]);
-
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-
   // 提交记录
   const handleSubmit = async () => {
     setValidationError('');
-
     if (!content.trim()) {
       setValidationError('请填写当前阶段的详细记录');
       return;
     }
-
     try {
       setSubmitting(true);
       const res = await rescueAPI.addStageRecord(id, { content: content.trim() });
@@ -69,12 +67,10 @@ const StageRecord = () => {
       setSubmitting(false);
     }
   };
-
   // 返回我的救助页
   const handleBack = () => {
     navigate('/my-rescues');
   };
-
   // 加载中
   if (loading) {
     return (
@@ -84,7 +80,6 @@ const StageRecord = () => {
       </div>
     );
   }
-
   // 加载失败
   if (error) {
     return (
@@ -104,7 +99,6 @@ const StageRecord = () => {
       </div>
     );
   }
-
   // 填写成功提示
   if (success) {
     return (
@@ -126,7 +120,6 @@ const StageRecord = () => {
       </div>
     );
   }
-
   return (
     <div className="py-3">
       <div className="row">
@@ -135,13 +128,11 @@ const StageRecord = () => {
           <h2 className="mb-4">
             <i className="fas fa-clipboard-list me-2 text-success"></i>填写记录
           </h2>
-
           {/* 救助编号 */}
           <div className="mb-3">
             <span className="text-muted">救助编号：</span>
             <span className="fw-bold">{caseData?.rescue_no}</span>
           </div>
-
           {/* 输入区域 */}
           <div className="card mb-4">
             <div className="card-body">
@@ -162,7 +153,6 @@ const StageRecord = () => {
                   disabled={submitting}
                 ></textarea>
               </div>
-
               {/* 校验错误 */}
               {validationError && (
                 <div className="alert alert-danger py-2 mb-3">
@@ -170,7 +160,6 @@ const StageRecord = () => {
                   {validationError}
                 </div>
               )}
-
               {/* 操作按钮 */}
               <div className="d-flex justify-content-center gap-2">
                 <button
@@ -201,7 +190,6 @@ const StageRecord = () => {
               </div>
             </div>
           </div>
-
           {/* 历史记录列表 */}
           {records.length > 0 && (
             <div className="card">
@@ -239,3 +227,4 @@ const StageRecord = () => {
 };
 
 export default StageRecord;
+

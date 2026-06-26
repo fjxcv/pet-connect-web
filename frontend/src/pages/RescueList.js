@@ -1,10 +1,14 @@
+/**
+ * @file RescueList.js
+ * @module PawRescue
+ * @description 页面组件：RescueList。
+ */
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { rescueAPI } from '../api/api';
 import { SIZE_CATEGORY, HEALTH_STATUS } from '../constants/site';
-
 const MY_RESCUES_KEY = 'pet_connect_my_rescues';
-
 const loadMyRescues = () => {
   try {
     return JSON.parse(localStorage.getItem(MY_RESCUES_KEY) || '[]');
@@ -12,7 +16,6 @@ const loadMyRescues = () => {
     return [];
   }
 };
-
 const getCurrentUserId = () => {
   try {
     const user = JSON.parse(localStorage.getItem('user') || 'null');
@@ -21,40 +24,30 @@ const getCurrentUserId = () => {
     return null;
   }
 };
-
 const saveMyRescues = (records) => {
   localStorage.setItem(MY_RESCUES_KEY, JSON.stringify(records));
 };
-
 // 去掉经纬度（格式如 "地址（30.123, 104.456）"）
 const stripCoord = (addr) => {
   if (!addr) return addr;
   return addr.replace(/（\d+\.?\d*,\s*\d+\.?\d*）$/, '').trim();
 };
-
 // 根据新字段构建描述文本
 const buildDescription = (item) => {
   const hasNewFields = item.size_category || item.health_status || item.nickname || item.contact;
-
   if (!hasNewFields) {
     return { narrative: item.appearance || '暂无描述', detail: '' };
   }
-
   const name = item.nickname || '某用户';
   const location = stripCoord(item.discover_address) || '某处';
-
   const narrative = `${name}在${location}发现一只流浪动物，待人前来救助...`;
-
   const parts = [];
   if (item.size_category) parts.push(`体型: ${SIZE_CATEGORY[item.size_category] || item.size_category}`);
   if (item.health_status) parts.push(`健康: ${HEALTH_STATUS[item.health_status] || item.health_status}`);
   parts.push(`怕人: ${item.afraid_of_people ? '是' : '否'}`);
-
   const detail = '详情：' + parts.join('，');
-
   return { narrative, detail };
 };
-
 const RescueList = () => {
   const navigate = useNavigate();
   const [cases, setCases] = useState([]);
@@ -62,7 +55,6 @@ const RescueList = () => {
   const [error, setError] = useState(null);
   const [helpingId, setHelpingId] = useState(null);
   const [contactModal, setContactModal] = useState(null); // 存 item，含 contact 字段
-
   const fetchCases = useCallback(async () => {
     try {
       setLoading(true);
@@ -85,17 +77,14 @@ const RescueList = () => {
       setLoading(false);
     }
   }, []);
-
   useEffect(() => {
     fetchCases();
   }, [fetchCases]);
-
   const formatTime = (iso) => {
     const d = new Date(iso);
     const pad = (n) => String(n).padStart(2, '0');
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   };
-
   const handleHelp = async (item) => {
     setHelpingId(item.id);
     try {
@@ -112,11 +101,9 @@ const RescueList = () => {
       setHelpingId(null);
     }
   };
-
   const handleConfirmContact = () => {
     setContactModal(null);
   };
-
   return (
     <div className="py-3" style={{ minHeight: 'calc(100vh - 160px)' }}>
       {/* 顶部：标题 + 三个功能入口按钮 */}
@@ -136,14 +123,12 @@ const RescueList = () => {
           </button>
         </div>
       </div>
-
       {loading && (
         <div className="text-center py-5">
           <div className="spinner-border text-success" role="status"></div>
           <p className="mt-2 text-muted">加载中...</p>
         </div>
       )}
-
       {error && (
         <div className="alert alert-danger d-flex align-items-center gap-2">
           <i className="fas fa-exclamation-triangle"></i>
@@ -153,7 +138,6 @@ const RescueList = () => {
           </button>
         </div>
       )}
-
       {!loading && !error && cases.length === 0 && (
         <div className="text-center py-5">
           <i className="fas fa-inbox fa-3x text-muted mb-3 d-block"></i>
@@ -162,7 +146,6 @@ const RescueList = () => {
           </p>
         </div>
       )}
-
       {!loading && !error && cases.length > 0 && (
         <div className="row">
           <div className="col-lg-8 mx-auto">
@@ -192,7 +175,6 @@ const RescueList = () => {
                           </div>
                         )}
                       </div>
-
                       <div className="flex-grow-1 d-flex flex-column justify-content-center px-3 py-2 min-w-0" style={{ overflow: 'hidden' }}>
                         <p className="mb-1" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'break-word', lineHeight: 1.6 }}>
                           {narrative}
@@ -206,7 +188,6 @@ const RescueList = () => {
                           救助编号：{item.rescue_no} · 发布于{formatTime(item.created_at)}
                         </small>
                       </div>
-
                       <div className="flex-shrink-0 d-flex flex-column justify-content-end align-items-end px-2 py-2" style={{ minWidth: 80 }}>
                         {item.reporter?.id === getCurrentUserId() ? (
                           <span className="badge bg-secondary">我的上报</span>
@@ -229,7 +210,6 @@ const RescueList = () => {
           </div>
         </div>
       )}
-
       {/* 联系方式弹窗 */}
       {contactModal && (
         <div className="modal d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
@@ -268,3 +248,4 @@ const RescueList = () => {
 };
 
 export default RescueList;
+

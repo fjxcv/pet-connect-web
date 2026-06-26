@@ -1,14 +1,18 @@
+/**
+ * @file AdoptApplication.js
+ * @module PawRescue
+ * @description 页面组件：AdoptApplication。
+ */
+
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { adoptAPI, petsAPI, uploadAPI } from '../api/api';
-
 const GENDER_OPTIONS = [
   { value: '', label: '请选择' },
   { value: 'male', label: '男' },
   { value: 'female', label: '女' },
   { value: 'undisclosed', label: '不愿透露' },
 ];
-
 const HOUSING_TYPE_OPTIONS = [
   { value: 'villa', label: '别墅' },
   { value: 'apartment', label: '普通住宅' },
@@ -16,28 +20,23 @@ const HOUSING_TYPE_OPTIONS = [
   { value: 'farm', label: '农场' },
   { value: 'other', label: '其他' },
 ];
-
 const OWN_RENT_OPTIONS = [
   { value: 'own', label: '自有房' },
   { value: 'rent', label: '租房' },
 ];
-
 const OUTDOOR_AREA_OPTIONS = [
   { value: 'yard', label: '院子或后院' },
   { value: 'park', label: '家附近的公园' },
   { value: 'rooftop', label: '屋顶和停车场' },
   { value: 'other', label: '其他' },
 ];
-
 const YES_NO_OPTIONS = [
   { value: 'yes', label: '是' },
   { value: 'no', label: '否' },
 ];
-
 const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
 const ALLOWED_FILE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-
 const INITIAL_FORM = {
   full_name: '',
   address: '',
@@ -55,41 +54,34 @@ const INITIAL_FORM = {
   pet_experience_desc: '',
   future_changes: '',
 };
-
 const AdoptApplication = () => {
   const { petId } = useParams();
   const navigate = useNavigate();
   const [pet, setPet] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   // 步骤控制：1=问卷, 2=上传, 3=成功
   const [step, setStep] = useState(1);
   const [applicationId, setApplicationId] = useState(null);
-
   // 步骤1：表单
   const [form, setForm] = useState({ ...INITIAL_FORM });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
-
   // 步骤2：文件上传
   const [idCardFile, setIdCardFile] = useState(null);
   const [housingProofFile, setHousingProofFile] = useState(null);
   const [fileErrors, setFileErrors] = useState({});
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
-
   const idCardInputRef = useRef(null);
   const housingProofInputRef = useRef(null);
-
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
       navigate('/login');
       return;
     }
-
     const fetchPet = async () => {
       try {
         setLoading(true);
@@ -105,19 +97,15 @@ const AdoptApplication = () => {
         setLoading(false);
       }
     };
-
     fetchPet();
   }, [petId, navigate]);
-
   // ===== 步骤1：表单处理 =====
-
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: null }));
     }
   };
-
   const handleOutdoorAreaToggle = (value) => {
     setForm((prev) => {
       const areas = prev.outdoor_areas.includes(value)
@@ -126,7 +114,6 @@ const AdoptApplication = () => {
       return { ...prev, outdoor_areas: areas };
     });
   };
-
   const validateStep1 = () => {
     const newErrors = {};
     if (!form.full_name.trim()) newErrors.full_name = '请填写姓名';
@@ -160,25 +147,20 @@ const AdoptApplication = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleStep1Submit = async (e) => {
     e.preventDefault();
     if (!validateStep1()) return;
-
     try {
       setSubmitting(true);
       setSubmitError(null);
-
       const answers = { ...form };
       if (answers.housing_type !== 'other') delete answers.housing_type_other;
       if (!answers.outdoor_areas.includes('other')) delete answers.outdoor_areas_other;
       if (answers.has_pet_experience !== 'yes') delete answers.pet_experience_desc;
-
       const appRes = await adoptAPI.create({
         pet_id: parseInt(petId),
         message: `领养申请 - ${pet?.name || ''}`,
       });
-
       await adoptAPI.submitQuestionnaire(appRes.data.id, answers);
       setApplicationId(appRes.data.id);
       setStep(2);
@@ -191,9 +173,7 @@ const AdoptApplication = () => {
       setSubmitting(false);
     }
   };
-
   // ===== 步骤2：文件上传处理 =====
-
   const validateFile = (file, fieldName) => {
     if (!file) return '请选择文件';
     const ext = '.' + file.name.split('.').pop().toLowerCase();
@@ -205,7 +185,6 @@ const AdoptApplication = () => {
     }
     return null;
   };
-
   const handleIdCardSelect = (e) => {
     const file = e.target.files?.[0] || null;
     setIdCardFile(file);
@@ -213,7 +192,6 @@ const AdoptApplication = () => {
       setFileErrors((prev) => ({ ...prev, id_card: null }));
     }
   };
-
   const handleHousingProofSelect = (e) => {
     const file = e.target.files?.[0] || null;
     setHousingProofFile(file);
@@ -221,10 +199,8 @@ const AdoptApplication = () => {
       setFileErrors((prev) => ({ ...prev, housing_proof: null }));
     }
   };
-
   const handleStep2Submit = async (e) => {
     e.preventDefault();
-
     const newFileErrors = {};
     const idErr = validateFile(idCardFile, 'id_card');
     const housingErr = validateFile(housingProofFile, 'housing_proof');
@@ -232,11 +208,9 @@ const AdoptApplication = () => {
     if (housingErr) newFileErrors.housing_proof = housingErr;
     setFileErrors(newFileErrors);
     if (Object.keys(newFileErrors).length > 0) return;
-
     try {
       setUploading(true);
       setUploadError(null);
-
       // 上传身份证
       const idUploadRes = await uploadAPI.upload(idCardFile, 'adopt');
       await adoptAPI.addAttachment(applicationId, {
@@ -244,7 +218,6 @@ const AdoptApplication = () => {
         file_url: idUploadRes.data.url,
         file_size: idCardFile.size,
       });
-
       // 上传居住证明
       const housingUploadRes = await uploadAPI.upload(housingProofFile, 'adopt');
       await adoptAPI.addAttachment(applicationId, {
@@ -252,7 +225,6 @@ const AdoptApplication = () => {
         file_url: housingUploadRes.data.url,
         file_size: housingProofFile.size,
       });
-
       setStep(3);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
@@ -262,9 +234,7 @@ const AdoptApplication = () => {
       setUploading(false);
     }
   };
-
   // ===== 渲染 =====
-
   if (loading) {
     return (
       <div className="text-center py-5">
@@ -275,7 +245,6 @@ const AdoptApplication = () => {
       </div>
     );
   }
-
   if (error && !pet) {
     return (
       <div className="container py-4 text-center">
@@ -288,7 +257,6 @@ const AdoptApplication = () => {
       </div>
     );
   }
-
   return (
     <div className="adopt-application-page">
       {/* ===== 面包屑导航 ===== */}
@@ -304,7 +272,6 @@ const AdoptApplication = () => {
           </nav>
         </div>
       </div>
-
       <div className="container py-4">
         <div className="row justify-content-center">
           <div className="col-lg-10 col-xl-9">
@@ -331,7 +298,6 @@ const AdoptApplication = () => {
                 <span className={`step-dot-label ${step >= 3 ? 'active' : ''}`}>完成</span>
               </div>
             </div>
-
             {/* ===== 步骤1：问卷表单 ===== */}
             {step === 1 && (
               <div className="form-card">
@@ -358,7 +324,6 @@ const AdoptApplication = () => {
                       />
                       {errors.full_name && <div className="invalid-feedback d-block">{errors.full_name}</div>}
                     </div>
-
                     {/* 2. 地址 */}
                     <div className="form-field mb-4">
                       <label className="form-label-lg">
@@ -374,7 +339,6 @@ const AdoptApplication = () => {
                       />
                       {errors.address && <div className="invalid-feedback d-block">{errors.address}</div>}
                     </div>
-
                     {/* 3. 电话 + 微信 */}
                     <div className="row mb-4">
                       <div className="col-md-6">
@@ -410,7 +374,6 @@ const AdoptApplication = () => {
                         </div>
                       </div>
                     </div>
-
                     {/* 4. 性别 / 年龄 */}
                     <div className="form-field mb-4">
                       <label className="form-label-lg">
@@ -447,7 +410,6 @@ const AdoptApplication = () => {
                         </div>
                       </div>
                     </div>
-
                     {/* 5. 住宅类型 */}
                     <div className="form-field mb-4">
                       <label className="form-label-lg">
@@ -480,7 +442,6 @@ const AdoptApplication = () => {
                       )}
                       {errors.housing_type_other && <div className="invalid-feedback d-block">{errors.housing_type_other}</div>}
                     </div>
-
                     {/* 6. 自有房还是租房 */}
                     <div className="form-field mb-4">
                       <label className="form-label-lg">
@@ -503,7 +464,6 @@ const AdoptApplication = () => {
                       </div>
                       {errors.own_or_rent && <div className="text-danger small mt-1">{errors.own_or_rent}</div>}
                     </div>
-
                     {/* 7. 户外区域 */}
                     <div className="form-field mb-4">
                       <label className="form-label-lg">
@@ -536,7 +496,6 @@ const AdoptApplication = () => {
                       )}
                       {errors.outdoor_areas_other && <div className="invalid-feedback d-block">{errors.outdoor_areas_other}</div>}
                     </div>
-
                     {/* 8. 同住人/房东是否同意 */}
                     <div className="form-field mb-4">
                       <label className="form-label-lg">
@@ -559,7 +518,6 @@ const AdoptApplication = () => {
                       </div>
                       {errors.roommate_consent && <div className="text-danger small mt-1">{errors.roommate_consent}</div>}
                     </div>
-
                     {/* 9. 是否养过宠物 */}
                     <div className="form-field mb-4">
                       <label className="form-label-lg">
@@ -594,7 +552,6 @@ const AdoptApplication = () => {
                         </div>
                       )}
                     </div>
-
                     {/* 10. 未来6个月变化 */}
                     <div className="form-field mb-4">
                       <label className="form-label-lg">
@@ -609,13 +566,11 @@ const AdoptApplication = () => {
                         onChange={(e) => handleChange('future_changes', e.target.value)}
                       />
                     </div>
-
                     {submitError && (
                       <div className="alert alert-danger">
                         <i className="fas fa-exclamation-circle me-2"></i>{submitError}
                       </div>
                     )}
-
                     <div className="form-actions">
                       <button
                         type="submit"
@@ -638,7 +593,6 @@ const AdoptApplication = () => {
                 </div>
               </div>
             )}
-
             {/* ===== 步骤2：文件上传 ===== */}
             {step === 2 && (
               <div className="form-card">
@@ -655,7 +609,6 @@ const AdoptApplication = () => {
                       <i className="fas fa-info-circle me-2 text-success"></i>
                       请上传以下证明材料，以便工作人员审核您的领养资格。
                     </div>
-
                     {/* a) 居民身份证 */}
                     <div className="form-field mb-4">
                       <label className="form-label-lg">
@@ -706,7 +659,6 @@ const AdoptApplication = () => {
                       />
                       {fileErrors.id_card && <div className="text-danger small mt-1">{fileErrors.id_card}</div>}
                     </div>
-
                     {/* b) 居住证明 */}
                     <div className="form-field mb-4">
                       <label className="form-label-lg">
@@ -757,13 +709,11 @@ const AdoptApplication = () => {
                       />
                       {fileErrors.housing_proof && <div className="text-danger small mt-1">{fileErrors.housing_proof}</div>}
                     </div>
-
                     {uploadError && (
                       <div className="alert alert-danger">
                         <i className="fas fa-exclamation-circle me-2"></i>{uploadError}
                       </div>
                     )}
-
                     <div className="form-actions d-flex gap-3">
                       <button
                         type="button"
@@ -794,7 +744,6 @@ const AdoptApplication = () => {
                 </div>
               </div>
             )}
-
             {/* ===== 步骤3：成功页 ===== */}
             {step === 3 && (
               <div className="form-card">
@@ -822,7 +771,6 @@ const AdoptApplication = () => {
           </div>
         </div>
       </div>
-
       {/* ===== 样式 ===== */}
       <style>{`
         .adopt-application-page {
@@ -830,14 +778,12 @@ const AdoptApplication = () => {
           min-height: 100vh;
           padding-bottom: 3rem;
         }
-
         .detail-breadcrumb {
           background: white;
           border-bottom: 1px solid #eee;
           padding: 0.75rem 0;
         }
         .breadcrumb { font-size: 0.9rem; }
-
         /* 页面标题行 + 步骤指示器 */
         .page-header-row {
           display: flex;
@@ -855,7 +801,6 @@ const AdoptApplication = () => {
         .page-title strong {
           color: #00C897;
         }
-
         /* 步骤指示器 */
         .step-indicator {
           display: flex;
@@ -909,7 +854,6 @@ const AdoptApplication = () => {
         .step-connector.completed {
           background: #28a745;
         }
-
         /* 表单卡片 */
         .form-card {
           background: white;
@@ -928,7 +872,6 @@ const AdoptApplication = () => {
         .form-card-body {
           padding: 2rem;
         }
-
         /* 表单字段编号 */
         .form-label-lg {
           font-size: 1rem;
@@ -952,7 +895,6 @@ const AdoptApplication = () => {
           font-weight: 700;
           flex-shrink: 0;
         }
-
         /* 单选卡片组 */
         .radio-group {
           display: flex;
@@ -989,7 +931,6 @@ const AdoptApplication = () => {
         .radio-card:hover .radio-card-label {
           border-color: #00C897;
         }
-
         /* 多选卡片组 */
         .checkbox-group {
           display: flex;
@@ -1035,7 +976,6 @@ const AdoptApplication = () => {
         .checkbox-card:hover .checkbox-card-label {
           border-color: #00C897;
         }
-
         /* 表单控件 */
         .form-control-lg, .form-select {
           border-radius: 10px;
@@ -1050,7 +990,6 @@ const AdoptApplication = () => {
         .form-control-lg::placeholder {
           color: #c0c0c0;
         }
-
         /* ===== 文件上传区域 ===== */
         .upload-intro {
           background: #e9f7f2;
@@ -1059,7 +998,6 @@ const AdoptApplication = () => {
           color: #00A87A;
           font-size: 0.9rem;
         }
-
         .file-upload-box {
           border: 2px dashed #d0d0d0;
           border-radius: 12px;
@@ -1081,14 +1019,12 @@ const AdoptApplication = () => {
           border-color: #dc3545;
           background: #fff5f5;
         }
-
         .upload-placeholder {
           display: flex;
           flex-direction: column;
           align-items: center;
           gap: 0.25rem;
         }
-
         .file-info {
           display: flex;
           align-items: center;
@@ -1131,7 +1067,6 @@ const AdoptApplication = () => {
           background: #dc3545;
           color: white;
         }
-
         /* 提交按钮 */
         .form-actions {
           margin-top: 2rem;
@@ -1162,7 +1097,6 @@ const AdoptApplication = () => {
         .btn-submit:disabled {
           opacity: 0.7;
         }
-
         /* ===== 成功页 ===== */
         .success-icon-wrapper {
           animation: scaleIn 0.6s ease;
@@ -1181,7 +1115,6 @@ const AdoptApplication = () => {
           font-size: 1.05rem;
           color: #666;
         }
-
         /* 响应式 */
         @media (max-width: 768px) {
           .page-header-row {
@@ -1201,3 +1134,4 @@ const AdoptApplication = () => {
 };
 
 export default AdoptApplication;
+

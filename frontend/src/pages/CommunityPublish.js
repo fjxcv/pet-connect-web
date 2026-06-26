@@ -1,14 +1,18 @@
+/**
+ * @file CommunityPublish.js
+ * @module PawRescue
+ * @description 页面组件：CommunityPublish。
+ */
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { communityAPI } from '../api/api';
 import { uploadAPI } from '../api/pets';
 import { POST_CATEGORIES } from '../constants/site';
-
 const CATEGORY_OPTIONS = Object.entries(POST_CATEGORIES).map(([value, label]) => ({ value, label }));
 const MAX_IMAGES = 9;
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
-
 const CommunityPublish = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
@@ -19,17 +23,14 @@ const CommunityPublish = () => {
   const [error, setError] = useState('');
   const [uploadError, setUploadError] = useState('');
   const [dragActive, setDragActive] = useState(false);
-
   useEffect(() => {
     return () => {
       imageItems.forEach((item) => URL.revokeObjectURL(item.preview));
     };
   }, [imageItems]);
-
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-
   const validateImageFile = (file) => {
     const ext = file.name.split('.').pop()?.toLowerCase();
     if (!ext || !ALLOWED_IMAGE_EXTENSIONS.includes(ext)) {
@@ -40,19 +41,15 @@ const CommunityPublish = () => {
     }
     return '';
   };
-
   const uploadFiles = async (files) => {
     const selected = Array.from(files);
     if (!selected.length) return;
-
     if (imageItems.length + selected.length > MAX_IMAGES) {
       setUploadError(`最多只能上传 ${MAX_IMAGES} 张图片`);
       return;
     }
-
     setUploadError('');
     setUploading(true);
-
     try {
       for (const file of selected) {
         const invalidMessage = validateImageFile(file);
@@ -60,7 +57,6 @@ const CommunityPublish = () => {
           setUploadError(invalidMessage);
           continue;
         }
-
         const preview = URL.createObjectURL(file);
         const response = await uploadAPI.upload(file, 'community');
         setImageItems((prev) => [
@@ -75,17 +71,14 @@ const CommunityPublish = () => {
       setUploading(false);
     }
   };
-
   const handleFileInputChange = async (e) => {
     await uploadFiles(e.target.files);
     e.target.value = '';
   };
-
   const handleDragOver = (e) => {
     e.preventDefault();
     e.stopPropagation();
   };
-
   const handleDrop = async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -94,7 +87,6 @@ const CommunityPublish = () => {
       await uploadFiles(e.dataTransfer.files);
     }
   };
-
   const handleRemoveImage = (index) => {
     setImageItems((prev) => {
       const next = [...prev];
@@ -105,7 +97,6 @@ const CommunityPublish = () => {
       return next;
     });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -129,7 +120,6 @@ const CommunityPublish = () => {
       setSubmitting(false);
     }
   };
-
   return (
     <div className="py-3">
       <nav aria-label="breadcrumb" className="mb-3">
@@ -138,12 +128,9 @@ const CommunityPublish = () => {
           <li className="breadcrumb-item active">发帖</li>
         </ol>
       </nav>
-
       <h2 className="mb-4"><i className="fas fa-pen me-2 text-success"></i>发布帖子</h2>
-
       {error && <div className="alert alert-danger">{error}</div>}
       {uploadError && <div className="alert alert-warning">{uploadError}</div>}
-
       <form onSubmit={handleSubmit} className="card shadow-sm">
         <div className="card-body">
           <div className="mb-3">
@@ -210,7 +197,6 @@ const CommunityPublish = () => {
               disabled={uploading || submitting}
             />
           </div>
-
           {imageItems.length > 0 && (
             <div className="mb-3">
               <div className="row g-2">
@@ -250,3 +236,4 @@ const CommunityPublish = () => {
 };
 
 export default CommunityPublish;
+
